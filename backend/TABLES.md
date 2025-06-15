@@ -73,15 +73,15 @@
 
 ### 评论表（comment）
 
-| 字段名         | 类型       | 说明                    | 关联关系      |
-|-------------|----------|-----------------------|-----------|
-| id          | bigint   | 主键                    | -         |
-| user_id     | bigint   | 评论用户ID（关联user表）       | `user.id` |
-| book_id     | bigint   | 图书ID（关联book表）         | `book.id` |
-| content     | text     | 评论内容                  | -         |
-| rating      | int      | 评分（1-5星）              | -         |
-| create_time | datetime | 评论时间                  | -         |
-| status      | tinyint  | 状态（1：审核中，2：已发布，3：已删除） | -         |
+| 字段名         | 类型           | 说明                    | 关联关系      |
+|-------------|--------------|-----------------------|-----------|
+| id          | bigint       | 主键                    | -         |
+| user_id     | bigint       | 评论用户ID（关联user表）       | `user.id` |
+| book_id     | bigint       | 图书ID（关联book表）         | `book.id` |
+| content     | text         | 评论内容                  | -         |
+| rating      | decimal(2,1) | 评分（1-5星，允许0.5分制）      | -         |
+| create_time | datetime     | 评论时间                  | -         |
+| status      | tinyint      | 状态（1：审核中，2：已发布，3：已删除） | -         |
 
 ### 图书副本表（book_copy）
 
@@ -139,13 +139,13 @@
 
 ### 图书出版社关联表（book_publisher）
 
-| 字段名                 | 类型           | 说明                      | 关联关系           |
-|---------------------|--------------|-------------------------|----------------|
-| id                  | bigint       | 主键                      | -              |
-| book_id             | bigint       | 图书ID（外键，关联book表）        | `book.id`      |
-| publisher_id        | bigint       | 出版社ID（外键，关联publisher表）  | `publisher.id` |
-| create_time         | datetime     | 创建时间                    | -              |
-| update_time         | datetime     | 更新时间                    | -              |
+| 字段名          | 类型       | 说明                     | 关联关系           |
+|--------------|----------|------------------------|----------------|
+| id           | bigint   | 主键                     | -              |
+| book_id      | bigint   | 图书ID（外键，关联book表）       | `book.id`      |
+| publisher_id | bigint   | 出版社ID（外键，关联publisher表） | `publisher.id` |
+| create_time  | datetime | 创建时间                   | -              |
+| update_time  | datetime | 更新时间                   | -              |
 
 ## 整体E-R图
 
