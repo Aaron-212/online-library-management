@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 
@@ -48,6 +49,11 @@ public class User {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime lastUpdateTime;
+
+    public UserDetails toUserDetails() {
+        return new org.springframework.security.core.userdetails.User(this.username, this.passwordHash, true, true,
+                true, true, java.util.Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + this.role.name())));
+    }
 
     @Getter
     public enum Role {
