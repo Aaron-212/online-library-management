@@ -2,6 +2,7 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.LoginRequest;
 import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
+import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -42,7 +43,9 @@ public class AuthController {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
                     loginRequest.getPassword()));
 
-            String token = jwtService.generateToken(loginRequest.getUsername());
+            User user = service.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            String token = jwtService.generateToken(loginRequest.getUsername(), user.getLastUpdateTime());
             return new ResponseEntity<>(token, HttpStatus.OK);
         } catch (AuthenticationException e) {
             return new ResponseEntity<>("Invalid username or password!", HttpStatus.UNAUTHORIZED);

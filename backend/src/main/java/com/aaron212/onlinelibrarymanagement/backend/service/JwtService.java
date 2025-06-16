@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,17 +24,17 @@ public class JwtService {
     private String jwtSecret;
 
     private SecretKey key;
+    @Value("${jwt.expirationMs}")
+    private int jwtExpirationMs;
 
     @PostConstruct
     private void initializeKey() {
         key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    @Value("${jwt.expirationMs}")
-    private int jwtExpirationMs;
-
-    public String generateToken(String userName) {
+    public String generateToken(String userName, Timestamp updateTime) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("updateTime", updateTime);
         return createToken(claims, userName);
     }
 

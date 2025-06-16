@@ -6,7 +6,9 @@ import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+import java.sql.Timestamp;
+
+@Mapper
 public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
@@ -14,4 +16,8 @@ public interface UserMapper {
     UserDto toUserRecord(User user);
 
     UserFullDto toUserFullRecord(User user);
+
+    default Long map(Timestamp value) {
+        return value != null ? value.getTime() : null;
+    }
 }

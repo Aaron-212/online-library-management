@@ -1,7 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
-import com.aaron212.onlinelibrarymanagement.backend.dto.UserFullDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserModifyDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
 import org.springframework.context.annotation.Lazy;
@@ -54,10 +54,9 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id);
     }
 
-    public User updateUserDetails(User user, UserFullDto userFullDto) {
-        user.setUsername(userFullDto.username());
-        user.setEmail(userFullDto.email());
-        user.setRole(User.Role.valueOf(userFullDto.role()));
+    public User updateUserDetails(User user, UserModifyDto userModifyDto) {
+        user.setUsername(userModifyDto.username());
+        user.setEmail(userModifyDto.email());
         // Note: Password should not be updated here unless explicitly provided in the DTO
         // If password update is needed, handle it separately
         return userRepository.save(user);

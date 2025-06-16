@@ -2,6 +2,7 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserFullDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserModifyDto;
 import com.aaron212.onlinelibrarymanagement.backend.mapper.UserMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
@@ -41,7 +42,8 @@ public class UserController {
     @GetMapping("/myDetails")
     public ResponseEntity<UserFullDto> getUserRole(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            User user = (User) authentication.getPrincipal();
+            User user = service.findByUsername(authentication.getName())
+                    .orElseThrow();
             UserFullDto userFullRecord = UserMapper.INSTANCE.toUserFullRecord(user);
 
             return ResponseEntity.ok(userFullRecord);
@@ -51,11 +53,12 @@ public class UserController {
     }
 
     @PostMapping("/editMyDetails")
-    public ResponseEntity<UserFullDto> editMyDetails(@RequestBody UserFullDto userFullDto,
+    public ResponseEntity<UserFullDto> editMyDetails(@RequestBody UserModifyDto userModifyDto,
                                                      Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            User user = (User) authentication.getPrincipal();
-            User updatedUser = service.updateUserDetails(user, userFullDto);
+            User user = service.findByUsername(authentication.getName())
+                    .orElseThrow();
+            User updatedUser = service.updateUserDetails(user, userModifyDto);
             UserFullDto response = UserMapper.INSTANCE.toUserFullRecord(updatedUser);
 
             return ResponseEntity.ok(response);
