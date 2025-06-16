@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { RouterLink } from 'vue-router'
-import { BookOpen, Clock, Home, Library, Search, Users } from 'lucide-vue-next'
+import { RouterLink, useRouter } from 'vue-router'
+import { BookOpen, Clock, Home, Library, Search, Users, LogOut } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useAuthStore } from '@/stores/auth'
 import {
   Sidebar,
   SidebarContent,
@@ -50,6 +51,14 @@ const libraryItems = [
     icon: Library,
   },
 ]
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -104,13 +113,19 @@ const libraryItems = [
             <RouterLink class="flex items-center gap-2" to="/profile">
               <Avatar class="h-8 w-8">
                 <AvatarImage alt="User" src="/placeholder-avatar.jpg" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarFallback>{{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}</AvatarFallback>
               </Avatar>
               <div class="flex flex-col items-start">
-                <span class="text-sm font-medium">User Profile</span>
+                <span class="text-sm font-medium">{{ authStore.user?.username || 'User' }}</span>
                 <span class="text-xs text-muted-foreground">View profile</span>
               </div>
             </RouterLink>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton class="h-10 px-2 text-destructive hover:text-destructive" @click="handleLogout">
+            <LogOut class="h-4 w-4" />
+            <span>Logout</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

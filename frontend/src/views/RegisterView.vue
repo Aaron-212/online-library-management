@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Eye, EyeOff, Loader2, Lock, Mail, User, UserPlus } from 'lucide-vue-next'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const username = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const isLoading = ref(false)
 const errorMessage = ref('')
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -53,27 +54,23 @@ const handleRegister = async () => {
     return
   }
 
-  isLoading.value = true
   errorMessage.value = ''
 
   try {
-    // TODO: Implement actual registration logic here
-    console.log('Registration attempt:', {
-      username: username.value,
-      email: email.value,
-      password: password.value,
-    })
+    const result = await authStore.register(username.value, email.value, password.value)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    // For now, just redirect to login with success message
-    router.push('/login')
+    if (result.success) {
+      // Success - redirect to login page
+      router.push({
+        path: '/login',
+        query: { message: result.message || 'Registration successful! Please log in.' }
+      })
+    } else {
+      errorMessage.value = result.message || 'Registration failed. Please try again.'
+    }
   } catch (error) {
-    errorMessage.value = 'Registration failed. Please try again.'
+    errorMessage.value = 'An unexpected error occurred. Please try again.'
     console.error('Registration error:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -195,10 +192,10 @@ const goToLogin = () => {
             {{ errorMessage }}
           </div>
 
-          <Button :disabled="isLoading" class="w-full" type="submit">
-            <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
+          <Button :disabled="authStore.isLoading" class="w-full" type="submit">
+            <Loader2 v-if="authStore.isLoading" class="mr-2 h-4 w-4 animate-spin" />
             <UserPlus v-else class="mr-2 h-4 w-4" />
-            <span v-if="isLoading">Creating account...</span>
+            <span v-if="authStore.isLoading">Creating account...</span>
             <span v-else>Create account</span>
           </Button>
         </form>

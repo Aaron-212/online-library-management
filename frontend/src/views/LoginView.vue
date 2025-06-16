@@ -1,17 +1,29 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Eye, EyeOff, Loader2, Lock, User } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
 
 const username = ref('')
 const password = ref('')
-const isLoading = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
 const showPassword = ref(false)
+
+// Check for success message from registration
+onMounted(() => {
+  if (route.query.message) {
+    successMessage.value = route.query.message as string
+    // Clear the query parameter
+    router.replace({ path: '/login' })
+  }
+})
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
@@ -23,23 +35,20 @@ const handleLogin = async () => {
     return
   }
 
-  isLoading.value = true
   errorMessage.value = ''
 
   try {
-    // TODO: Implement actual login logic here
-    console.log('Login attempt:', { email: username.value, password: password.value })
+    const result = await authStore.login(username.value, password.value)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // For now, just redirect to dashboard
-    router.push('/dashboard')
+    if (result.success) {
+      // Redirect to dashboard on successful login
+      router.push('/dashboard')
+    } else {
+      errorMessage.value = result.message || 'Login failed. Please try again.'
+    }
   } catch (error) {
-    errorMessage.value = 'Login failed. Please try again.'
+    errorMessage.value = 'An unexpected error occurred. Please try again.'
     console.error('Login error:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -61,7 +70,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
       <div class="bg-card border border-border rounded-lg p-6 shadow-sm">
         <form class="space-y-6" @submit.prevent="handleLogin">
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="email"> Email address </label>
+            <label class="text-sm font-medium text-foreground" for="email"> Username </label>
             <div class="relative">
               <User
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -105,15 +114,22 @@ const handleKeyPress = (event: KeyboardEvent) => {
           </div>
 
           <div
+            v-if="successMessage"
+            class="text-sm text-green-700 text-center bg-green-50 border border-green-200 rounded-md p-3"
+          >
+            {{ successMessage }}
+          </div>
+
+          <div
             v-if="errorMessage"
             class="text-sm text-destructive text-center bg-destructive/10 border border-destructive/20 rounded-md p-3"
           >
             {{ errorMessage }}
           </div>
 
-          <Button :disabled="isLoading" class="w-full" type="submit">
-            <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
-            <span v-if="isLoading">Signing in...</span>
+          <Button :disabled="authStore.isLoading" class="w-full" type="submit">
+            <Loader2 v-if="authStore.isLoading" class="mr-2 h-4 w-4 animate-spin" />
+            <span v-if="authStore.isLoading">Signing in...</span>
             <span v-else>Sign in</span>
           </Button>
         </form>
