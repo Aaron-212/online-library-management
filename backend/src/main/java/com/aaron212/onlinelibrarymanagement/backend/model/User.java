@@ -10,9 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.util.Collections;
 
 @Entity
 @Table(name = "users")
@@ -44,15 +46,15 @@ public class User {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdTime;
+    private Timestamp createdTime;
 
     @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime lastUpdateTime;
+    private Timestamp lastUpdateTime;
 
     public UserDetails toUserDetails() {
         return new org.springframework.security.core.userdetails.User(this.username, this.passwordHash, true, true,
-                true, true, java.util.Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + this.role.name())));
+                true, true, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name())));
     }
 
     @Getter

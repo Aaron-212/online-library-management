@@ -2,6 +2,7 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.LoginRequest;
 import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
+import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,31 +30,45 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> addNewUser(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
-            String response = service.addUser(registerRequest);
-
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(response);
+            service.addUser(registerRequest);
+            return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(e.getMessage());
+            return new ResponseEntity<>("Failed to register user", HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername()
-                        , loginRequest.getPassword()));
-        if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(loginRequest.getUsername());
-            return ResponseEntity.ok(token);
-        } else {
-            throw new UsernameNotFoundException("Invalid user request!");
+    public ResponseEntity<?> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                    loginRequest.getPassword()));
+
+            User user = service.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            String token = jwtService.generateToken(loginRequest.getUsername(), user.getLastUpdateTime());
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>("Invalid username or password!", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello World!";
+    @GetMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@RequestParam String oldPassword, @RequestParam String newPassword,
+                                                 Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            try {
+                service.changePassword(authentication.getName(), oldPassword, newPassword);
+                return ResponseEntity.ok("Password changed successfully");
+            } catch (Exception e) {
+                return new ResponseEntity<>("Failed to change password", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<String> checkAuthentication() {
+        return ResponseEntity.ok("You are authenticated!");
     }
 }
