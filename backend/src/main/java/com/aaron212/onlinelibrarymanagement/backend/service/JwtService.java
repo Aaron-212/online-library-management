@@ -34,7 +34,7 @@ public class JwtService {
 
     public String generateToken(String userName, Timestamp updateTime) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("updateTime", updateTime);
+        claims.put("updateTime", updateTime.getTime());
         return createToken(claims, userName);
     }
 
