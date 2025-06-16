@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { RouterLink, useRouter } from 'vue-router'
-import { BookOpen, Clock, Home, Library, LogOut, Search, User, Users } from 'lucide-vue-next'
+import { BookOpen, Clock, Gauge, Home, Library, LogOut, Search, User, Users } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -25,9 +25,14 @@ import {
 
 const navigationItems = [
   {
-    title: 'Dashboard',
+    title: 'Home',
     url: '/',
     icon: Home,
+  },
+  {
+    title: 'Dashboard',
+    url: '/dashboard',
+    icon: Gauge,
   },
   {
     title: 'Books',
@@ -96,7 +101,7 @@ const handleLogout = () => {
       </SidebarGroup>
 
       <!-- Library Management -->
-      <SidebarGroup>
+      <SidebarGroup v-if="authStore.isAuthenticated">
         <SidebarGroupLabel>Library Management</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>

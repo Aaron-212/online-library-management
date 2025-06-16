@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardView from '@/views/DashboardView.vue'
+import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -10,14 +10,13 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: DashboardView,
-      meta: { requiresAuth: true }
+      component: HomeView,
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: DashboardView,
-      meta: { requiresAuth: true }
+      component: () => import('@/views/DashboardView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
@@ -35,7 +34,7 @@ const router = createRouter({
 // Navigation guard for authentication
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     // Redirect to login if route requires auth and user is not authenticated
     next('/login')
