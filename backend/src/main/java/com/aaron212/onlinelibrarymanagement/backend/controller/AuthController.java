@@ -4,6 +4,7 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.LoginRequest;
 import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
