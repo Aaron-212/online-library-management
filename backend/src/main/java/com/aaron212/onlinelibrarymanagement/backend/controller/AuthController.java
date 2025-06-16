@@ -60,7 +60,7 @@ public class AuthController {
                 service.changePassword(authentication.getName(), oldPassword, newPassword);
                 return ResponseEntity.ok("Password changed successfully");
             } catch (Exception e) {
-                return new ResponseEntity<>("Failed to change password: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Failed to change password", HttpStatus.BAD_REQUEST);
             }
         } else {
             return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
