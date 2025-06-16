@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/auth/hello")
                         .authenticated())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf((csrf) -> csrf.ignoringRequestMatchers("/auth/login", "/auth/register"))
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
