@@ -30,7 +30,7 @@ public class JwtService {
     }
 
     @Value("${jwt.expirationMs}")
-    private int jwtExpirationMs; // 1 day in milliseconds
+    private int jwtExpirationMs;
 
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();

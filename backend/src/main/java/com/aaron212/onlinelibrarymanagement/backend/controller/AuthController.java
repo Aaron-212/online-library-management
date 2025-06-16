@@ -1,8 +1,6 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
-import com.aaron212.onlinelibrarymanagement.backend.dto.ApiResponse;
 import com.aaron212.onlinelibrarymanagement.backend.dto.LoginRequest;
-import com.aaron212.onlinelibrarymanagement.backend.dto.LoginResponse;
 import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
@@ -13,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,39 +27,40 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> addNewUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> addNewUser(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
             service.addUser(registerRequest);
-            ApiResponse apiResponse = new ApiResponse(true, "User registered successfully");
-            return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+            return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
         } catch (Exception e) {
-            ApiResponse apiResponse = new ApiResponse(false, e.getMessage());
-            return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Failed to register user", HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
         try {
-            Authentication authentication =
-                    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername()
-                            , loginRequest.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                    loginRequest.getPassword()));
 
             String token = jwtService.generateToken(loginRequest.getUsername());
-            return ResponseEntity.ok(new LoginResponse(token));
+            return new ResponseEntity<>(token, HttpStatus.OK);
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>(new ApiResponse(false, "Invalid username or password!"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Invalid username or password!", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    @GetMapping("/role")
-    public ResponseEntity<String> getUserRole(Authentication authentication) {
+    @GetMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@RequestParam String oldPassword, @RequestParam String newPassword,
+                                                 Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return ResponseEntity.ok(authentication.getAuthorities()
-                    .toString());
+            try {
+                service.changePassword(authentication.getName(), oldPassword, newPassword);
+                return ResponseEntity.ok("Password changed successfully");
+            } catch (Exception e) {
+                return new ResponseEntity<>("Failed to change password: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("User is not authenticated");
+            return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
         }
     }
 

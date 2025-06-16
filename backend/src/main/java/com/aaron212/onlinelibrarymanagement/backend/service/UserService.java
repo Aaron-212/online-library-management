@@ -1,6 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserFullDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
 import org.springframework.context.annotation.Lazy;
@@ -29,7 +30,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }
 
-    public String addUser(RegisterRequest registerRequest) throws RuntimeException {
+    public void addUser(RegisterRequest registerRequest) throws RuntimeException {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             throw new RuntimeException("Error: Username is already taken!");
         }
@@ -43,7 +44,34 @@ public class UserService implements UserDetailsService {
         newUser.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
         newUser.setRole(User.Role.USER);
         userRepository.save(newUser);
+    }
 
-        return "User registered successfully!";
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public User updateUserDetails(User user, UserFullDto userFullDto) {
+        user.setUsername(userFullDto.username());
+        user.setEmail(userFullDto.email());
+        user.setRole(User.Role.valueOf(userFullDto.role()));
+        // Note: Password should not be updated here unless explicitly provided in the DTO
+        // If password update is needed, handle it separately
+        return userRepository.save(user);
+    }
+
+    public void changePassword(String name, String oldPassword, String newPassword) {
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }
