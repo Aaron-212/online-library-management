@@ -75,7 +75,7 @@ const handleLogout = () => {
 
 <template>
   <Sidebar>
-    <SidebarHeader class="border-b border-sidebar-border h-12">
+    <SidebarHeader class="border-b border-sidebar-border h-16">
       <div class="flex items-center gap-2 px-2 h-full">
         <BookOpen class="h-6 w-6" />
         <span class="font-semibold">Library System</span>

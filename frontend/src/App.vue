@@ -12,7 +12,7 @@ useDarkMode()
   <SidebarProvider class="flex min-h-screen w-full">
     <AppSidebar />
     <main class="flex flex-1 flex-col overflow-hidden">
-      <header class="flex h-12 shrink-0 items-center gap-2 px-4">
+      <header class="flex h-16 shrink-0 items-center gap-2 px-4">
         <SidebarTrigger class="-ml-1" />
         <div class="py-2 w-px bg-sidebar-border" />
         <h1 class="text-lg font-semibold">Library Management</h1>
