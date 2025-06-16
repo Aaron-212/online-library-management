@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> addNewUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> addNewUser(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
             String response = service.addUser(registerRequest);
 

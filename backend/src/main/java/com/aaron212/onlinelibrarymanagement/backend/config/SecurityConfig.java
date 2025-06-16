@@ -40,7 +40,6 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/auth/hello")
                         .authenticated())
-                .httpBasic(withDefaults()) // Consider if httpBasic is needed alongside JWT
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
