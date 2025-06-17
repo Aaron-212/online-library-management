@@ -5,6 +5,17 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.BookDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.service.BookService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
@@ -13,13 +24,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/v1/books")
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
+@Tag(name = "Books", description = "Book management endpoints")
 public class BookController {
 
     private final BookService bookService;
@@ -28,100 +41,219 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    /**
-     * Create a new book
-     */
-    @PostMapping("/create")
-    public ResponseEntity<BookDto> createBook(@RequestBody BookCreateDto bookCreateDto) {
+    @Operation(
+            summary = "Create a new book",
+            description = "Creates a new book with the provided details",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "201",
+                        description = "Book created successfully",
+                        content = @Content(schema = @Schema(implementation = BookDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid book data",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "409",
+                        description = "Book with ISBN already exists",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PostMapping
+    public ResponseEntity<?> createBook(@Valid @RequestBody BookCreateDto bookCreateDto) {
         try {
             BookDto createdBook = bookService.createBook(bookCreateDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to create book"));
         }
     }
 
-    /**
-     * Get all books with pagination
-     */
-    @GetMapping("/all")
-    public ResponseEntity<Page<BookDto>> getAllBooks(Pageable pageable) {
+    @Operation(summary = "Get all books", description = "Retrieves a paginated list of all books")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Books retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = Page.class)))
+            })
+    @GetMapping
+    public ResponseEntity<Page<BookDto>> getAllBooks(
+            @Parameter(description = "Pagination parameters") Pageable pageable) {
         Page<BookDto> books = bookService.getAllBooks(pageable);
         return ResponseEntity.ok(books);
     }
 
-    /**
-     * Get book by ID
-     */
-    @GetMapping("/getById")
-    public ResponseEntity<BookDto> getBookById(@RequestParam Long id) {
+    @Operation(summary = "Get book by ID", description = "Retrieves a specific book by its ID")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book found",
+                        content = @Content(schema = @Schema(implementation = BookDto.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Book not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getBookById(
+            @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
         Optional<BookDto> book = bookService.getBookById(id);
-        return book.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        if (book.isPresent()) {
+            return ResponseEntity.ok(book.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
+        }
     }
 
-    /**
-     * Get book by ISBN
-     */
-    @GetMapping("/getByIsbn")
-    public ResponseEntity<BookDto> getBookByIsbn(@RequestParam String isbn) {
+    @Operation(summary = "Get book by ISBN", description = "Retrieves a specific book by its ISBN")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book found",
+                        content = @Content(schema = @Schema(implementation = BookDto.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Book not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<?> getBookByIsbn(
+            @Parameter(description = "Book ISBN", required = true, example = "978-3-16-148410-0")
+                    @PathVariable
+                    @NotBlank
+                    String isbn) {
         Optional<BookDto> book = bookService.getBookByIsbn(isbn);
-        return book.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        if (book.isPresent()) {
+            return ResponseEntity.ok(book.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
+        }
     }
 
-    /**
-     * Update book details
-     */
-    @PutMapping("/update")
-    public ResponseEntity<BookDto> updateBook(@RequestParam Long id, @RequestBody BookUpdateDto bookUpdateDto) {
+    @Operation(
+            summary = "Update book",
+            description = "Updates an existing book with the provided details",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book updated successfully",
+                        content = @Content(schema = @Schema(implementation = BookDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid book data",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Book not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBook(
+            @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id,
+            @Valid @RequestBody BookUpdateDto bookUpdateDto) {
         try {
             BookDto updatedBook = bookService.updateBook(id, bookUpdateDto);
             return ResponseEntity.ok(updatedBook);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
         }
     }
 
-    /**
-     * Delete book by ID
-     */
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteBook(@RequestParam Long id) {
+    @Operation(
+            summary = "Delete book",
+            description = "Deletes a book by its ID",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(responseCode = "204", description = "Book deleted successfully"),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Book not found",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Cannot delete book with active borrowings",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBook(
+            @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
             bookService.deleteBook(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
         }
     }
 
-    /**
-     * Search books by keyword
-     */
+    @Operation(summary = "Search books", description = "Searches for books by keyword in title, author, or ISBN")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Search completed successfully",
+                        content = @Content(schema = @Schema(implementation = List.class)))
+            })
     @GetMapping("/search")
-    public ResponseEntity<List<BookDto>> searchBooks(@RequestParam String keyword) {
+    public ResponseEntity<List<BookDto>> searchBooks(
+            @Parameter(description = "Search keyword", required = true, example = "java programming")
+                    @RequestParam
+                    @NotBlank
+                    String keyword) {
         List<BookDto> books = bookService.searchBooks(keyword);
         return ResponseEntity.ok(books);
     }
 
-    /**
-     * Check if book exists by ISBN
-     */
-    @GetMapping("/exists/isbn")
-    public ResponseEntity<Boolean> existsByIsbn(@RequestParam String isbn) {
+    @Operation(
+            summary = "Check if book exists by ISBN",
+            description = "Checks whether a book with the given ISBN exists in the system")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Check completed successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @GetMapping("/exists/isbn/{isbn}")
+    public ResponseEntity<Map<String, Boolean>> existsByIsbn(
+            @Parameter(description = "Book ISBN", required = true, example = "978-3-16-148410-0")
+                    @PathVariable
+                    @NotBlank
+                    String isbn) {
         boolean exists = bookService.existsByIsbn(isbn);
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(Map.of("exists", exists));
     }
 
-    /**
-     * Get book copies for a specific book
-     */
-    @GetMapping("/copies")
-    public ResponseEntity<List<BookCopy>> getBookCopies(@RequestParam Long bookId) {
+    @Operation(summary = "Get book copies", description = "Retrieves all copies of a specific book")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book copies retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = List.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Book not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @GetMapping("/{id}/copies")
+    public ResponseEntity<?> getBookCopies(
+            @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
-            List<BookCopy> copies = bookService.getBookCopies(bookId);
+            List<BookCopy> copies = bookService.getBookCopies(id);
             return ResponseEntity.ok(copies);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
         }
     }
 }

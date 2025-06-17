@@ -52,7 +52,9 @@ public class Comment {
 
     @Getter
     public enum Status {
-        PENDING(1), PUBLISHED(2), DELETED(3);
+        PENDING(1),
+        PUBLISHED(2),
+        DELETED(3);
 
         private final int value;
 
@@ -60,4 +62,4 @@ public class Comment {
             this.value = value;
         }
     }
-} 
+}

@@ -37,4 +37,4 @@ public class Author {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updateTime;
-} 
+}

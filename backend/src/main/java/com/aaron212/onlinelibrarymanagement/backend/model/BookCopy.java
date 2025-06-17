@@ -55,7 +55,11 @@ public class BookCopy {
 
     @Getter
     public enum Status {
-        AVAILABLE(1), BORROWED(2), MAINTENANCE(3), SCRAPPED(4), DISCARDED(4);
+        AVAILABLE(1),
+        BORROWED(2),
+        MAINTENANCE(3),
+        SCRAPPED(4),
+        DISCARDED(4);
 
         private final int value;
 
