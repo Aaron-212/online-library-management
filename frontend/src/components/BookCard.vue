@@ -1,79 +1,55 @@
-<template>
-  <el-card class="book-card" @click="$emit('click')">
-    <el-image
-      :src="book.coverUrl"
-      fit="cover"
-      class="book-cover"
-    >
-      <template #error>
-        <div class="cover-error">暂无封面</div>
-      </template>
-    </el-image>
+<script setup lang="ts">
+import { useImage } from '@vueuse/core'
+import { computed } from 'vue'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
-    <div class="book-info">
-      <h3 class="title">{{ book.title }}</h3>
-      <p class="author">{{ book.author }}</p>
-      <el-tag
-        :type="book.available ? 'success' : 'danger'"
-        size="small"
-      >
-        {{ book.available ? '可借阅' : '已借出' }}
-      </el-tag>
-    </div>
-  </el-card>
-</template>
+const props = defineProps<{
+  title: string
+  author: string
+  coverImageUrl?: string
+  isbn?: string
+}>()
 
-<script lang="ts">
-defineProps({
-  book: {
-    type: Object,
-    required: true
-  }
-})
+const { isLoading, error } = useImage({ src: props.coverImageUrl || '' })
+
+const altText = computed(() => `Cover image for ${props.title}`)
 </script>
 
-<style scoped>
-.book-card {
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.book-card:hover {
-  transform: translateY(-5px);
-}
-
-.book-cover {
-  width: 100%;
-  height: 180px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-.cover-error {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-  color: #999;
-}
-
-.book-info {
-  padding: 0 5px;
-}
-
-.title {
-  margin: 0 0 5px;
-  font-size: 16px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.author {
-  margin: 0 0 10px;
-  color: #666;
-  font-size: 14px;
-}
-</style>
+<template>
+  <Card class="w-64 h-auto flex flex-col">
+    <CardHeader class="p-0">
+      <div
+        class="aspect-[3/4] w-full bg-muted flex items-center justify-center rounded-t-lg overflow-hidden"
+      >
+        <img
+          v-if="!isLoading && !error && props.coverImageUrl"
+          :src="props.coverImageUrl"
+          :alt="altText"
+          class="object-cover w-full h-full"
+        />
+        <div v-else-if="isLoading" class="text-sm text-muted-foreground p-4 text-center">
+          Loading image...
+        </div>
+        <div v-else class="text-sm text-muted-foreground p-4 text-center">No image available</div>
+      </div>
+    </CardHeader>
+    <CardContent class="pt-4 pb-2 flex-grow">
+      <CardTitle class="text-lg leading-tight mb-1 truncate" :title="props.title">
+        {{ props.title }}
+      </CardTitle>
+      <CardDescription class="text-sm truncate" :title="props.author">
+        By: {{ props.author }}
+      </CardDescription>
+    </CardContent>
+    <CardFooter v-if="props.isbn" class="pb-4 pt-0">
+      <p class="text-xs text-muted-foreground" :title="props.isbn">ISBN: {{ props.isbn }}</p>
+    </CardFooter>
+  </Card>
+</template>

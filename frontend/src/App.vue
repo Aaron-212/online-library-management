@@ -16,19 +16,10 @@ const route = useRoute()
 // Define page titles for each route
 const pageTitle = computed(() => {
   const routeTitles: Record<string, string> = {
-    home: 'Home',
-    dashboard: 'Dashboard',
-    login: 'Login',
-    register: 'Register',
-    books: 'Books',
-    members: 'Members',
-    search: 'Search',
     borrow: 'Borrow Books',
-    categories: 'Categories',
-    profile: 'Profile',
   }
 
-  return routeTitles[route.name as string] || toTitleCase(route.name?.toString() || 'Unknown Page')
+  return routeTitles[route.name as string] || toTitleCase((route.name as string) || 'Unknown Page')
 })
 </script>
 
