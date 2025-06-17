@@ -12,6 +12,6 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByIndexCategory(IndexCategory category);
 
-    @Query("SELECT b FROM Book b WHERE b.title LIKE %:keyword% OR b.author LIKE %:keyword%")
+    @Query("SELECT b FROM Book b WHERE b.title LIKE %:keyword%")
     List<Book> searchByKeyword(@Param("keyword") String keyword);
 }

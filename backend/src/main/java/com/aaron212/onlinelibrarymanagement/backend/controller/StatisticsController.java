@@ -1,4 +1,5 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
+
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.service.StatisticsService;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class StatisticsController {
         List<Map.Entry<Book, Long>> topBooks = statisticsService.getTopBorrowedBooks(topCount);
         return ResponseEntity.ok(topBooks);
     }
+
     @GetMapping("/borrow-trend/week")
     public ResponseEntity<Map<String, Long>> getBorrowTrendByWeek() {
         Map<String, Long> trend = statisticsService.getBorrowTrendByWeek();
@@ -36,11 +38,13 @@ public class StatisticsController {
         Map<String, Long> trend = statisticsService.getBorrowTrendByMonth();
         return ResponseEntity.ok(trend);
     }
+
     @GetMapping("/book-inventory")
-    public ResponseEntity<Map<?, Map<String, Integer>>> getBookInventoryStatistics() {
-        Map<?, Map<String, Integer>> statistics = statisticsService.getBookInventoryStatistics();
+    public ResponseEntity<Map<?, Map<String, Long>>> getBookInventoryStatistics() {
+        Map<?, Map<String, Long>> statistics = statisticsService.getBookInventoryStatistics();
         return ResponseEntity.ok(statistics);
     }
+
     @GetMapping("/user-behavior")
     public ResponseEntity<Map<String, Long>> getUserBehaviorAnalysis() {
         Map<String, Long> analysis = statisticsService.getUserBehaviorAnalysis();
