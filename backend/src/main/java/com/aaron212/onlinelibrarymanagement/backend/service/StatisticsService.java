@@ -66,7 +66,7 @@ public class StatisticsService {
         for (IndexCategory category : categories) {
             List<Book> booksInCategory = bookRepository.findByIndexCategory(category);
             int totalCount = 0;
-            int availableCount = 0;
+            long availableCount = 0;
 
             for (Book book : booksInCategory) {
                 List<BookCopy> copies = bookCopyRepository.findByBook(book);
