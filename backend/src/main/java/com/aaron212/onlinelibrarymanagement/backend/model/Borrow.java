@@ -57,6 +57,10 @@ public class Borrow {
     @Column(nullable = false)
     private LocalDateTime updateTime;
 
+    public Long getCopyId() {
+        return copy != null ? copy.getId() : null;
+    }
+
     @Getter
     public enum Status {
         BORROWED(1, "借阅中"),
@@ -73,14 +77,6 @@ public class Borrow {
             this.description = description;
         }
 
-        public int getValue() {
-            return value;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
         public static Status fromValue(int value) {
             for (Status status : Status.values()) {
                 if (status.getValue() == value) {
@@ -89,8 +85,13 @@ public class Borrow {
             }
             throw new IllegalArgumentException("Invalid status value: " + value);
         }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
-    public Long getCopyId() {
-        return copy != null ? copy.getId() : null;
-    }
-} 
+}

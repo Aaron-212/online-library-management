@@ -42,8 +42,7 @@ public class UserController {
     @GetMapping("/myDetails")
     public ResponseEntity<UserFullDto> getUserRole(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            User user = service.findByUsername(authentication.getName())
-                    .orElseThrow();
+            User user = service.findByUsername(authentication.getName()).orElseThrow();
             UserFullDto userFullRecord = UserMapper.INSTANCE.toUserFullRecord(user);
 
             return ResponseEntity.ok(userFullRecord);
@@ -53,11 +52,10 @@ public class UserController {
     }
 
     @PostMapping("/editMyDetails")
-    public ResponseEntity<UserFullDto> editMyDetails(@RequestBody UserModifyDto userModifyDto,
-                                                     Authentication authentication) {
+    public ResponseEntity<UserFullDto> editMyDetails(
+            @RequestBody UserModifyDto userModifyDto, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            User user = service.findByUsername(authentication.getName())
-                    .orElseThrow();
+            User user = service.findByUsername(authentication.getName()).orElseThrow();
             User updatedUser = service.updateUserDetails(user, userModifyDto);
             UserFullDto response = UserMapper.INSTANCE.toUserFullRecord(updatedUser);
 

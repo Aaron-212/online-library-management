@@ -24,6 +24,7 @@ public class JwtService {
     private String jwtSecret;
 
     private SecretKey key;
+
     @Value("${jwt.expirationMs}")
     private int jwtExpirationMs;
 
@@ -37,7 +38,6 @@ public class JwtService {
         claims.put("updateTime", updateTime.getTime());
         return createToken(claims, userName);
     }
-
 
     public String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
@@ -59,19 +59,12 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(authToken);
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(authToken);
             return true;
         } catch (SignatureException e) {
             log.error("Invalid JWT signature: {}", e.getMessage());

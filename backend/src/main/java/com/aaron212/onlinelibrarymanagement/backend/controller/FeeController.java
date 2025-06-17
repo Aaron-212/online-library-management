@@ -22,8 +22,7 @@ public class FeeController {
     // -------------------- 计算逾期罚款 --------------------
     @PostMapping("/overdue/{borrowId}")
     @PreAuthorize("hasRole('LIBRARIAN')")
-    public ResponseEntity<Borrow> calculateOverdueFine(
-            @PathVariable Long borrowId) {
+    public ResponseEntity<Borrow> calculateOverdueFine(@PathVariable Long borrowId) {
 
         Borrow result = feeService.calculateOverdueFine(borrowId);
         return result != null
@@ -34,8 +33,7 @@ public class FeeController {
     // -------------------- 计算赔书费用 --------------------
     @PostMapping("/compensate/{borrowId}")
     @PreAuthorize("hasRole('LIBRARIAN')")
-    public ResponseEntity<Borrow> calculateCompensation(
-            @PathVariable Long borrowId) {
+    public ResponseEntity<Borrow> calculateCompensation(@PathVariable Long borrowId) {
 
         Borrow result = feeService.calculateBookCompensation(borrowId);
         return result != null

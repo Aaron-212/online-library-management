@@ -20,9 +20,12 @@ public class StatisticsService {
     private final IndexCategoryRepository indexCategoryRepository;
     private final UserRepository userRepository;
 
-    public StatisticsService(BorrowRepository borrowRepository, BookRepository bookRepository,
-                             BookCopyRepository bookCopyRepository, IndexCategoryRepository indexCategoryRepository,
-                             UserRepository userRepository) {
+    public StatisticsService(
+            BorrowRepository borrowRepository,
+            BookRepository bookRepository,
+            BookCopyRepository bookCopyRepository,
+            IndexCategoryRepository indexCategoryRepository,
+            UserRepository userRepository) {
         this.borrowRepository = borrowRepository;
         this.bookRepository = bookRepository;
         this.bookCopyRepository = bookCopyRepository;
@@ -33,12 +36,10 @@ public class StatisticsService {
     public List<Map.Entry<Book, Long>> getTopBorrowedBooks(int topCount) {
         List<Borrow> allBorrows = borrowRepository.findAll();
         return allBorrows.stream()
-                .collect(Collectors.groupingBy(borrow -> borrow.getCopy()
-                        .getBook(), Collectors.counting()))
+                .collect(Collectors.groupingBy(borrow -> borrow.getCopy().getBook(), Collectors.counting()))
                 .entrySet()
                 .stream()
-                .sorted(Map.Entry.<Book, Long>comparingByValue()
-                        .reversed())
+                .sorted(Map.Entry.<Book, Long>comparingByValue().reversed())
                 .limit(topCount)
                 .collect(Collectors.toList());
     }
@@ -48,14 +49,12 @@ public class StatisticsService {
         LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate endOfMonth = now.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<Borrow> borrows = borrowRepository.findByBorrowTimeBetween(startOfMonth.atStartOfDay(),
-                endOfMonth.atTime(23, 59, 59));
+        List<Borrow> borrows =
+                borrowRepository.findByBorrowTimeBetween(startOfMonth.atStartOfDay(), endOfMonth.atTime(23, 59, 59));
         Map<String, Long> trend = new HashMap<>();
         trend.put("borrowCount", (long) borrows.size());
-        trend.put("userActivity", borrows.stream()
-                .map(Borrow::getUser)
-                .distinct()
-                .count());
+        trend.put(
+                "userActivity", borrows.stream().map(Borrow::getUser).distinct().count());
         return trend;
     }
 
@@ -64,14 +63,12 @@ public class StatisticsService {
         LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
-        List<Borrow> borrows = borrowRepository.findByBorrowTimeBetween(startOfWeek.atStartOfDay(),
-                endOfWeek.atTime(23, 59, 59));
+        List<Borrow> borrows =
+                borrowRepository.findByBorrowTimeBetween(startOfWeek.atStartOfDay(), endOfWeek.atTime(23, 59, 59));
         Map<String, Long> trend = new HashMap<>();
         trend.put("borrowCount", (long) borrows.size());
-        trend.put("userActivity", borrows.stream()
-                .map(Borrow::getUser)
-                .distinct()
-                .count());
+        trend.put(
+                "userActivity", borrows.stream().map(Borrow::getUser).distinct().count());
         return trend;
     }
 
@@ -107,14 +104,11 @@ public class StatisticsService {
 
         List<User> allUsers = userRepository.findAll();
         long registrationCount = allUsers.stream()
-                .filter(user -> user.getCreatedTime()
-                        .toLocalDateTime()
-                        .toLocalDate()
-                        .isAfter(startOfMonth))
+                .filter(user ->
+                        user.getCreatedTime().toLocalDateTime().toLocalDate().isAfter(startOfMonth))
                 .count();
 
-        long activeUserCount = borrowRepository.findAll()
-                .stream()
+        long activeUserCount = borrowRepository.findAll().stream()
                 .map(Borrow::getUser)
                 .distinct()
                 .count();

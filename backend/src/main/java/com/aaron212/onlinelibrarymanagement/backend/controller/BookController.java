@@ -35,11 +35,9 @@ public class BookController {
     public ResponseEntity<BookDto> createBook(@RequestBody BookCreateDto bookCreateDto) {
         try {
             BookDto createdBook = bookService.createBook(bookCreateDto);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(createdBook);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .build();
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -58,9 +56,7 @@ public class BookController {
     @GetMapping("/getById")
     public ResponseEntity<BookDto> getBookById(@RequestParam Long id) {
         Optional<BookDto> book = bookService.getBookById(id);
-        return book.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound()
-                        .build());
+        return book.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -69,9 +65,7 @@ public class BookController {
     @GetMapping("/getByIsbn")
     public ResponseEntity<BookDto> getBookByIsbn(@RequestParam String isbn) {
         Optional<BookDto> book = bookService.getBookByIsbn(isbn);
-        return book.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound()
-                        .build());
+        return book.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -83,8 +77,7 @@ public class BookController {
             BookDto updatedBook = bookService.updateBook(id, bookUpdateDto);
             return ResponseEntity.ok(updatedBook);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound()
-                    .build();
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -95,11 +88,9 @@ public class BookController {
     public ResponseEntity<Void> deleteBook(@RequestParam Long id) {
         try {
             bookService.deleteBook(id);
-            return ResponseEntity.noContent()
-                    .build();
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .build();
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -130,8 +121,7 @@ public class BookController {
             List<BookCopy> copies = bookService.getBookCopies(bookId);
             return ResponseEntity.ok(copies);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound()
-                    .build();
+            return ResponseEntity.notFound().build();
         }
     }
-} 
+}

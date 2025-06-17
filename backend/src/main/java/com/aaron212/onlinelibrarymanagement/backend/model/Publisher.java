@@ -37,4 +37,4 @@ public class Publisher {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updateTime;
-} 
+}

@@ -55,13 +55,21 @@ public class User {
     private Timestamp lastUpdateTime;
 
     public UserDetails toUserDetails() {
-        return new org.springframework.security.core.userdetails.User(this.username, this.passwordHash, true, true,
-                true, true, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name())));
+        return new org.springframework.security.core.userdetails.User(
+                this.username,
+                this.passwordHash,
+                true,
+                true,
+                true,
+                true,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name())));
     }
 
     @Getter
     public enum Role {
-        USER(1), ADMIN(2), LIBRARIAN(3);
+        USER(1),
+        ADMIN(2),
+        LIBRARIAN(3);
 
         private final int value;
 

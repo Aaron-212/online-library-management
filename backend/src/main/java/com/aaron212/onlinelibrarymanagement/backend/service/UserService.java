@@ -63,8 +63,7 @@ public class UserService implements UserDetailsService {
     }
 
     public void changePassword(String name, String oldPassword, String newPassword) {
-        User user = userRepository.findByUsername(name)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
             throw new RuntimeException("Old password is incorrect");
