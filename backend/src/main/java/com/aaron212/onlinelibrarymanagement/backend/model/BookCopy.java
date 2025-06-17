@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,6 +36,9 @@ public class BookCopy {
     @NotNull(message = "Status is required")
     private Status status;
 
+    @Column(precision = 10, scale = 2)
+    private BigDecimal purchasePrice;
+
     @Column
     private LocalDateTime purchaseTime;
 
@@ -51,7 +55,7 @@ public class BookCopy {
 
     @Getter
     public enum Status {
-        AVAILABLE(1), BORROWED(2), MAINTENANCE(3), SCRAPPED(4);
+        AVAILABLE(1), BORROWED(2), MAINTENANCE(3), SCRAPPED(4), DISCARDED(4);
 
         private final int value;
 
@@ -59,4 +63,4 @@ public class BookCopy {
             this.value = value;
         }
     }
-} 
+}

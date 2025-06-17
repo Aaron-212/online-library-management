@@ -59,12 +59,38 @@ public class Borrow {
 
     @Getter
     public enum Status {
-        BORROWING(1), RETURNED(2), OVERDUE(3);
+        BORROWED(1, "借阅中"),
+        RETURNED(2, "已归还"),
+        OVERDUE(3, "逾期"),
+        LOST(4, "丢失"),
+        COMPENSATED(5, "已赔偿");
 
         private final int value;
+        private final String description;
 
-        Status(int value) {
+        Status(int value, String description) {
             this.value = value;
+            this.description = description;
         }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static Status fromValue(int value) {
+            for (Status status : Status.values()) {
+                if (status.getValue() == value) {
+                    return status;
+                }
+            }
+            throw new IllegalArgumentException("Invalid status value: " + value);
+        }
+    }
+    public Long getCopyId() {
+        return copy != null ? copy.getId() : null;
     }
 } 
