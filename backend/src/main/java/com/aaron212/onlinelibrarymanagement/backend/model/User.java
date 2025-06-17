@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -42,6 +43,7 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false, columnDefinition = "TINYINT")
     @NotNull(message = "Role is required")
+    @ColumnDefault("1")
     private Role role;
 
     @CreationTimestamp
