@@ -5,7 +5,16 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,61 +23,129 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
+@Tag(name = "Authentication", description = "Authentication and user registration endpoints")
 public class AuthController {
-    private final UserService service;
+    
+    private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    AuthController(UserService service, JwtService jwtService, AuthenticationManager authenticationManager) {
-        this.service = service;
+    public AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
+        this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
     }
 
+    @Operation(
+        summary = "Register a new user",
+        description = "Creates a new user account with the provided registration details"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User registered successfully",
+                content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid registration data",
+                content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "409", description = "User already exists",
+                content = @Content(schema = @Schema(implementation = Map.class)))
+    })
     @PostMapping("/register")
-    public ResponseEntity<String> addNewUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
-            service.addUser(registerRequest);
-            return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
+            userService.addUser(registerRequest);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "User registered successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>("Failed to register user", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Registration failed"));
         }
     }
 
+    @Operation(
+        summary = "Authenticate user",
+        description = "Authenticates user credentials and returns a JWT token"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Authentication successful",
+                content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                content = @Content(schema = @Schema(implementation = Map.class)))
+    })
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 
-            User user = service.findByUsername(loginRequest.username())
+            User user = userService.findByUsername(loginRequest.username())
                     .orElseThrow(() -> new RuntimeException("User not found"));
+            
             String token = jwtService.generateToken(loginRequest.username(), user.getLastUpdateTime());
-            return new ResponseEntity<>(token, HttpStatus.OK);
+            
+            return ResponseEntity.ok(Map.of(
+                "token", token,
+                "message", "Login successful"
+            ));
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Invalid username or password!", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid username or password"));
         }
     }
 
-    @GetMapping("/changePassword")
-    public ResponseEntity<String> changePassword(
-            @RequestParam String oldPassword, @RequestParam String newPassword, Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
-            try {
-                service.changePassword(authentication.getName(), oldPassword, newPassword);
-                return ResponseEntity.ok("Password changed successfully");
-            } catch (Exception e) {
-                return new ResponseEntity<>("Failed to change password", HttpStatus.BAD_REQUEST);
-            }
-        } else {
-            return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
+    @Operation(
+        summary = "Change user password",
+        description = "Changes the password for the authenticated user",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Password changed successfully",
+                content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid password change request",
+                content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "401", description = "User not authenticated",
+                content = @Content(schema = @Schema(implementation = Map.class)))
+    })
+    @PutMapping("/password")
+    public ResponseEntity<Map<String, String>> changePassword(
+            @Parameter(description = "Current password", required = true)
+            @RequestParam @NotBlank String oldPassword,
+            @Parameter(description = "New password", required = true)
+            @RequestParam @NotBlank String newPassword,
+            Authentication authentication) {
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User not authenticated"));
+        }
+
+        try {
+            userService.changePassword(authentication.getName(), oldPassword, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Failed to change password"));
         }
     }
 
-    @GetMapping("/check")
-    public ResponseEntity<String> checkAuthentication() {
-        return ResponseEntity.ok("You are authenticated!");
+    @Operation(
+        summary = "Check authentication status",
+        description = "Verifies if the user is currently authenticated",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User is authenticated",
+                content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "401", description = "User not authenticated",
+                content = @Content(schema = @Schema(implementation = Map.class)))
+    })
+    @GetMapping("/verify")
+    public ResponseEntity<Map<String, String>> verifyToken() {
+        return ResponseEntity.ok(Map.of("message", "Token is valid"));
     }
 }
