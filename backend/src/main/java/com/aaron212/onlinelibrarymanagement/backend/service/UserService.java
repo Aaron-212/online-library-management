@@ -31,17 +31,17 @@ public class UserService implements UserDetailsService {
     }
 
     public void addUser(RegisterRequest registerRequest) throws RuntimeException {
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
+        if (userRepository.existsByUsername(registerRequest.username())) {
             throw new RuntimeException("Error: Username is already taken!");
         }
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+        if (userRepository.existsByEmail(registerRequest.email())) {
             throw new RuntimeException("Error: Email is already in use!");
         }
 
         User newUser = new User();
-        newUser.setUsername(registerRequest.getUsername());
-        newUser.setEmail(registerRequest.getEmail());
-        newUser.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
+        newUser.setUsername(registerRequest.username());
+        newUser.setEmail(registerRequest.email());
+        newUser.setPasswordHash(passwordEncoder.encode(registerRequest.password()));
         newUser.setRole(User.Role.USER);
         userRepository.save(newUser);
     }
