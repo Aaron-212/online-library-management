@@ -40,15 +40,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
-                    loginRequest.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(),
+                    loginRequest.password()));
 
-            User user = service.findByUsername(loginRequest.getUsername())
+            User user = service.findByUsername(loginRequest.username())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            String token = jwtService.generateToken(loginRequest.getUsername(), user.getLastUpdateTime());
+            String token = jwtService.generateToken(loginRequest.username(), user.getLastUpdateTime());
             return new ResponseEntity<>(token, HttpStatus.OK);
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Invalid username or password!", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Invalid username or password!", HttpStatus.BAD_REQUEST);
         }
     }
 
