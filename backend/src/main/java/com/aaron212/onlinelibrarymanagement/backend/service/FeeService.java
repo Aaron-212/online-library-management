@@ -1,9 +1,9 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
-import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
-import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowRepository;
+import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
+import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +35,7 @@ public class FeeService {
         Borrow borrow = borrowOpt.get();
 
         // 修正：使用 BigDecimal 的 compareTo 方法
-        if (borrow.getActualReturnTime() != null ||
-                borrow.getFine().compareTo(BigDecimal.ZERO) > 0) {
+        if (borrow.getActualReturnTime() != null || borrow.getFine().compareTo(BigDecimal.ZERO) > 0) {
             return borrow;
         }
 

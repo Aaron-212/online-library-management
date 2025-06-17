@@ -56,7 +56,8 @@ public class Notice {
 
     @Getter
     public enum Status {
-        SHOW(1), PINNED(2);
+        SHOW(1),
+        PINNED(2);
 
         private final int value;
 
@@ -64,4 +65,4 @@ public class Notice {
             this.value = value;
         }
     }
-} 
+}

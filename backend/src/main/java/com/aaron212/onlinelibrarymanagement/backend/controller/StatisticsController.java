@@ -22,7 +22,8 @@ public class StatisticsController {
     }
 
     @GetMapping("/top-borrowed-books")
-    public ResponseEntity<List<Map.Entry<Book, Long>>> getTopBorrowedBooks(@RequestParam(defaultValue = "10") int topCount) {
+    public ResponseEntity<List<Map.Entry<Book, Long>>> getTopBorrowedBooks(
+            @RequestParam(defaultValue = "10") int topCount) {
         List<Map.Entry<Book, Long>> topBooks = statisticsService.getTopBorrowedBooks(topCount);
         return ResponseEntity.ok(topBooks);
     }

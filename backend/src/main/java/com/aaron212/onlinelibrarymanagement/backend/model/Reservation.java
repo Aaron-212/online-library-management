@@ -51,7 +51,9 @@ public class Reservation {
 
     @Getter
     public enum Status {
-        WAITING(1), CANCELLED(2), EXPIRED(3);
+        WAITING(1),
+        CANCELLED(2),
+        EXPIRED(3);
 
         private final int value;
 
@@ -59,4 +61,4 @@ public class Reservation {
             this.value = value;
         }
     }
-} 
+}

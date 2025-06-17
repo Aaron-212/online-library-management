@@ -34,4 +34,4 @@ public class IndexCategory {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createTime;
-} 
+}

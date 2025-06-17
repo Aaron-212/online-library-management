@@ -40,8 +40,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(),
-                    loginRequest.password()));
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 
             User user = service.findByUsername(loginRequest.username())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -53,8 +53,8 @@ public class AuthController {
     }
 
     @GetMapping("/changePassword")
-    public ResponseEntity<String> changePassword(@RequestParam String oldPassword, @RequestParam String newPassword,
-                                                 Authentication authentication) {
+    public ResponseEntity<String> changePassword(
+            @RequestParam String oldPassword, @RequestParam String newPassword, Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             try {
                 service.changePassword(authentication.getName(), oldPassword, newPassword);
