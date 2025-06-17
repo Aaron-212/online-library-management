@@ -1,21 +1,46 @@
 <script lang="ts" setup>
-import { RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { useDarkMode } from '@/composables/useDarkMode'
+import { toTitleCase } from '@/lib/utils.ts'
+import { Toaster } from '@/components/ui/sonner'
+import 'vue-sonner/style.css'
 
 // Initialize automatic dark mode detection
 useDarkMode()
+
+const route = useRoute()
+
+// Define page titles for each route
+const pageTitle = computed(() => {
+  const routeTitles: Record<string, string> = {
+    home: 'Home',
+    dashboard: 'Dashboard',
+    login: 'Login',
+    register: 'Register',
+    books: 'Books',
+    members: 'Members',
+    search: 'Search',
+    borrow: 'Borrow Books',
+    categories: 'Categories',
+    profile: 'Profile',
+  }
+
+  return routeTitles[route.name as string] || toTitleCase(route.name?.toString() || 'Unknown Page')
+})
 </script>
 
 <template>
+  <Toaster />
   <SidebarProvider class="flex min-h-screen w-full">
     <AppSidebar />
     <main class="flex flex-1 flex-col overflow-hidden">
       <header class="flex h-16 shrink-0 items-center gap-2 px-4">
         <SidebarTrigger class="-ml-1" />
         <div class="py-2 w-px bg-sidebar-border" />
-        <h1 class="text-lg font-semibold">Library Management</h1>
+        <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-6">
         <RouterView />

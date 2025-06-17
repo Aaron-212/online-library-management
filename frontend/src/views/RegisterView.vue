@@ -61,9 +61,9 @@ const handleRegister = async () => {
 
     if (result.success) {
       // Success - redirect to login page
-      router.push({
+      await router.push({
         path: '/login',
-        query: { message: result.message || 'Registration successful! Please log in.' }
+        query: { message: result.message || 'Registration successful! Please log in.' },
       })
     } else {
       errorMessage.value = result.message || 'Registration failed. Please try again.'
@@ -108,7 +108,7 @@ const goToLogin = () => {
                 placeholder="Enter your username"
                 required
                 type="text"
-                @keypress="handleKeyPress"
+                @onKeyDown="handleKeyPress"
               />
             </div>
           </div>
@@ -126,7 +126,7 @@ const goToLogin = () => {
                 placeholder="Enter your email"
                 required
                 type="email"
-                @keypress="handleKeyPress"
+                @onKeyDown="handleKeyPress"
               />
             </div>
           </div>
@@ -144,7 +144,7 @@ const goToLogin = () => {
                 class="w-full pl-10 pr-10"
                 placeholder="Create a password"
                 required
-                @keypress="handleKeyPress"
+                @onKeyDown="handleKeyPress"
               />
               <button
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
@@ -172,7 +172,7 @@ const goToLogin = () => {
                 class="w-full pl-10 pr-10"
                 placeholder="Confirm your password"
                 required
-                @keypress="handleKeyPress"
+                @onKeyDown="handleKeyPress"
               />
               <button
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"

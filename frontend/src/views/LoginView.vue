@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Eye, EyeOff, Loader2, Lock, User } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const route = useRoute()
@@ -41,8 +42,10 @@ const handleLogin = async () => {
     const result = await authStore.login(username.value, password.value)
 
     if (result.success) {
-      // Redirect to dashboard on successful login
-      router.push('/dashboard')
+      toast('Login successful!', {
+        description: `Welcome back ${username.value}.`,
+      })
+      await router.push('/dashboard')
     } else {
       errorMessage.value = result.message || 'Login failed. Please try again.'
     }
@@ -82,7 +85,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
                 placeholder="Enter your username"
                 required
                 type="text"
-                @keypress="handleKeyPress"
+                @onKeyDown="handleKeyPress"
               />
             </div>
           </div>
@@ -100,7 +103,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
                 class="w-full pl-10 pr-10"
                 placeholder="Enter your password"
                 required
-                @keypress="handleKeyPress"
+                @onKeyDown="handleKeyPress"
               />
               <button
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
@@ -150,7 +153,3 @@ const handleKeyPress = (event: KeyboardEvent) => {
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Additional custom styles can be added here if needed */
-</style>
