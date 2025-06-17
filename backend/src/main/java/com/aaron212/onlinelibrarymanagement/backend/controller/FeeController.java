@@ -51,11 +51,11 @@ public class FeeController {
                         content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "403",
-                        description = "Access denied - librarian role required",
+                        description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/overdue/{borrowId}")
-    @PreAuthorize("hasRole('LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> calculateOverdueFine(
             @Parameter(description = "Borrow record ID", required = true, example = "1") @PathVariable @Positive
                     Long borrowId) {
@@ -88,11 +88,11 @@ public class FeeController {
                         content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "403",
-                        description = "Access denied - librarian role required",
+                        description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/compensation/{borrowId}")
-    @PreAuthorize("hasRole('LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> calculateCompensation(
             @Parameter(description = "Borrow record ID", required = true, example = "1") @PathVariable @Positive
                     Long borrowId) {
@@ -147,7 +147,7 @@ public class FeeController {
 
     @Operation(
             summary = "Get user's unpaid fees by user ID",
-            description = "Retrieves all unpaid fees for a specific user (librarian only)",
+            description = "Retrieves all unpaid fees for a specific user (admin only)",
             security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
@@ -161,11 +161,11 @@ public class FeeController {
                         content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "403",
-                        description = "Access denied - librarian role required",
+                        description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/users/{userId}/unpaid")
-    @PreAuthorize("hasRole('LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUserUnpaidFees(
             @Parameter(description = "User ID", required = true, example = "1") @PathVariable @Positive Long userId) {
         try {
