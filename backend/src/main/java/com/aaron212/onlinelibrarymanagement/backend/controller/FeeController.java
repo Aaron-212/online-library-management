@@ -36,30 +36,35 @@ public class FeeController {
     }
 
     @Operation(
-        summary = "Calculate overdue fine",
-        description = "Calculates and applies overdue fine for a specific borrow record",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Overdue fine calculated successfully",
-                content = @Content(schema = @Schema(implementation = Borrow.class))),
-        @ApiResponse(responseCode = "404", description = "Borrow record not found",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "403", description = "Access denied - librarian role required",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Calculate overdue fine",
+            description = "Calculates and applies overdue fine for a specific borrow record",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Overdue fine calculated successfully",
+                        content = @Content(schema = @Schema(implementation = Borrow.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Borrow record not found",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - librarian role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @PostMapping("/overdue/{borrowId}")
     @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> calculateOverdueFine(
-            @Parameter(description = "Borrow record ID", required = true, example = "1")
-            @PathVariable @Positive Long borrowId) {
+            @Parameter(description = "Borrow record ID", required = true, example = "1") @PathVariable @Positive
+                    Long borrowId) {
         try {
             Borrow result = feeService.calculateOverdueFine(borrowId);
             if (result != null) {
                 return ResponseEntity.ok(result);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Borrow record not found"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Borrow record not found"));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -68,30 +73,35 @@ public class FeeController {
     }
 
     @Operation(
-        summary = "Calculate book compensation",
-        description = "Calculates and applies book compensation fee for a specific borrow record",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Book compensation calculated successfully",
-                content = @Content(schema = @Schema(implementation = Borrow.class))),
-        @ApiResponse(responseCode = "404", description = "Borrow record not found",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "403", description = "Access denied - librarian role required",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Calculate book compensation",
+            description = "Calculates and applies book compensation fee for a specific borrow record",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book compensation calculated successfully",
+                        content = @Content(schema = @Schema(implementation = Borrow.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Borrow record not found",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - librarian role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @PostMapping("/compensation/{borrowId}")
     @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> calculateCompensation(
-            @Parameter(description = "Borrow record ID", required = true, example = "1")
-            @PathVariable @Positive Long borrowId) {
+            @Parameter(description = "Borrow record ID", required = true, example = "1") @PathVariable @Positive
+                    Long borrowId) {
         try {
             Borrow result = feeService.calculateBookCompensation(borrowId);
             if (result != null) {
                 return ResponseEntity.ok(result);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Borrow record not found"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Borrow record not found"));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -100,64 +110,72 @@ public class FeeController {
     }
 
     @Operation(
-        summary = "Get current user's unpaid fees",
-        description = "Retrieves all unpaid fees for the currently authenticated user",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Unpaid fees retrieved successfully",
-                content = @Content(schema = @Schema(implementation = List.class))),
-        @ApiResponse(responseCode = "401", description = "User not authenticated",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "404", description = "User not found",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Get current user's unpaid fees",
+            description = "Retrieves all unpaid fees for the currently authenticated user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Unpaid fees retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = List.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @GetMapping("/me/unpaid")
     public ResponseEntity<?> getCurrentUserUnpaidFees(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not authenticated"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
         try {
-            User user = userService.findByUsername(authentication.getName())
+            User user = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             List<Borrow> fees = feeService.getUnpaidFeesByUser(user.getId());
             return ResponseEntity.ok(fees);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
     }
 
     @Operation(
-        summary = "Get user's unpaid fees by user ID",
-        description = "Retrieves all unpaid fees for a specific user (librarian only)",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Unpaid fees retrieved successfully",
-                content = @Content(schema = @Schema(implementation = List.class))),
-        @ApiResponse(responseCode = "404", description = "User not found",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "403", description = "Access denied - librarian role required",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Get user's unpaid fees by user ID",
+            description = "Retrieves all unpaid fees for a specific user (librarian only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Unpaid fees retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = List.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - librarian role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @GetMapping("/users/{userId}/unpaid")
     @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> getUserUnpaidFees(
-            @Parameter(description = "User ID", required = true, example = "1")
-            @PathVariable @Positive Long userId) {
+            @Parameter(description = "User ID", required = true, example = "1") @PathVariable @Positive Long userId) {
         try {
             // Verify user exists
-            userService.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
+            userService.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
             List<Borrow> fees = feeService.getUnpaidFeesByUser(userId);
             return ResponseEntity.ok(fees);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
     }
 }

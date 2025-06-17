@@ -29,7 +29,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/users")
 @Tag(name = "Users", description = "User management endpoints")
 public class UserController {
-    
+
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -37,125 +37,142 @@ public class UserController {
     }
 
     @Operation(
-        summary = "Get user by ID",
-        description = "Retrieves a user by their unique ID",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "User found",
-                content = @Content(schema = @Schema(implementation = UserDto.class))),
-        @ApiResponse(responseCode = "404", description = "User not found",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Get user by ID",
+            description = "Retrieves a user by their unique ID",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User found",
+                        content = @Content(schema = @Schema(implementation = UserDto.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(
-            @Parameter(description = "User ID", required = true, example = "1")
-            @PathVariable @Positive Long id) {
+            @Parameter(description = "User ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
-            User user = userService.findById(id)
+            User user = userService
+                    .findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
             UserDto response = UserMapper.INSTANCE.toUserRecord(user);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
     }
 
     @Operation(
-        summary = "Get user by username",
-        description = "Retrieves a user by their username",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "User found",
-                content = @Content(schema = @Schema(implementation = UserDto.class))),
-        @ApiResponse(responseCode = "404", description = "User not found",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Get user by username",
+            description = "Retrieves a user by their username",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User found",
+                        content = @Content(schema = @Schema(implementation = UserDto.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @GetMapping("/username/{username}")
     public ResponseEntity<?> getUserByUsername(
-            @Parameter(description = "Username", required = true, example = "john_doe")
-            @PathVariable @NotBlank String username) {
+            @Parameter(description = "Username", required = true, example = "john_doe") @PathVariable @NotBlank
+                    String username) {
         try {
-            User user = userService.findByUsername(username)
+            User user = userService
+                    .findByUsername(username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
             UserDto response = UserMapper.INSTANCE.toUserRecord(user);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
     }
 
     @Operation(
-        summary = "Get current user details",
-        description = "Retrieves the full details of the currently authenticated user",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "User details retrieved successfully",
-                content = @Content(schema = @Schema(implementation = UserFullDto.class))),
-        @ApiResponse(responseCode = "401", description = "User not authenticated",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "404", description = "User not found",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Get current user details",
+            description = "Retrieves the full details of the currently authenticated user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User details retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = UserFullDto.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUserDetails(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not authenticated"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
         try {
-            User user = userService.findByUsername(authentication.getName())
+            User user = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
             UserFullDto userFullRecord = UserMapper.INSTANCE.toUserFullRecord(user);
             return ResponseEntity.ok(userFullRecord);
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
     }
 
     @Operation(
-        summary = "Update current user details",
-        description = "Updates the details of the currently authenticated user",
-        security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "User details updated successfully",
-                content = @Content(schema = @Schema(implementation = UserFullDto.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid user data",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "401", description = "User not authenticated",
-                content = @Content(schema = @Schema(implementation = Map.class))),
-        @ApiResponse(responseCode = "404", description = "User not found",
-                content = @Content(schema = @Schema(implementation = Map.class)))
-    })
+            summary = "Update current user details",
+            description = "Updates the details of the currently authenticated user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User details updated successfully",
+                        content = @Content(schema = @Schema(implementation = UserFullDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid user data",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
     @PutMapping("/me")
     public ResponseEntity<?> updateCurrentUserDetails(
-            @Valid @RequestBody UserModifyDto userModifyDto,
-            Authentication authentication) {
-        
+            @Valid @RequestBody UserModifyDto userModifyDto, Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not authenticated"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
         try {
-            User user = userService.findByUsername(authentication.getName())
+            User user = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
             User updatedUser = userService.updateUserDetails(user, userModifyDto);
             UserFullDto response = UserMapper.INSTANCE.toUserFullRecord(updatedUser);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Failed to update user details"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to update user details"));
         }
     }
 }

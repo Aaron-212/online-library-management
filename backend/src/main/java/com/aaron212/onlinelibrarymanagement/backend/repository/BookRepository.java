@@ -13,11 +13,11 @@ import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByIndexCategory(IndexCategory category);
-    
+
     List<Book> findByLocation(BookLocation location);
-    
+
     Optional<Book> findByIsbn(String isbn);
-    
+
     boolean existsByIsbn(String isbn);
 
     @Query("SELECT b FROM Book b WHERE b.title LIKE %:keyword% OR b.isbn LIKE %:keyword%")

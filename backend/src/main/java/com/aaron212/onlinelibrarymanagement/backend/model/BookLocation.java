@@ -38,4 +38,4 @@ public class BookLocation {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updateTime;
-} 
+}

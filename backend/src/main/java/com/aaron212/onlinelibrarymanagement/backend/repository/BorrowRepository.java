@@ -16,9 +16,8 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     List<Borrow> findByBookId(@Param("bookId") Long bookId);
 
     // 查询用户待缴费用（fine > 0 且未支付）
-    @Query("SELECT b FROM Borrow b WHERE b.user.id = :userId " +
-            "AND b.fine > 0 " +
-            "AND b.actualReturnTime IS NOT NULL " +
-            "AND b.status = 3") // 状态：逾期
+    @Query("SELECT b FROM Borrow b WHERE b.user.id = :userId " + "AND b.fine > 0 "
+            + "AND b.actualReturnTime IS NOT NULL "
+            + "AND b.status = 3") // 状态：逾期
     List<Borrow> findUnpaidFeesByUser(Long userId);
 }
