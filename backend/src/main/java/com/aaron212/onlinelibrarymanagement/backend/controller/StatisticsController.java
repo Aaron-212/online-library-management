@@ -48,13 +48,8 @@ public class StatisticsController {
                         responseCode = "400",
                         description = "Invalid parameter",
                         content = @Content(schema = @Schema(implementation = Map.class))),
-                @ApiResponse(
-                        responseCode = "403",
-                        description = "Access denied - librarian role required",
-                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/top-borrowed-books")
-    @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> getTopBorrowedBooks(
             @Parameter(description = "Number of top books to retrieve", example = "10")
                     @RequestParam(defaultValue = "10")
@@ -84,13 +79,8 @@ public class StatisticsController {
                         responseCode = "500",
                         description = "Internal server error",
                         content = @Content(schema = @Schema(implementation = Map.class))),
-                @ApiResponse(
-                        responseCode = "403",
-                        description = "Access denied - librarian role required",
-                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/borrow-trends/weekly")
-    @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> getWeeklyBorrowTrend() {
         try {
             Map<String, Long> trend = statisticsService.getBorrowTrendByWeek();
@@ -115,13 +105,8 @@ public class StatisticsController {
                         responseCode = "500",
                         description = "Internal server error",
                         content = @Content(schema = @Schema(implementation = Map.class))),
-                @ApiResponse(
-                        responseCode = "403",
-                        description = "Access denied - librarian role required",
-                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/borrow-trends/monthly")
-    @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> getMonthlyBorrowTrend() {
         try {
             Map<String, Long> trend = statisticsService.getBorrowTrendByMonth();
@@ -148,11 +133,11 @@ public class StatisticsController {
                         content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "403",
-                        description = "Access denied - librarian role required",
+                        description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/inventory")
-    @PreAuthorize("hasRole('LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getBookInventoryStatistics() {
         try {
             Map<?, Map<String, Long>> statistics = statisticsService.getBookInventoryStatistics();
@@ -179,11 +164,11 @@ public class StatisticsController {
                         content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "403",
-                        description = "Access denied - librarian role required",
+                        description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user-behavior")
-    @PreAuthorize("hasRole('LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUserBehaviorAnalysis() {
         try {
             Map<String, Long> analysis = statisticsService.getUserBehaviorAnalysis();
@@ -208,13 +193,8 @@ public class StatisticsController {
                         responseCode = "500",
                         description = "Internal server error",
                         content = @Content(schema = @Schema(implementation = Map.class))),
-                @ApiResponse(
-                        responseCode = "403",
-                        description = "Access denied - librarian role required",
-                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/dashboard")
-    @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<?> getDashboardSummary() {
         try {
             // Combine multiple statistics for dashboard

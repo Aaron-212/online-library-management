@@ -68,8 +68,7 @@ public class User {
     @Getter
     public enum Role {
         USER(1),
-        ADMIN(2),
-        LIBRARIAN(3);
+        ADMIN(2);
 
         private final int value;
 

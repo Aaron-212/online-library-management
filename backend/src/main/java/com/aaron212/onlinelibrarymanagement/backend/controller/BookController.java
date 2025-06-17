@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,6 +61,7 @@ public class BookController {
                         description = "Book with ISBN already exists",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createBook(@Valid @RequestBody BookCreateDto bookCreateDto) {
         try {
@@ -155,6 +157,7 @@ public class BookController {
                         description = "Book not found",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBook(
             @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id,
@@ -183,6 +186,7 @@ public class BookController {
                         description = "Cannot delete book with active borrowings",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBook(
             @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
