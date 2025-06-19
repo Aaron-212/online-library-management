@@ -7,7 +7,6 @@ import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
 import com.aaron212.onlinelibrarymanagement.backend.projection.BookProjection;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
-import com.aaron212.onlinelibrarymanagement.backend.repository.BookLocationRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.IndexCategoryRepository;
 import org.springframework.data.domain.Page;
@@ -25,17 +24,14 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookCopyRepository bookCopyRepository;
     private final IndexCategoryRepository indexCategoryRepository;
-    private final BookLocationRepository bookLocationRepository;
 
     public BookService(
             BookRepository bookRepository,
             BookCopyRepository bookCopyRepository,
-            IndexCategoryRepository indexCategoryRepository,
-            BookLocationRepository bookLocationRepository) {
+            IndexCategoryRepository indexCategoryRepository) {
         this.bookRepository = bookRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.indexCategoryRepository = indexCategoryRepository;
-        this.bookLocationRepository = bookLocationRepository;
     }
 
     public void createBook(BookCreateDto bookCreateDto) {

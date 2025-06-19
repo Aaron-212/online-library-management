@@ -1,6 +1,5 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
-import com.aaron212.onlinelibrarymanagement.backend.dto.UserModifyDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserRegisterDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
@@ -14,7 +13,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.lang.ScopedValue;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;

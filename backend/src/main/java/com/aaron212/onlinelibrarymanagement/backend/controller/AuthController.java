@@ -93,12 +93,12 @@ public class AuthController {
         if (loginRequest.usernameOrEmail().contains("@")) {
             // If the usernameOrEmail contains '@', treat it as an email
             user = userService
-                    .findByEmail(loginRequest.usernameOrEmail())
+                    .findFullByEmail(loginRequest.usernameOrEmail())
                     .orElseThrow(() -> new RuntimeException("User not found"));
         } else {
             // Otherwise, treat it as a username
             user = userService
-                    .findByUsername(loginRequest.usernameOrEmail())
+                    .findFullByUsername(loginRequest.usernameOrEmail())
                     .orElseThrow(() -> new RuntimeException("User not found"));
         }
         try {
