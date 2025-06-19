@@ -81,19 +81,19 @@ public class BookService {
     }
 
     private IndexCategory handleParseIndexCategory(String indexCode) {
-        IndexCategory category;
-        if (indexCategoryRepository.existsByIndexCode(indexCode)) {
-            // Find existing category by ID
-            category = indexCategoryRepository
-                    .findByIndexCode(indexCode)
-                    .orElseThrow(() -> new RuntimeException("Index category not found"));
+        // Try to find existing category first (atomic operation)
+        Optional<IndexCategory> existingCategory = indexCategoryRepository.findByIndexCode(indexCode);
+        
+        if (existingCategory.isPresent()) {
+            return existingCategory.get();
         } else {
-            // Create new category if not provided
-            category = new IndexCategory();
+            // Create new category if not found
+            IndexCategory category = new IndexCategory();
             category.setIndexCode(indexCode);
-            indexCategoryRepository.save(category);
+            // Assign the saved entity back to get the managed entity with generated ID
+            category = indexCategoryRepository.save(category);
+            return category;
         }
-        return category;
     }
 
     public void deleteBook(Long id) {
