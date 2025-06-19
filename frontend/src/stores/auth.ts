@@ -189,7 +189,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Get authorization header for API calls
   const getAuthHeader = () => {
-    return user.value?.token ? `Bearer ${user.value.token}` : null
+    // First check if we have the token in the user object
+    if (user.value?.token) {
+      return `Bearer ${user.value.token}`
+    }
+    
+    // Fallback to localStorage (useful during login process when user.value is not yet set)
+    const token = localStorage.getItem('auth_token')
+    return token ? `Bearer ${token}` : null
   }
 
   return {
