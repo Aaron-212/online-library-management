@@ -91,23 +91,28 @@ public class AuthController {
         }
         
         try {
-            // Authenticate using the original login identifier (username or email)
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.usernameOrEmail(), loginRequest.password()));
-            
-            // Only retrieve user details after successful authentication
+            // First, retrieve user details to get the actual username for authentication
             UserFullProjection user;
             if (loginRequest.usernameOrEmail().contains("@")) {
                 // If the usernameOrEmail contains '@', treat it as an email
                 user = userService
                         .findFullByEmail(loginRequest.usernameOrEmail())
-                        .orElseThrow(() -> new AuthenticationException("User not found") {});
+                        .orElse(null);
             } else {
                 // Otherwise, treat it as a username
                 user = userService
                         .findFullByUsername(loginRequest.usernameOrEmail())
-                        .orElseThrow(() -> new AuthenticationException("User not found") {});
+                        .orElse(null);
             }
+            
+            // If user not found, throw authentication exception early
+            if (user == null) {
+                throw new AuthenticationException("Invalid username or password") {};
+            }
+            
+            // Authenticate using the actual username from the database
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), loginRequest.password()));
             
             String token = jwtService.generateToken(user.getUsername(), user.getLastUpdateTime());
             return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
