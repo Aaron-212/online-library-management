@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { useDarkMode } from '@/composables/useDarkMode'
@@ -19,7 +19,7 @@ const pageTitle = computed(() => {
     borrow: 'Borrow Books',
   }
 
-  return routeTitles[route.name as string] || toTitleCase((route.name as string) || 'Unknown Page')
+  return routeTitles[route.name as string] || toTitleCase(route.name as string) || 'Unknown Page'
 })
 </script>
 
@@ -34,8 +34,35 @@ const pageTitle = computed(() => {
         <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-6">
-        <RouterView />
+        <RouterView v-slot="{ Component, route }">
+          <Transition mode="out-in" name="fade">
+            <div :key="route.name">
+              <component :is="Component"></component>
+            </div>
+          </Transition>
+        </RouterView>
       </div>
     </main>
   </SidebarProvider>
 </template>
+
+<!--suppress CssUnusedSymbol-->
+<style scoped>
+.fade-enter-active {
+  animation: fade 0.25s;
+}
+
+.fade-leave-active {
+  animation: fade 0.25s reverse;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 100%;
+  }
+}
+</style>
