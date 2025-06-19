@@ -1,6 +1,24 @@
 <script lang="ts" setup>
 import { RouterLink, useRouter } from 'vue-router'
-import { BookOpen, Clock, Gauge, Home, Library, LogOut, Search, User, Users } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { 
+  BookOpen, 
+  Clock, 
+  Gauge, 
+  Home, 
+  Library, 
+  LogOut, 
+  Search, 
+  User, 
+  Users,
+  Bell,
+  CreditCard,
+  Settings,
+  Shield,
+  UserCog,
+  FileText,
+  BarChart3
+} from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -23,6 +41,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+const router = useRouter()
+const authStore = useAuthStore()
+
+// Main navigation for all users
 const navigationItems = [
   {
     title: 'Home',
@@ -33,6 +55,7 @@ const navigationItems = [
     title: 'Dashboard',
     url: '/dashboard',
     icon: Gauge,
+    requiresAuth: true,
   },
   {
     title: 'Books',
@@ -40,32 +63,70 @@ const navigationItems = [
     icon: BookOpen,
   },
   {
-    title: 'Members',
-    url: '/members',
+    title: 'Notices',
+    url: '/notices',
+    icon: Bell,
+  },
+]
+
+// Library management for authenticated users
+const libraryItems = [
+  {
+    title: 'My Borrowing',
+    url: '/borrows',
+    icon: Clock,
+    requiresAuth: true,
+  },
+]
+
+// Admin navigation items
+const adminItems = [
+  {
+    title: 'Admin Dashboard',
+    url: '/admin/dashboard',
+    icon: Gauge,
+  },
+  {
+    title: 'Manage Books',
+    url: '/admin/books',
+    icon: Library,
+  },
+  {
+    title: 'User Management',
+    url: '/admin/users',
     icon: Users,
   },
   {
-    title: 'Search',
-    url: '/search',
-    icon: Search,
+    title: 'Borrowing Rules',
+    url: '/admin/borrowing-rules',
+    icon: Settings,
+  },
+  {
+    title: 'Fee Management',
+    url: '/admin/fees',
+    icon: CreditCard,
+  },
+  {
+    title: 'Reports',
+    url: '/admin/reports',
+    icon: BarChart3,
   },
 ]
 
-const libraryItems = [
-  {
-    title: 'Borrow Books',
-    url: '/borrow',
-    icon: Clock,
-  },
-  {
-    title: 'Categories',
-    url: '/categories',
-    icon: Library,
-  },
-]
+// Computed properties
+const isAdmin = computed(() => {
+  // TODO: Replace with actual role checking when user roles are available
+  // return authStore.user?.role === 'ADMIN'
+  return authStore.isAuthenticated // Temporary for demo
+})
 
-const router = useRouter()
-const authStore = useAuthStore()
+const filteredNavigationItems = computed(() => {
+  return navigationItems.filter(item => !item.requiresAuth || authStore.isAuthenticated)
+})
+
+const filteredLibraryItems = computed(() => {
+  return libraryItems.filter(item => !item.requiresAuth || authStore.isAuthenticated)
+})
 
 const handleLogout = () => {
   authStore.logout()
@@ -88,7 +149,7 @@ const handleLogout = () => {
         <SidebarGroupLabel>Navigation</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in navigationItems" :key="item.title">
+            <SidebarMenuItem v-for="item in filteredNavigationItems" :key="item.title">
               <SidebarMenuButton asChild>
                 <RouterLink :to="item.url" class="flex items-center gap-2">
                   <component :is="item.icon" class="h-4 w-4" />
@@ -101,11 +162,28 @@ const handleLogout = () => {
       </SidebarGroup>
 
       <!-- Library Management -->
-      <SidebarGroup v-if="authStore.isAuthenticated">
+      <SidebarGroup v-if="authStore.isAuthenticated && filteredLibraryItems.length > 0">
         <SidebarGroupLabel>Library Management</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in libraryItems" :key="item.title">
+            <SidebarMenuItem v-for="item in filteredLibraryItems" :key="item.title">
+              <SidebarMenuButton asChild>
+                <RouterLink :to="item.url" class="flex items-center gap-2">
+                  <component :is="item.icon" class="h-4 w-4" />
+                  <span>{{ item.title }}</span>
+                </RouterLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <!-- Admin Section -->
+      <SidebarGroup v-if="isAdmin">
+        <SidebarGroupLabel>Administration</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem v-for="item in adminItems" :key="item.title">
               <SidebarMenuButton asChild>
                 <RouterLink :to="item.url" class="flex items-center gap-2">
                   <component :is="item.icon" class="h-4 w-4" />
@@ -144,6 +222,19 @@ const handleLogout = () => {
                 <RouterLink class="flex items-center gap-2" to="/profile">
                   <User class="h-4 w-4" />
                   <span>Profile</span>
+                </RouterLink>
+              </DropdownMenuItem>
+              <DropdownMenuItem as-child>
+                <RouterLink class="flex items-center gap-2" to="/borrows">
+                  <Clock class="h-4 w-4" />
+                  <span>My Borrowing</span>
+                </RouterLink>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator v-if="isAdmin" />
+              <DropdownMenuItem v-if="isAdmin" as-child>
+                <RouterLink class="flex items-center gap-2" to="/admin/dashboard">
+                  <Shield class="h-4 w-4" />
+                  <span>Admin Panel</span>
                 </RouterLink>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
