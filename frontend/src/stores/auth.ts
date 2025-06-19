@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { authService } from '@/lib/api'
-import { ApiError } from '@/lib/api/client'
+import { authService, usersService } from '@/lib/api'
+import type { ApiError } from '@/lib/api/client'
 import type { UserLoginDto, UserRegisterDto } from '@/lib/api'
 
 interface User {
@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Login function
   const login = async (
-    username: string,
+    usernameOrEmail: string,
     password: string,
   ): Promise<{ success: boolean; message?: string }> => {
     isLoading.value = true
@@ -63,23 +63,57 @@ export const useAuthStore = defineStore('auth', () => {
       const hashedPassword = await hashPassword(password)
 
       const loginData: UserLoginDto = {
-        usernameOrEmail: username,
+        usernameOrEmail,
         password: hashedPassword,
       }
 
       const response = await authService.login(loginData)
 
-      user.value = {
-        username,
-        token: response.token,
+      // Handle different response formats from backend
+      let token: string
+      let message: string
+      
+      if (typeof response === 'string') {
+        // Backend returned plain text token
+        token = response
+        message = 'Login successful!'
+      } else if (response && typeof response === 'object') {
+        // Backend returned JSON object
+        if ('token' in response && typeof response.token === 'string') {
+          token = response.token
+          message = ('message' in response && typeof response.message === 'string') 
+            ? response.message 
+            : 'Login successful!'
+        } else {
+          // Fallback: treat the entire response as token if it's a string
+          token = String(response)
+          message = 'Login successful!'
+        }
+      } else {
+        throw new Error('Invalid response format from server')
       }
 
-      isAuthenticated.value = true
+      // Get the actual user data to retrieve correct username
+      // Temporarily set the token for the API call
+      localStorage.setItem('auth_token', token)
+      
+      try {
+        const userData = await usersService.getCurrentUser()
+        
+        user.value = {
+          username: userData.username, // Use actual username from user data
+          token: token,
+        }
 
-      localStorage.setItem('auth_token', response.token)
-      localStorage.setItem('username', username)
+        isAuthenticated.value = true
+        localStorage.setItem('username', userData.username)
 
-      return { success: true, message: response.message }
+        return { success: true, message }
+      } catch (userError) {
+        // If getting user data fails, clean up and throw error
+        localStorage.removeItem('auth_token')
+        throw userError
+      }
     } catch (error) {
       console.error('Login error:', error)
       const apiError = error as ApiError
