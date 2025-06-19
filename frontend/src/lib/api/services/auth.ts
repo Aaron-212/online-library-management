@@ -22,12 +22,10 @@ export class AuthService {
   }
 
   async changePassword(oldPassword: string, newPassword: string): Promise<MessageResponse> {
-    const params = new URLSearchParams({
+    return apiClient.put<MessageResponse>(`${this.basePath}/password`, {
       oldPassword,
       newPassword
     })
-    
-    return apiClient.put<MessageResponse>(`${this.basePath}/password?${params}`)
   }
 }
 

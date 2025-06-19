@@ -85,9 +85,8 @@ export const useAuthStore = defineStore('auth', () => {
             ? response.message 
             : 'Login successful!'
         } else {
-          // Fallback: treat the entire response as token if it's a string
-          token = String(response)
-          message = 'Login successful!'
+          // No valid token found in response object
+          throw new Error('No valid token found in server response')
         }
       } else {
         throw new Error('Invalid response format from server')
