@@ -30,9 +30,8 @@ public class Book {
     @JoinColumn(name = "index_category_id", nullable = false)
     private IndexCategory indexCategory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", nullable = false)
-    private BookLocation location;
+    @NotBlank(message = "Location is required")
+    private String location;
 
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Title is required")

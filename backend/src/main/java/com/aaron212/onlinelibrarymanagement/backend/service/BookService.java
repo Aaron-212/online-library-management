@@ -1,13 +1,11 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
-import com.aaron212.onlinelibrarymanagement.backend.dto.BookDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
-import com.aaron212.onlinelibrarymanagement.backend.mapper.BookMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
-import com.aaron212.onlinelibrarymanagement.backend.model.BookLocation;
 import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
+import com.aaron212.onlinelibrarymanagement.backend.projection.BookProjection;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookLocationRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookRepository;
@@ -40,86 +38,73 @@ public class BookService {
         this.bookLocationRepository = bookLocationRepository;
     }
 
-    /**
-     * Create a new book
-     */
-    public BookDto createBook(BookCreateDto bookCreateDto) {
+    public void createBook(BookCreateDto bookCreateDto) {
         // Check if book with ISBN already exists
         if (bookRepository.existsByIsbn(bookCreateDto.isbn())) {
             throw new RuntimeException("Book with ISBN " + bookCreateDto.isbn() + " already exists");
         }
 
-        IndexCategory category = indexCategoryRepository
-                .findById(bookCreateDto.indexCategoryId())
-                .orElseThrow(() -> new RuntimeException("Index category not found"));
-
-        BookLocation location = bookLocationRepository
-                .findById(bookCreateDto.locationId())
-                .orElseThrow(() -> new RuntimeException("Book location not found"));
+        IndexCategory category = handleParseIndexCategory(bookCreateDto.indexCategory());
 
         Book book = new Book();
         book.setIsbn(bookCreateDto.isbn());
         book.setTitle(bookCreateDto.title());
         book.setIndexCategory(category);
-        book.setLocation(location);
+        book.setLocation(bookCreateDto.location());
 
-        Book savedBook = bookRepository.save(book);
-        return BookMapper.INSTANCE.bookToBookDto(savedBook);
+        bookRepository.save(book);
     }
 
-    /**
-     * Get all books with pagination
-     */
     @Transactional(readOnly = true)
-    public Page<BookDto> getAllBooks(Pageable pageable) {
-        return bookRepository.findAll(pageable).map(BookMapper.INSTANCE::bookToBookDto);
+    public Page<BookProjection> getAllBooks(Pageable pageable) {
+        return bookRepository.findProjectionAllBy(pageable);
     }
 
-    /**
-     * Get book by ID
-     */
     @Transactional(readOnly = true)
-    public Optional<BookDto> getBookById(Long id) {
-        return bookRepository.findById(id).map(BookMapper.INSTANCE::bookToBookDto);
+    public Optional<BookProjection> getBookById(Long id) {
+        return bookRepository.findProjectionById(id);
     }
 
-    /**
-     * Get book by ISBN
-     */
     @Transactional(readOnly = true)
-    public Optional<BookDto> getBookByIsbn(String isbn) {
-        return bookRepository.findByIsbn(isbn).map(BookMapper.INSTANCE::bookToBookDto);
+    public Optional<BookProjection> getBookByIsbn(String isbn) {
+        return bookRepository.findProjectionByIsbn(isbn);
     }
 
-    /**
-     * Update book details
-     */
-    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) {
-        Book book =
-                bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+    public void updateBook(Long id, BookUpdateDto bookUpdateDto) {
+        Book book = bookRepository
+                .findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
 
-        IndexCategory category = indexCategoryRepository
-                .findById(bookUpdateDto.indexCategoryId())
-                .orElseThrow(() -> new RuntimeException("Index category not found"));
-
-        BookLocation location = bookLocationRepository
-                .findById(bookUpdateDto.locationId())
-                .orElseThrow(() -> new RuntimeException("Book location not found"));
+        IndexCategory category = handleParseIndexCategory(bookUpdateDto.indexCategory());
 
         book.setTitle(bookUpdateDto.title());
         book.setIndexCategory(category);
-        book.setLocation(location);
+        book.setLocation(bookUpdateDto.title());
 
-        Book updatedBook = bookRepository.save(book);
-        return BookMapper.INSTANCE.bookToBookDto(updatedBook);
+        bookRepository.save(book);
+    }
+
+    private IndexCategory handleParseIndexCategory(String indexCode) {
+        IndexCategory category;
+        if (indexCategoryRepository.existsByIndexCode(indexCode)) {
+            // Find existing category by ID
+            category = indexCategoryRepository
+                    .findByIndexCode(indexCode)
+                    .orElseThrow(() -> new RuntimeException("Index category not found"));
+        } else {
+            // Create new category if not provided
+            category = new IndexCategory();
+            category.setIndexCode(indexCode);
+            indexCategoryRepository.save(category);
+        }
+        return category;
     }
 
     /**
      * Delete book by ID
      */
     public void deleteBook(Long id) {
-        Book book =
-                bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+        Book book = bookRepository
+                .findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
 
         // Check if there are any book copies
         List<BookCopy> copies = bookCopyRepository.findByBook(book);
@@ -134,38 +119,20 @@ public class BookService {
      * Search books by keyword
      */
     @Transactional(readOnly = true)
-    public List<BookDto> searchBooks(String keyword) {
-        return bookRepository.searchByKeyword(keyword).stream()
-                .map(BookMapper.INSTANCE::bookToBookDto)
-                .toList();
+    public Page<BookProjection> searchBooks(String keyword, Pageable pageable) {
+        return bookRepository.searchProjectionByKeyword(keyword, pageable);
     }
 
     /**
      * Get books by category
      */
     @Transactional(readOnly = true)
-    public List<BookDto> getBooksByCategory(Long categoryId) {
+    public Page<BookProjection> getBooksByCategory(String categoryCode, Pageable pageable) {
         IndexCategory category = indexCategoryRepository
-                .findById(categoryId)
+                .findByIndexCode(categoryCode)
                 .orElseThrow(() -> new RuntimeException("Index category not found"));
 
-        return bookRepository.findByIndexCategory(category).stream()
-                .map(BookMapper.INSTANCE::bookToBookDto)
-                .toList();
-    }
-
-    /**
-     * Get books by location
-     */
-    @Transactional(readOnly = true)
-    public List<BookDto> getBooksByLocation(Long locationId) {
-        BookLocation location = bookLocationRepository
-                .findById(locationId)
-                .orElseThrow(() -> new RuntimeException("Book location not found"));
-
-        return bookRepository.findByLocation(location).stream()
-                .map(BookMapper.INSTANCE::bookToBookDto)
-                .toList();
+        return bookRepository.findProjectionByIndexCategory(category, pageable);
     }
 
     /**

@@ -23,8 +23,7 @@ public class IndexCategory {
     @NotBlank(message = "Index code is required")
     private String indexCode;
 
-    @Column(nullable = false, length = 50)
-    @NotBlank(message = "Category name is required")
+    @Column(length = 50)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
