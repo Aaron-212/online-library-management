@@ -28,10 +28,19 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        User user;
+        if (usernameOrEmail.contains("@")) {
+            // If the identifier contains '@', treat it as an email
+            user = userRepository
+                    .findByEmail(usernameOrEmail)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + usernameOrEmail));
+        } else {
+            // Otherwise, treat it as a username
+            user = userRepository
+                    .findByUsername(usernameOrEmail)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + usernameOrEmail));
+        }
         return (UserDetails) user;
     }
 

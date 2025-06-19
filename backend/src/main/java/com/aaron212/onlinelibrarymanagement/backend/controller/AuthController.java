@@ -89,25 +89,31 @@ public class AuthController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Username/email and password are required"));
         }
-        UserFullProjection user;
-        if (loginRequest.usernameOrEmail().contains("@")) {
-            // If the usernameOrEmail contains '@', treat it as an email
-            user = userService
-                    .findFullByEmail(loginRequest.usernameOrEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-        } else {
-            // Otherwise, treat it as a username
-            user = userService
-                    .findFullByUsername(loginRequest.usernameOrEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-        }
+        
         try {
+            // Authenticate using the original login identifier (username or email)
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), loginRequest.password()));
+                    new UsernamePasswordAuthenticationToken(loginRequest.usernameOrEmail(), loginRequest.password()));
+            
+            // Only retrieve user details after successful authentication
+            UserFullProjection user;
+            if (loginRequest.usernameOrEmail().contains("@")) {
+                // If the usernameOrEmail contains '@', treat it as an email
+                user = userService
+                        .findFullByEmail(loginRequest.usernameOrEmail())
+                        .orElseThrow(() -> new AuthenticationException("User not found") {});
+            } else {
+                // Otherwise, treat it as a username
+                user = userService
+                        .findFullByUsername(loginRequest.usernameOrEmail())
+                        .orElseThrow(() -> new AuthenticationException("User not found") {});
+            }
+            
             String token = jwtService.generateToken(user.getUsername(), user.getLastUpdateTime());
-
             return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
+            
         } catch (AuthenticationException e) {
+            // Return 401 for any authentication failure (non-existent user or wrong password)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
         }
     }
