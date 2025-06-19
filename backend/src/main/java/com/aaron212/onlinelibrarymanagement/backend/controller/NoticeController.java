@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -81,7 +82,7 @@ public class NoticeController {
             })
     @GetMapping
     public ResponseEntity<Page<NoticeResponseDto>> getAllNotices(
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         Page<NoticeResponseDto> notices = noticeService.getAllNotices(pageable);
         return ResponseEntity.ok(notices);
     }
@@ -96,7 +97,7 @@ public class NoticeController {
             })
     @GetMapping("/active")
     public ResponseEntity<Page<NoticeResponseDto>> getActiveNotices(
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         Page<NoticeResponseDto> notices = noticeService.getActiveNotices(pageable);
         return ResponseEntity.ok(notices);
     }
@@ -117,7 +118,7 @@ public class NoticeController {
     public ResponseEntity<?> getNoticesByStatus(
             @Parameter(description = "Notice status (1=SHOW, 2=PINNED)", required = true, example = "1") 
             @PathVariable @Positive Integer status,
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         try {
             Page<NoticeResponseDto> notices = noticeService.getNoticesByStatus(status, pageable);
             return ResponseEntity.ok(notices);
@@ -168,7 +169,7 @@ public class NoticeController {
     public ResponseEntity<?> getNoticesByCreator(
             @Parameter(description = "Creator username", required = true, example = "admin") 
             @PathVariable @NotBlank String username,
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         try {
             Page<NoticeResponseDto> notices = noticeService.getNoticesByCreator(username, pageable);
             return ResponseEntity.ok(notices);
@@ -189,7 +190,7 @@ public class NoticeController {
     public ResponseEntity<Page<NoticeResponseDto>> searchNotices(
             @Parameter(description = "Search keyword", required = true, example = "library hours")
             @RequestParam @NotBlank String keyword,
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         Page<NoticeResponseDto> notices = noticeService.searchNotices(keyword, pageable);
         return ResponseEntity.ok(notices);
     }

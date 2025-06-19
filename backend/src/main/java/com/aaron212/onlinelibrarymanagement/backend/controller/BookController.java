@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
@@ -85,7 +86,7 @@ public class BookController {
             })
     @GetMapping
     public ResponseEntity<Page<Book>> getAllBooks(
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         Page<Book> books = bookService.getAllBooksPaged(pageable);
         return ResponseEntity.ok(books);
     }
@@ -215,7 +216,7 @@ public class BookController {
                     @RequestParam
                     @NotBlank
                     String keyword,
-            @Parameter(description = "Pagination parameters") Pageable pageable) {
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         Page<Book> books = bookService.searchBooksPaged(keyword, pageable);
         return ResponseEntity.ok(books);
     }
