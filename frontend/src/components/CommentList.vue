@@ -2,7 +2,7 @@
   <div class="comment-list">
     <div v-for="comment in comments" :key="comment.id" class="comment-item">
       <div class="comment-header">
-        <span class="font-semibold text-sm">{{ comment.user?.username }}</span>
+        <span class="font-semibold text-sm">{{ comment.user.username }}</span>
         <span class="text-xs text-muted-foreground">{{ formatTime(comment.createTime) }}</span>
       </div>
       <div class="comment-content text-sm leading-relaxed">{{ comment.content }}</div>
