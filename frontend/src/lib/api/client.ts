@@ -94,16 +94,19 @@ class ApiClient {
 
   // HTTP methods
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = new URL(`${this.baseUrl}${endpoint}`)
+    let finalEndpoint = endpoint
+    
     if (params) {
+      const url = new URL(endpoint, 'http://example.com') // Use dummy base for URL construction
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           url.searchParams.append(key, String(value))
         }
       })
+      finalEndpoint = endpoint + url.search
     }
     
-    return this.makeRequest<T>(url.pathname + url.search)
+    return this.makeRequest<T>(finalEndpoint)
   }
 
   async post<T>(endpoint: string, data?: any): Promise<T> {
