@@ -17,7 +17,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,11 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
-
 @RestController
 @RequestMapping("/api/v1/notices")
-@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 @Tag(name = "Notices", description = "Notice management endpoints")
 public class NoticeController {
 
@@ -61,7 +57,7 @@ public class NoticeController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createNotice(@Valid @RequestBody NoticeCreateDto noticeCreateDto, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));

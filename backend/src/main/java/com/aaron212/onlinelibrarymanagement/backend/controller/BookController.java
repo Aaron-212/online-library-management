@@ -62,7 +62,7 @@ public class BookController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createBook(@Valid @RequestBody BookCreateDto bookCreateDto) {
         try {
             bookService.createBook(bookCreateDto);

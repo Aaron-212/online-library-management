@@ -53,7 +53,8 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Page<Book> getAllBooksPaged(Pageable pageable) {
-        return bookRepository.pagedFindAll(pageable);
+        // Use standard findAll for pagination
+        return bookRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
@@ -119,7 +120,8 @@ public class BookService {
                 .findByIndexCode(categoryCode)
                 .orElseThrow(() -> new RuntimeException("Index category not found"));
 
-        return bookRepository.pagedFindByIndexCategory(category, pageable);
+        // Use renamed method for paginated find by category
+        return bookRepository.findByIndexCategory(category, pageable);
     }
 
     @Transactional(readOnly = true)
