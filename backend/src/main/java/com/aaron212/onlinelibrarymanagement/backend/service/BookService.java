@@ -2,6 +2,9 @@ package com.aaron212.onlinelibrarymanagement.backend.service;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
+import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
+import com.aaron212.onlinelibrarymanagement.backend.exception.DuplicateResourceException;
+import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
@@ -37,7 +40,7 @@ public class BookService {
     public void createBook(BookCreateDto bookCreateDto) {
         // Check if book with ISBN already exists
         if (bookRepository.existsByIsbn(bookCreateDto.isbn())) {
-            throw new RuntimeException("Book with ISBN " + bookCreateDto.isbn() + " already exists");
+            throw new DuplicateResourceException("Book", "ISBN", bookCreateDto.isbn());
         }
 
         IndexCategory category = handleParseIndexCategory(bookCreateDto.indexCategory());
@@ -69,7 +72,7 @@ public class BookService {
 
     public void updateBook(Long id, BookUpdateDto bookUpdateDto) {
         Book book = bookRepository
-                .findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+                .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
         IndexCategory category = handleParseIndexCategory(bookUpdateDto.indexCategory());
 
@@ -98,12 +101,12 @@ public class BookService {
 
     public void deleteBook(Long id) {
         Book book = bookRepository
-                .findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+                .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
         // Check if there are any book copies
         List<BookCopy> copies = bookCopyRepository.findByBook(book);
         if (!copies.isEmpty()) {
-            throw new RuntimeException("Cannot delete book with existing copies. Please remove all copies first.");
+            throw new BusinessLogicException("Cannot delete book with existing copies. Please remove all copies first.");
         }
 
         bookRepository.delete(book);
@@ -118,7 +121,7 @@ public class BookService {
     public Page<Book> getBooksByCategory(String categoryCode, Pageable pageable) {
         IndexCategory category = indexCategoryRepository
                 .findByIndexCode(categoryCode)
-                .orElseThrow(() -> new RuntimeException("Index category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("IndexCategory", "indexCode", categoryCode));
 
         // Use renamed method for paginated find by category
         return bookRepository.findByIndexCategory(category, pageable);
@@ -133,7 +136,7 @@ public class BookService {
     public List<BookCopy> getBookCopies(Long bookId) {
         Book book = bookRepository
                 .findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
+                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
 
         return bookCopyRepository.findByBook(book);
     }

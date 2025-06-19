@@ -1,7 +1,11 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserLoginDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserRegisterDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserUpdateDto;
+import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
+import com.aaron212.onlinelibrarymanagement.backend.exception.DuplicateResourceException;
+import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
@@ -44,12 +48,12 @@ public class UserService implements UserDetailsService {
         return (UserDetails) user;
     }
 
-    public void addUser(UserRegisterDto registerRequest) throws RuntimeException {
+    public void addUser(UserRegisterDto registerRequest) throws DuplicateResourceException {
         if (userRepository.existsByUsername(registerRequest.username())) {
-            throw new RuntimeException("Error: Username is already taken!");
+            throw new DuplicateResourceException("User", "username", registerRequest.username());
         }
         if (userRepository.existsByEmail(registerRequest.email())) {
-            throw new RuntimeException("Error: Email is already in use!");
+            throw new DuplicateResourceException("User", "email", registerRequest.email());
         }
 
         User newUser = new User();
@@ -82,7 +86,7 @@ public class UserService implements UserDetailsService {
 
     public User updateUserDetails(String username, UserUpdateDto userModifyDto) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         user.setUsername(userModifyDto.username());
         user.setEmail(userModifyDto.email());
         // Note: Password should not be updated here unless explicitly provided in the DTO
@@ -90,10 +94,10 @@ public class UserService implements UserDetailsService {
     }
 
     public void changePassword(String name, String oldPassword, String newPassword) {
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new ResourceNotFoundException("User", "username", name));
 
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
-            throw new RuntimeException("Old password is incorrect");
+            throw new BusinessLogicException("Old password is incorrect");
         }
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
