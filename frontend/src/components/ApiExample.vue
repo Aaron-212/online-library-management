@@ -37,7 +37,7 @@
             class="border p-3 rounded"
           >
             <h3 class="font-semibold">{{ book.title }}</h3>
-            <p class="text-sm text-gray-600">{{ book.authors.map(a => a.name).join(', ') }}</p>
+            <p class="text-sm text-gray-600">{{ book.authors.map((a: any) => a.name).join(', ') }}</p>
             <p class="text-sm">Available: {{ book.availableQuantity }}/{{ book.totalQuantity }}</p>
             
             <button

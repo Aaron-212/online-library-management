@@ -75,7 +75,7 @@ const availabilityText = computed(() => {
 const loadBook = async () => {
   try {
     isLoading.value = true
-    book.value = await booksService.getBook(bookId.value)
+    book.value = await booksService.getById(bookId.value)
   } catch (error) {
     console.error('Error loading book:', error)
     toast.error('Failed to load book details')
@@ -88,7 +88,7 @@ const loadBook = async () => {
 const loadComments = async () => {
   try {
     isCommentsLoading.value = true
-    const response = await commentsService.getCommentsForBook(bookId.value, { page: 0, size: 50 })
+    const response = await commentsService.getByBookId(bookId.value, { page: 0, size: 50 })
     comments.value = response.content
   } catch (error) {
     console.error('Error loading comments:', error)

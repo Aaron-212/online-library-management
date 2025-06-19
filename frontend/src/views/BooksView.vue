@@ -89,7 +89,7 @@ const isAdmin = computed(() => {
 const loadBooks = async () => {
   try {
     isLoading.value = true
-    const response: PagedResponse<Book> = await booksService.getAllBooks(searchParams.value)
+    const response: PagedResponse<Book> = await booksService.getAll(searchParams.value)
     books.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
@@ -105,9 +105,9 @@ const loadCategories = async () => {
   try {
     // This would need to be implemented in the backend to get all categories
     // For now, we'll extract categories from the books
-    const allBooks = await booksService.getAllBooks({ size: 1000 })
+    const allBooks = await booksService.getAll({ size: 1000 })
     const categorySet = new Set<string>()
-    allBooks.content.forEach(book => {
+    allBooks.content.forEach((book: any) => {
       if (book.indexCategory?.name) {
         categorySet.add(book.indexCategory.name)
       }

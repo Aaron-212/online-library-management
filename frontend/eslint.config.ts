@@ -1,6 +1,5 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
+import vueTsEslintConfig from '@vue/eslint-config-typescript'
 import pluginVitest from '@vitest/eslint-plugin'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
@@ -9,26 +8,31 @@ import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 // configureVueProject({ scriptLangs: ['ts', 'tsx'] })
 // More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
 
-export default defineConfigWithVueTs(
+export default [
   {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
-
-    rules:{
-      "@typescript-eslint/no-explicit-any": ["off"],
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "off"
-    }
+    name: 'app/files-to-ignore',
+    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**']
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
-
-  pluginVue.configs['flat/essential'],
-  vueTsConfigs.recommended,
+  ...pluginVue.configs['flat/essential'],
+  ...vueTsEslintConfig(),
 
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },
+
+  // Custom rules that should override the defaults
+  {
+    name: 'app/custom-rules',
+    files: ['**/*.{ts,mts,tsx,vue}'],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "vue/multi-word-component-names": "off"
+    }
+  },
+
   skipFormatting,
-)
+]

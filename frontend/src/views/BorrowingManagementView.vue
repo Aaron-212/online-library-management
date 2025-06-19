@@ -180,7 +180,7 @@ const handleReturnBook = async (borrowId: number) => {
 
 const handleRenewBook = async (borrowId: number) => {
   try {
-    await borrowService.renewBorrow(borrowId)
+    await borrowService.renewBook(borrowId)
     toast.success('Book renewed successfully!')
     await loadBorrows()
   } catch (error) {

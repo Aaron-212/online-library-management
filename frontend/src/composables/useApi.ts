@@ -175,9 +175,9 @@ export function useComments() {
 export function useStatistics() {
   const { execute, isLoading, error, data, hasError, clearError, reset } = useApi()
 
-  const bookStats = ref(null)
-  const userStats = ref(null)
-  const topBooks = ref([])
+  const bookStats = ref<any>(null)
+  const userStats = ref<any>(null)
+  const topBooks = ref<any[]>([])
 
   const fetchBookStatistics = async () => {
     const result = await execute(() => api.statistics.getBookStatistics())

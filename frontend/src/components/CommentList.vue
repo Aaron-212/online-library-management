@@ -273,7 +273,7 @@ const handleAddComment = async () => {
 
   try {
     isSubmitting.value = true
-    await commentsService.createComment({
+    await commentsService.create({
       bookId: props.bookId,
       content: newComment.value.trim(),
       rating: newRating.value
@@ -313,7 +313,7 @@ const handleUpdateComment = async (commentId: number) => {
   }
 
   try {
-    await commentsService.updateComment(commentId, {
+    await commentsService.update(commentId, {
       content: editComment.value.trim(),
       rating: editRating.value
     })
@@ -333,7 +333,7 @@ const handleDeleteComment = async (commentId: number) => {
   }
 
   try {
-    await commentsService.deleteComment(commentId)
+    await commentsService.delete(commentId)
     toast.success('Comment deleted successfully!')
     emit('comment-deleted')
   } catch (error) {

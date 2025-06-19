@@ -79,7 +79,7 @@ const filteredNotices = computed(() => {
 const loadNotices = async () => {
   try {
     isLoading.value = true
-    const response: PagedResponse<Notice> = await noticesService.getAllNotices({
+    const response: PagedResponse<Notice> = await noticesService.getAll({
       page: currentPage.value,
       size: pageSize.value
     })
@@ -159,7 +159,7 @@ const handleCreateNotice = async () => {
 
   try {
     isSubmitting.value = true
-    await noticesService.createNotice({
+    await noticesService.create({
       title: noticeForm.value.title.trim(),
       content: noticeForm.value.content.trim()
     })
@@ -183,7 +183,7 @@ const handleUpdateNotice = async () => {
 
   try {
     isSubmitting.value = true
-    await noticesService.updateNotice(editingNotice.value.id, {
+    await noticesService.update(editingNotice.value.id, {
       title: noticeForm.value.title.trim(),
       content: noticeForm.value.content.trim()
     })
@@ -205,7 +205,7 @@ const handleDeleteNotice = async (noticeId: number) => {
   }
 
   try {
-    await noticesService.deleteNotice(noticeId)
+    await noticesService.delete(noticeId)
     toast.success('Notice deleted successfully!')
     await loadNotices()
   } catch (error) {

@@ -122,7 +122,7 @@ const loadStatistics = async () => {
 
 const loadRecentBooks = async () => {
   try {
-    const response = await booksService.getAllBooks({ page: 0, size: 5, sort: 'id,desc' })
+    const response = await booksService.getAll({ page: 0, size: 5, sort: 'id,desc' })
     recentBooks.value = response.content
   } catch (error) {
     console.error('Error loading recent books:', error)
@@ -142,7 +142,7 @@ const loadRecentBorrows = async () => {
 
 const loadRecentNotices = async () => {
   try {
-    const response = await noticesService.getAllNotices({ page: 0, size: 3 })
+    const response = await noticesService.getAll({ page: 0, size: 3 })
     recentNotices.value = response.content
   } catch (error) {
     console.error('Error loading recent notices:', error)
