@@ -25,13 +25,15 @@ public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BookCopyRepository bookCopyRepository;
     private final UserRepository userRepository;
+    private final BorrowingRuleService borrowingRuleService;
     private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
 
     public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
-                        UserRepository userRepository) {
+                        UserRepository userRepository, BorrowingRuleService borrowingRuleService) {
         this.borrowRepository = borrowRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.userRepository = userRepository;
+        this.borrowingRuleService = borrowingRuleService;
     }
 
     /**
@@ -52,6 +54,13 @@ public class BorrowService {
             throw new BusinessLogicException("图书不可借");
         }
 
+        // Check maximum borrowing limit
+        List<Borrow> currentBorrowings = getCurrentBorrowings(userId);
+        Integer maxBorrowBooks = borrowingRuleService.getIntegerRule(BorrowingRuleService.MAX_BORROW_BOOKS);
+        if (currentBorrowings.size() >= maxBorrowBooks) {
+            throw new BusinessLogicException("您已达到最大借阅数量限制（" + maxBorrowBooks + "本）");
+        }
+
         // Check if user already borrowed this book
         List<Borrow> existingBorrows = borrowRepository.findByBookId(copy.getBook().getId());
         boolean userAlreadyBorrowed = existingBorrows.stream()
@@ -66,7 +75,10 @@ public class BorrowService {
         borrow.setUser(user);
         borrow.setCopy(copy);
         borrow.setBorrowTime(LocalDateTime.now());
-        borrow.setReturnTime(LocalDateTime.now().plusDays(30)); // 30 days loan period
+        
+        // Use configurable loan period
+        Integer loanPeriodDays = borrowingRuleService.getIntegerRule(BorrowingRuleService.LOAN_PERIOD_DAYS);
+        borrow.setReturnTime(LocalDateTime.now().plusDays(loanPeriodDays));
         borrow.setStatus(Borrow.Status.BORROWED);
 
         // Update copy status
@@ -99,7 +111,8 @@ public class BorrowService {
         // Calculate fine if overdue
         if (overdue) {
             long overdueDays = java.time.Duration.between(borrow.getReturnTime(), now).toDays();
-            BigDecimal fine = BigDecimal.valueOf(overdueDays * 0.5); // 0.5 yuan per day
+            BigDecimal finePerDay = borrowingRuleService.getDecimalRule(BorrowingRuleService.FINE_PER_DAY);
+            BigDecimal fine = finePerDay.multiply(BigDecimal.valueOf(overdueDays));
             borrow.setFine(fine);
         }
 
@@ -124,6 +137,12 @@ public class BorrowService {
      * @throws RuntimeException if renewal fails
      */
     public Borrow renewBook(Long userId, Long copyId) {
+        // Check if renewals are allowed
+        Boolean allowRenewals = borrowingRuleService.getBooleanRule(BorrowingRuleService.ALLOW_RENEWALS);
+        if (!allowRenewals) {
+            throw new BusinessLogicException("系统不允许续借");
+        }
+
         Borrow borrow = findActiveBorrow(userId, copyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Active borrow record for user " + userId + " and copy " + copyId));
         
@@ -138,8 +157,16 @@ public class BorrowService {
         //     throw new RuntimeException("图书已被预约，无法续借");
         // }
 
-        // Extend return time by 15 days
-        borrow.setReturnTime(borrow.getReturnTime().plusDays(15));
+        // TODO: Check renewal count limit (requires adding renewalCount field to Borrow entity)
+        // Integer maxRenewalTimes = borrowingRuleService.getIntegerRule(BorrowingRuleService.MAX_RENEWAL_TIMES);
+        // if (borrow.getRenewalCount() >= maxRenewalTimes) {
+        //     throw new BusinessLogicException("已达到最大续借次数限制（" + maxRenewalTimes + "次）");
+        // }
+
+        // Extend return time by renewal period
+        Integer renewalPeriodDays = borrowingRuleService.getIntegerRule(BorrowingRuleService.RENEWAL_PERIOD_DAYS);
+        borrow.setReturnTime(borrow.getReturnTime().plusDays(renewalPeriodDays));
+        
         return borrowRepository.save(borrow);
     }
 
@@ -167,6 +194,28 @@ public class BorrowService {
      */
     public List<Borrow> getOverdueBorrowings() {
         return borrowRepository.findOverdueBorrowings(LocalDateTime.now());
+    }
+
+    /**
+     * Check if user can borrow more books
+     * @param userId User ID
+     * @return true if user can borrow more books
+     */
+    public boolean canBorrowMoreBooks(Long userId) {
+        List<Borrow> currentBorrowings = getCurrentBorrowings(userId);
+        Integer maxBorrowBooks = borrowingRuleService.getIntegerRule(BorrowingRuleService.MAX_BORROW_BOOKS);
+        return currentBorrowings.size() < maxBorrowBooks;
+    }
+
+    /**
+     * Get remaining borrowing capacity for a user
+     * @param userId User ID
+     * @return Number of books user can still borrow
+     */
+    public int getRemainingBorrowingCapacity(Long userId) {
+        List<Borrow> currentBorrowings = getCurrentBorrowings(userId);
+        Integer maxBorrowBooks = borrowingRuleService.getIntegerRule(BorrowingRuleService.MAX_BORROW_BOOKS);
+        return Math.max(0, maxBorrowBooks - currentBorrowings.size());
     }
 
     /**
