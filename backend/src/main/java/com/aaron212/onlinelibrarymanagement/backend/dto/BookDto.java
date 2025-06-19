@@ -1,15 +1,12 @@
 package com.aaron212.onlinelibrarymanagement.backend.dto;
 
-import java.time.LocalDateTime;
+import com.aaron212.onlinelibrarymanagement.backend.model.BookLocation;
+import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
 
 public record BookDto(
         Long id,
         String isbn,
         String title,
-        String categoryName,
-        String categoryCode,
-        String locationName,
-        String locationCode,
-        LocalDateTime createTime,
-        int availableCopies,
-        int totalCopies) {}
+        IndexCategory indexCategory,
+        BookLocation location,
+        String createTime) {}
