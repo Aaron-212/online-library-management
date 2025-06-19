@@ -1,8 +1,8 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
-import com.aaron212.onlinelibrarymanagement.backend.dto.LoginRequest;
-import com.aaron212.onlinelibrarymanagement.backend.dto.RegisterRequest;
-import com.aaron212.onlinelibrarymanagement.backend.model.User;
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserLoginDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserRegisterDto;
+import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,7 +59,7 @@ public class AuthController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody UserRegisterDto registerRequest) {
         try {
             userService.addUser(registerRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User registered successfully"));
@@ -83,19 +83,42 @@ public class AuthController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserLoginDto loginRequest) {
+        if (loginRequest.usernameOrEmail() == null || loginRequest.password() == null) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Username/email and password are required"));
+        }
+        
         try {
+            // First, retrieve user details to get the actual username for authentication
+            UserFullProjection user;
+            if (loginRequest.usernameOrEmail().contains("@")) {
+                // If the usernameOrEmail contains '@', treat it as an email
+                user = userService
+                        .findFullByEmail(loginRequest.usernameOrEmail())
+                        .orElse(null);
+            } else {
+                // Otherwise, treat it as a username
+                user = userService
+                        .findFullByUsername(loginRequest.usernameOrEmail())
+                        .orElse(null);
+            }
+            
+            // If user not found, throw authentication exception early
+            if (user == null) {
+                throw new AuthenticationException("Invalid username or password") {};
+            }
+            
+            // Authenticate using the actual username from the database
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
-
-            User user = userService
-                    .findByUsername(loginRequest.username())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            String token = jwtService.generateToken(loginRequest.username(), user.getLastUpdateTime());
-
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), loginRequest.password()));
+            
+            String token = jwtService.generateToken(user.getUsername(), user.getLastUpdateTime());
             return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
+            
         } catch (AuthenticationException e) {
+            // Return 401 for any authentication failure (non-existent user or wrong password)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
         }
     }
@@ -131,6 +154,7 @@ public class AuthController {
 
         try {
             userService.changePassword(authentication.getName(), oldPassword, newPassword);
+
             return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to change password"));

@@ -1,7 +1,9 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowRequestDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowResponseDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.ReserveRequestDto;
 import com.aaron212.onlinelibrarymanagement.backend.mapper.BorrowMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.service.BorrowService;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,11 +60,9 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/borrow")
-    public ResponseEntity<?> borrowBook(
-            @Parameter(description = "User ID", required = true, example = "1") @RequestParam @Positive Long userId,
-            @Parameter(description = "Book copy ID", required = true, example = "1") @RequestParam @Positive Long copyId) {
+    public ResponseEntity<?> borrowBook(@Valid @RequestBody BorrowRequestDto requestDto) {
         try {
-            Borrow borrow = borrowService.borrowBook(userId, copyId);
+            Borrow borrow = borrowService.borrowBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
                 responseDto.borrowId(),
@@ -101,11 +102,9 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/return")
-    public ResponseEntity<?> returnBook(
-            @Parameter(description = "User ID", required = true, example = "1") @RequestParam @Positive Long userId,
-            @Parameter(description = "Book copy ID", required = true, example = "1") @RequestParam @Positive Long copyId) {
+    public ResponseEntity<?> returnBook(@Valid @RequestBody BorrowRequestDto requestDto) {
         try {
-            Borrow borrow = borrowService.returnBook(userId, copyId);
+            Borrow borrow = borrowService.returnBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             String message = borrow.getStatus() == Borrow.Status.OVERDUE 
                 ? "还书成功（已逾期，罚金：" + borrow.getFine() + "元）" 
@@ -148,11 +147,9 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/renew")
-    public ResponseEntity<?> renewBook(
-            @Parameter(description = "User ID", required = true, example = "1") @RequestParam @Positive Long userId,
-            @Parameter(description = "Book copy ID", required = true, example = "1") @RequestParam @Positive Long copyId) {
+    public ResponseEntity<?> renewBook(@Valid @RequestBody BorrowRequestDto requestDto) {
         try {
-            Borrow borrow = borrowService.renewBook(userId, copyId);
+            Borrow borrow = borrowService.renewBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
                 responseDto.borrowId(),
@@ -192,11 +189,9 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/reserve")
-    public ResponseEntity<?> reserveBook(
-            @Parameter(description = "User ID", required = true, example = "1") @RequestParam @Positive Long userId,
-            @Parameter(description = "Book ID", required = true, example = "1") @RequestParam @Positive Long bookId) {
+    public ResponseEntity<?> reserveBook(@Valid @RequestBody ReserveRequestDto requestDto) {
         try {
-            borrowService.reserveBook(userId, bookId);
+            borrowService.reserveBook(requestDto.userId(), requestDto.bookId());
             return ResponseEntity.ok(Map.of("message", "预约成功"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));

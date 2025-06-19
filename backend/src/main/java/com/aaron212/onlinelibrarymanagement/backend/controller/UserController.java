@@ -1,10 +1,8 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
-import com.aaron212.onlinelibrarymanagement.backend.dto.UserDto;
-import com.aaron212.onlinelibrarymanagement.backend.dto.UserFullDto;
-import com.aaron212.onlinelibrarymanagement.backend.dto.UserModifyDto;
-import com.aaron212.onlinelibrarymanagement.backend.mapper.UserMapper;
-import com.aaron212.onlinelibrarymanagement.backend.model.User;
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserUpdateDto;
+import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
+import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +35,7 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Get user by ID",
+            summary = "Get user public details by ID",
             description = "Retrieves a user by their unique ID",
             security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
@@ -45,7 +43,7 @@ public class UserController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "User found",
-                        content = @Content(schema = @Schema(implementation = UserDto.class))),
+                        content = @Content(schema = @Schema(implementation = UserPublicProjection.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "User not found",
@@ -55,11 +53,10 @@ public class UserController {
     public ResponseEntity<?> getUserById(
             @Parameter(description = "User ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
-            User user = userService
-                    .findById(id)
+            UserPublicProjection user = userService
+                    .findPublicById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-            UserDto response = UserMapper.INSTANCE.toUserRecord(user);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(user);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
@@ -74,7 +71,7 @@ public class UserController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "User found",
-                        content = @Content(schema = @Schema(implementation = UserDto.class))),
+                        content = @Content(schema = @Schema(implementation = UserPublicProjection.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "User not found",
@@ -85,11 +82,10 @@ public class UserController {
             @Parameter(description = "Username", required = true, example = "john_doe") @PathVariable @NotBlank
                     String username) {
         try {
-            User user = userService
-                    .findByUsername(username)
+            UserPublicProjection user = userService
+                    .findPublicByUsername(username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-            UserDto response = UserMapper.INSTANCE.toUserRecord(user);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(user);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
@@ -104,7 +100,7 @@ public class UserController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "User details retrieved successfully",
-                        content = @Content(schema = @Schema(implementation = UserFullDto.class))),
+                        content = @Content(schema = @Schema(implementation = UserFullProjection.class))),
                 @ApiResponse(
                         responseCode = "401",
                         description = "User not authenticated",
@@ -121,11 +117,10 @@ public class UserController {
         }
 
         try {
-            User user = userService
-                    .findByUsername(authentication.getName())
+            UserFullProjection user = userService
+                    .findFullByUsername(authentication.getName())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-            UserFullDto userFullRecord = UserMapper.INSTANCE.toUserFullRecord(user);
-            return ResponseEntity.ok(userFullRecord);
+            return ResponseEntity.ok(user);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
@@ -140,7 +135,7 @@ public class UserController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "User details updated successfully",
-                        content = @Content(schema = @Schema(implementation = UserFullDto.class))),
+                        content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "400",
                         description = "Invalid user data",
@@ -156,19 +151,15 @@ public class UserController {
             })
     @PutMapping("/me")
     public ResponseEntity<?> updateCurrentUserDetails(
-            @Valid @RequestBody UserModifyDto userModifyDto, Authentication authentication) {
+            @Valid @RequestBody UserUpdateDto userModifyDto, Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
         try {
-            User user = userService
-                    .findByUsername(authentication.getName())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-            User updatedUser = userService.updateUserDetails(user, userModifyDto);
-            UserFullDto response = UserMapper.INSTANCE.toUserFullRecord(updatedUser);
-            return ResponseEntity.ok(response);
+            userService.updateUserDetails(authentication.getName(), userModifyDto);
+            return ResponseEntity.ok(Map.of("message", "User details updated successfully"));
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         } catch (Exception e) {

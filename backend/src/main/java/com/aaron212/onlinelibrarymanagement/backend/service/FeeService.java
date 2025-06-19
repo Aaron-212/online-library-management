@@ -71,7 +71,7 @@ public class FeeService {
         Borrow borrow = borrowOpt.get();
 
         // 获取图书副本信息
-        Optional<BookCopy> copyOpt = bookCopyRepository.findById(borrow.getCopyId());
+        Optional<BookCopy> copyOpt = bookCopyRepository.findById(borrow.getCopy().getId());
         if (!copyOpt.isPresent()) {
             return borrow;
         }

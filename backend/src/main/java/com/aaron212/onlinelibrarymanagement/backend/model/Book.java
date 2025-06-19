@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "book")
@@ -29,9 +30,8 @@ public class Book {
     @JoinColumn(name = "index_category_id", nullable = false)
     private IndexCategory indexCategory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", nullable = false)
-    private BookLocation location;
+    @NotBlank(message = "Location is required")
+    private String location;
 
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Title is required")
@@ -40,4 +40,12 @@ public class Book {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createTime;
+
+    private String coverURL;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookAuthor> authors;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookPublisher> publishers;
 }

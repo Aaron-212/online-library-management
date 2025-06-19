@@ -4,15 +4,14 @@ import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record BorrowResponseDto(
+public record FeeResponseDto(
     Long borrowId,
     Long userId,
     String username,
-    Long copyId,
     String bookTitle,
-    String isbn,
-    LocalDateTime borrowTime,
-    LocalDateTime returnTime,
+    BigDecimal fineAmount,
     Borrow.Status status,
+    LocalDateTime dueDate,
+    LocalDateTime actualReturnDate,
     String message
 ) {} 
