@@ -9,8 +9,8 @@ import type {
 export class AuthService {
   private basePath = '/auth'
 
-  async login(credentials: UserLoginDto): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>(`${this.basePath}/login`, credentials)
+  async login(credentials: UserLoginDto): Promise<AuthResponse | string> {
+    return apiClient.post<AuthResponse | string>(`${this.basePath}/login`, credentials)
   }
 
   async register(userData: UserRegisterDto): Promise<MessageResponse> {

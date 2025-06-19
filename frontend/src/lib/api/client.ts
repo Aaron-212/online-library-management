@@ -97,13 +97,15 @@ class ApiClient {
     let finalEndpoint = endpoint
     
     if (params) {
-      const url = new URL(endpoint, 'http://example.com') // Use dummy base for URL construction
+      // Create a proper URL to handle existing query parameters correctly
+      const fullUrl = new URL(endpoint, this.baseUrl)
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          url.searchParams.append(key, String(value))
+          fullUrl.searchParams.append(key, String(value))
         }
       })
-      finalEndpoint = endpoint + url.search
+      // Extract just the path and search parts (relative to base URL)
+      finalEndpoint = fullUrl.pathname + fullUrl.search
     }
     
     return this.makeRequest<T>(finalEndpoint)
