@@ -75,7 +75,7 @@ public class BookService {
 
         book.setTitle(bookUpdateDto.title());
         book.setIndexCategory(category);
-        book.setLocation(bookUpdateDto.title());
+        book.setLocation(bookUpdateDto.location());
 
         bookRepository.save(book);
     }
