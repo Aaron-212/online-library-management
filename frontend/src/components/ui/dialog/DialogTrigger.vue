@@ -1,8 +1,14 @@
 <script setup lang="ts">
-// This component is typically used as a wrapper for buttons or other elements
-// that should trigger the dialog to open
+import { DialogTrigger, type DialogTriggerProps } from 'reka-ui'
+
+const props = defineProps<DialogTriggerProps>()
 </script>
 
 <template>
-  <slot />
+  <DialogTrigger
+    data-slot="dialog-trigger"
+    v-bind="props"
+  >
+    <slot />
+  </DialogTrigger>
 </template>

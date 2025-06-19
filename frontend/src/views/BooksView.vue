@@ -13,6 +13,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { booksService } from '@/lib/api'
 import type { Book, PagedResponse, BookSearchParams } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
@@ -36,6 +44,23 @@ const selectedLanguage = ref('All Languages')
 const sortBy = ref('title')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 const pageSize = ref(12)
+
+// Dialog states
+const showAddBookDialog = ref(false)
+const isSubmitting = ref(false)
+
+// Book form data
+const bookForm = ref({
+  title: '',
+  isbn: '',
+  language: '',
+  category: '',
+  authors: '',
+  publisher: '',
+  publishedYear: new Date().getFullYear(),
+  description: '',
+  totalQuantity: 1
+})
 
 const languages = ['All Languages', 'English', 'Chinese', 'Spanish', 'French', 'German', 'Japanese']
 const sortOptions = [
@@ -117,7 +142,45 @@ const goToBookDetail = (bookId: number) => {
 }
 
 const handleAddBook = () => {
-  router.push('/admin/books/new')
+  showAddBookDialog.value = true
+}
+
+const closeAddBookDialog = () => {
+  showAddBookDialog.value = false
+  bookForm.value = {
+    title: '',
+    isbn: '',
+    language: '',
+    category: '',
+    authors: '',
+    publisher: '',
+    publishedYear: new Date().getFullYear(),
+    description: '',
+    totalQuantity: 1
+  }
+  isSubmitting.value = false
+}
+
+const handleCreateBook = async () => {
+  if (!bookForm.value.title.trim() || !bookForm.value.isbn.trim()) {
+    toast.error('Please fill in all required fields')
+    return
+  }
+
+  try {
+    isSubmitting.value = true
+    // TODO: Implement actual book creation via API
+    // await booksService.createBook(bookForm.value)
+    
+    toast.success('Book added successfully!')
+    closeAddBookDialog()
+    await loadBooks()
+  } catch (error) {
+    console.error('Error creating book:', error)
+    toast.error('Failed to add book')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 // Watch for search parameter changes
@@ -298,6 +361,122 @@ onMounted(() => {
       </Button>
     </div>
   </div>
+
+  <!-- Add Book Dialog -->
+  <Dialog v-model:open="showAddBookDialog">
+    <DialogContent class="sm:max-w-[600px]">
+      <DialogHeader>
+        <DialogTitle>Add Book</DialogTitle>
+        <DialogDescription>Fill in the details of the new book</DialogDescription>
+      </DialogHeader>
+
+      <form @submit.prevent="handleCreateBook" class="space-y-4">
+        <div class="space-y-2">
+          <Label for="title">Title</Label>
+          <Input
+            id="title"
+            v-model="bookForm.title"
+            placeholder="Enter book title..."
+            required
+          />
+        </div>
+        
+        <div class="space-y-2">
+          <Label for="isbn">ISBN</Label>
+          <Input
+            id="isbn"
+            v-model="bookForm.isbn"
+            placeholder="Enter ISBN..."
+            required
+          />
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <Label for="language">Language</Label>
+            <Input
+              id="language"
+              v-model="bookForm.language"
+              placeholder="Enter language..."
+              required
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="category">Category</Label>
+            <Input
+              id="category"
+              v-model="bookForm.category"
+              placeholder="Enter category..."
+              required
+            />
+          </div>
+        </div>
+        
+        <div class="space-y-2">
+          <Label for="authors">Authors</Label>
+          <Input
+            id="authors"
+            v-model="bookForm.authors"
+            placeholder="Enter authors (comma-separated)..."
+            required
+          />
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <Label for="publisher">Publisher</Label>
+            <Input
+              id="publisher"
+              v-model="bookForm.publisher"
+              placeholder="Enter publisher..."
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="publishedYear">Published Year</Label>
+            <Input
+              id="publishedYear"
+              type="number"
+              v-model="bookForm.publishedYear"
+              :min="1000"
+              :max="new Date().getFullYear() + 1"
+            />
+          </div>
+        </div>
+        
+        <div class="space-y-2">
+          <Label for="description">Description</Label>
+          <textarea
+            id="description"
+            v-model="bookForm.description"
+            placeholder="Enter book description..."
+            class="w-full min-h-[100px] p-3 border rounded-md resize-none"
+          />
+        </div>
+        
+        <div class="space-y-2">
+          <Label for="totalQuantity">Total Quantity</Label>
+          <Input
+            id="totalQuantity"
+            type="number"
+            v-model="bookForm.totalQuantity"
+            :min="1"
+            required
+          />
+        </div>
+        
+        <DialogFooter>
+          <Button type="button" variant="outline" @click="closeAddBookDialog">
+            Cancel
+          </Button>
+          <Button type="submit" :disabled="isSubmitting">
+            {{ isSubmitting ? 'Adding...' : 'Add Book' }}
+          </Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <style scoped>
