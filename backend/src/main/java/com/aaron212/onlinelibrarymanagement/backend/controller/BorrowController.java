@@ -2,7 +2,6 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowResponseDto;
-import com.aaron212.onlinelibrarymanagement.backend.mapper.BorrowMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.service.BorrowService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;

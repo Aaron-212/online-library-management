@@ -5,10 +5,10 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
-import com.aaron212.onlinelibrarymanagement.backend.projection.BookProjection;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.IndexCategoryRepository;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,18 +52,18 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BookProjection> getAllBooks(Pageable pageable) {
-        return bookRepository.findProjectionAllBy(pageable);
+    public Page<Book> getAllBooksPaged(Pageable pageable) {
+        return bookRepository.pagedFindAll(pageable);
     }
 
     @Transactional(readOnly = true)
-    public Optional<BookProjection> getBookById(Long id) {
-        return bookRepository.findProjectionById(id);
+    public Optional<Book> getBookById(Long id) {
+        return bookRepository.findById(id);
     }
 
     @Transactional(readOnly = true)
-    public Optional<BookProjection> getBookByIsbn(String isbn) {
-        return bookRepository.findProjectionByIsbn(isbn);
+    public Optional<Book> getBookByIsbn(String isbn) {
+        return bookRepository.findByIsbn(isbn);
     }
 
     public void updateBook(Long id, BookUpdateDto bookUpdateDto) {
@@ -95,9 +95,6 @@ public class BookService {
         return category;
     }
 
-    /**
-     * Delete book by ID
-     */
     public void deleteBook(Long id) {
         Book book = bookRepository
                 .findById(id).orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
@@ -111,37 +108,25 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    /**
-     * Search books by keyword
-     */
     @Transactional(readOnly = true)
-    public Page<BookProjection> searchBooks(String keyword, Pageable pageable) {
-        return bookRepository.searchProjectionByKeyword(keyword, pageable);
+    public Page<Book> searchBooksPaged(String keyword, Pageable pageable) {
+        return bookRepository.pagedSearchByKeyword(keyword, pageable);
     }
 
-    /**
-     * Get books by category
-     */
     @Transactional(readOnly = true)
-    public Page<BookProjection> getBooksByCategory(String categoryCode, Pageable pageable) {
+    public Page<Book> getBooksByCategory(String categoryCode, Pageable pageable) {
         IndexCategory category = indexCategoryRepository
                 .findByIndexCode(categoryCode)
                 .orElseThrow(() -> new RuntimeException("Index category not found"));
 
-        return bookRepository.findProjectionByIndexCategory(category, pageable);
+        return bookRepository.pagedFindByIndexCategory(category, pageable);
     }
 
-    /**
-     * Check if book exists by ISBN
-     */
     @Transactional(readOnly = true)
     public boolean existsByIsbn(String isbn) {
         return bookRepository.existsByIsbn(isbn);
     }
 
-    /**
-     * Get book copies for a specific book
-     */
     @Transactional(readOnly = true)
     public List<BookCopy> getBookCopies(Long bookId) {
         Book book = bookRepository
@@ -151,9 +136,6 @@ public class BookService {
         return bookCopyRepository.findByBook(book);
     }
 
-    /**
-     * Get available copies count for a book
-     */
     @Transactional(readOnly = true)
     public int getAvailableCopiesCount(Book book) {
         return (int) bookCopyRepository.findByBook(book).stream()
@@ -161,11 +143,12 @@ public class BookService {
                 .count();
     }
 
-    /**
-     * Get total copies count for a book
-     */
     @Transactional(readOnly = true)
     public int getTotalCopiesCount(Book book) {
         return bookCopyRepository.findByBook(book).size();
+    }
+
+    public Optional<Book> findByIsbn(@NotBlank String isbn) {
+        return bookRepository.findByIsbn(isbn);
     }
 }

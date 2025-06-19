@@ -33,7 +33,7 @@ public class StatisticsService {
         this.userRepository = userRepository;
     }
 
-    public List<Map.Entry<Book, Long>> getTopBorrowedBooks(int topCount) {
+    public List<Map.Entry<BookProjection, Long>> getTopBorrowedBooks(int topCount) {
         List<Borrow> allBorrows = borrowRepository.findAll();
         return allBorrows.stream()
                 .collect(Collectors.groupingBy(borrow -> borrow.getCopy().getBook(), Collectors.counting()))

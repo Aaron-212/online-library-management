@@ -1,6 +1,5 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
-import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -57,7 +56,7 @@ public class StatisticsController {
                     @Max(100)
                     int topCount) {
         try {
-            List<Map.Entry<Book, Long>> topBooks = statisticsService.getTopBorrowedBooks(topCount);
+            List<Map.Entry<BookProjection, Long>> topBooks = statisticsService.getTopBorrowedBooks(topCount);
             return ResponseEntity.ok(topBooks);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

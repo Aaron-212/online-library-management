@@ -2,8 +2,8 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
+import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
-import com.aaron212.onlinelibrarymanagement.backend.projection.BookProjection;
 import com.aaron212.onlinelibrarymanagement.backend.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -84,9 +84,9 @@ public class BookController {
                         content = @Content(schema = @Schema(implementation = Page.class)))
             })
     @GetMapping
-    public ResponseEntity<Page<BookProjection>> getAllBooks(
+    public ResponseEntity<Page<Book>> getAllBooks(
             @Parameter(description = "Pagination parameters") Pageable pageable) {
-        Page<BookProjection> books = bookService.getAllBooks(pageable);
+        Page<Book> books = bookService.getAllBooksPaged(pageable);
         return ResponseEntity.ok(books);
     }
 
@@ -96,7 +96,7 @@ public class BookController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Book found",
-                        content = @Content(schema = @Schema(implementation = BookProjection.class))),
+                        content = @Content(schema = @Schema(implementation = Book.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "Book not found",
@@ -105,7 +105,7 @@ public class BookController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookById(
             @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
-        Optional<BookProjection> book = bookService.getBookById(id);
+        Optional<Book> book = bookService.getBookById(id);
         if (book.isPresent()) {
             return ResponseEntity.ok(book.get());
         } else {
@@ -119,7 +119,7 @@ public class BookController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Book found",
-                        content = @Content(schema = @Schema(implementation = BookProjection.class))),
+                        content = @Content(schema = @Schema(implementation = Book.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "Book not found",
@@ -131,7 +131,7 @@ public class BookController {
                     @PathVariable
                     @NotBlank
                     String isbn) {
-        Optional<BookProjection> book = bookService.getBookByIsbn(isbn);
+        Optional<Book> book = bookService.findByIsbn(isbn);
         if (book.isPresent()) {
             return ResponseEntity.ok(book.get());
         } else {
@@ -148,7 +148,7 @@ public class BookController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Book updated successfully",
-                        content = @Content(schema = @Schema(implementation = BookProjection.class))),
+                        content = @Content(schema = @Schema(implementation = Map.class))),
                 @ApiResponse(
                         responseCode = "400",
                         description = "Invalid book data",
@@ -210,13 +210,13 @@ public class BookController {
                         content = @Content(schema = @Schema(implementation = List.class)))
             })
     @GetMapping("/search")
-    public ResponseEntity<Page<BookProjection>> searchBooks(
+    public ResponseEntity<Page<Book>> searchBooks(
             @Parameter(description = "Search keyword", required = true, example = "java programming")
                     @RequestParam
                     @NotBlank
                     String keyword,
             @Parameter(description = "Pagination parameters") Pageable pageable) {
-        Page<BookProjection> books = bookService.searchBooks(keyword, pageable);
+        Page<Book> books = bookService.searchBooksPaged(keyword, pageable);
         return ResponseEntity.ok(books);
     }
 
