@@ -57,7 +57,11 @@ public class BookService {
                 .findById(bookCreateDto.locationId())
                 .orElseThrow(() -> new RuntimeException("Book location not found"));
 
-        Book book = BookMapper.INSTANCE.bookCreateDtoToBook(bookCreateDto);
+        Book book = new Book();
+        book.setIsbn(bookCreateDto.isbn());
+        book.setTitle(bookCreateDto.title());
+        book.setIndexCategory(category);
+        book.setLocation(location);
 
         Book savedBook = bookRepository.save(book);
         return BookMapper.INSTANCE.bookToBookDto(savedBook);
