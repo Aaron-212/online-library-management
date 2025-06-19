@@ -1,5 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookStatisticsDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.TopBooksRequestDto;
 import com.aaron212.onlinelibrarymanagement.backend.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,15 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -42,21 +42,16 @@ public class StatisticsController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Top borrowed books retrieved successfully",
-                        content = @Content(schema = @Schema(implementation = List.class))),
+                        content = @Content(schema = @Schema(implementation = BookStatisticsDto.class))),
                 @ApiResponse(
                         responseCode = "400",
                         description = "Invalid parameter",
                         content = @Content(schema = @Schema(implementation = Map.class))),
             })
-    @GetMapping("/top-borrowed-books")
-    public ResponseEntity<?> getTopBorrowedBooks(
-            @Parameter(description = "Number of top books to retrieve", example = "10")
-                    @RequestParam(defaultValue = "10")
-                    @Min(1)
-                    @Max(100)
-                    int topCount) {
+    @PostMapping("/top-borrowed-books")
+    public ResponseEntity<?> getTopBorrowedBooks(@Valid @RequestBody TopBooksRequestDto requestDto) {
         try {
-            List<Map.Entry<BookProjection, Long>> topBooks = statisticsService.getTopBorrowedBooks(topCount);
+            List<BookStatisticsDto> topBooks = statisticsService.getTopBorrowedBooks(requestDto.topCount());
             return ResponseEntity.ok(topBooks);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

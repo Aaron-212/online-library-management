@@ -1,5 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookStatisticsDto;
+import com.aaron212.onlinelibrarymanagement.backend.mapper.BookMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.*;
 import com.aaron212.onlinelibrarymanagement.backend.repository.*;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class StatisticsService {
         this.userRepository = userRepository;
     }
 
-    public List<Map.Entry<BookProjection, Long>> getTopBorrowedBooks(int topCount) {
+    public List<BookStatisticsDto> getTopBorrowedBooks(int topCount) {
         List<Borrow> allBorrows = borrowRepository.findAll();
         return allBorrows.stream()
                 .collect(Collectors.groupingBy(borrow -> borrow.getCopy().getBook(), Collectors.counting()))
@@ -41,6 +43,7 @@ public class StatisticsService {
                 .stream()
                 .sorted(Map.Entry.<Book, Long>comparingByValue().reversed())
                 .limit(topCount)
+                .map(entry -> BookMapper.INSTANCE.toBookStatisticsDto(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 

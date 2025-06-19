@@ -1,5 +1,8 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.FeeCalculationDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.FeeResponseDto;
+import com.aaron212.onlinelibrarymanagement.backend.mapper.FeeMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.service.FeeService;
@@ -12,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +48,7 @@ public class FeeController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Overdue fine calculated successfully",
-                        content = @Content(schema = @Schema(implementation = Borrow.class))),
+                        content = @Content(schema = @Schema(implementation = FeeResponseDto.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "Borrow record not found",
@@ -54,15 +58,15 @@ public class FeeController {
                         description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
-    @PostMapping("/overdue/{borrowId}")
+    @PostMapping("/overdue")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> calculateOverdueFine(
-            @Parameter(description = "Borrow record ID", required = true, example = "1") @PathVariable @Positive
-                    Long borrowId) {
+    public ResponseEntity<?> calculateOverdueFine(@Valid @RequestBody FeeCalculationDto requestDto) {
         try {
-            Borrow result = feeService.calculateOverdueFine(borrowId);
+            Borrow result = feeService.calculateOverdueFine(requestDto.borrowId());
             if (result != null) {
-                return ResponseEntity.ok(result);
+                FeeResponseDto responseDto = FeeMapper.INSTANCE.toFeeResponseDto(result, 
+                    "逾期罚款计算成功，罚金：" + result.getFine() + "元");
+                return ResponseEntity.ok(responseDto);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Borrow record not found"));
             }
@@ -81,7 +85,7 @@ public class FeeController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Book compensation calculated successfully",
-                        content = @Content(schema = @Schema(implementation = Borrow.class))),
+                        content = @Content(schema = @Schema(implementation = FeeResponseDto.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "Borrow record not found",
@@ -91,15 +95,15 @@ public class FeeController {
                         description = "Access denied - admin role required",
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
-    @PostMapping("/compensation/{borrowId}")
+    @PostMapping("/compensation")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> calculateCompensation(
-            @Parameter(description = "Borrow record ID", required = true, example = "1") @PathVariable @Positive
-                    Long borrowId) {
+    public ResponseEntity<?> calculateCompensation(@Valid @RequestBody FeeCalculationDto requestDto) {
         try {
-            Borrow result = feeService.calculateBookCompensation(borrowId);
+            Borrow result = feeService.calculateBookCompensation(requestDto.borrowId());
             if (result != null) {
-                return ResponseEntity.ok(result);
+                FeeResponseDto responseDto = FeeMapper.INSTANCE.toFeeResponseDto(result, 
+                    "图书赔偿费用计算成功，赔偿金：" + result.getFine() + "元");
+                return ResponseEntity.ok(responseDto);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Borrow record not found"));
             }

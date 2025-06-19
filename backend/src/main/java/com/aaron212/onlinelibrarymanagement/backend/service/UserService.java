@@ -91,4 +91,12 @@ public class UserService implements UserDetailsService {
         user.setLastUpdateTime(Timestamp.valueOf(LocalDateTime.now()));
         userRepository.save(user);
     }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 }

@@ -144,9 +144,7 @@ public class BorrowService {
      * @return List of borrow records
      */
     public List<Borrow> getBorrowHistory(Long userId) {
-        return borrowRepository.findAll().stream()
-                .filter(b -> b.getUser().getId().equals(userId))
-                .toList();
+        return borrowRepository.findByUserIdOrderByBorrowTimeDesc(userId);
     }
 
     /**
@@ -155,9 +153,7 @@ public class BorrowService {
      * @return List of active borrow records
      */
     public List<Borrow> getCurrentBorrowings(Long userId) {
-        return borrowRepository.findAll().stream()
-                .filter(b -> b.getUser().getId().equals(userId) && b.getStatus() == Borrow.Status.BORROWED)
-                .toList();
+        return borrowRepository.findCurrentBorrowingsByUserId(userId);
     }
 
     /**
@@ -165,10 +161,7 @@ public class BorrowService {
      * @return List of overdue borrow records
      */
     public List<Borrow> getOverdueBorrowings() {
-        LocalDateTime now = LocalDateTime.now();
-        return borrowRepository.findAll().stream()
-                .filter(b -> b.getStatus() == Borrow.Status.BORROWED && now.isAfter(b.getReturnTime()))
-                .toList();
+        return borrowRepository.findOverdueBorrowings(LocalDateTime.now());
     }
 
     /**

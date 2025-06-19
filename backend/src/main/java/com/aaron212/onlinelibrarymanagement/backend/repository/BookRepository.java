@@ -22,4 +22,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> pagedSearchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     Page<Book> pagedFindByIndexCategory(IndexCategory category, Pageable pageable);
+    
+    @Query("SELECT b FROM Book b WHERE b.indexCategory = :category")
+    java.util.List<Book> findByIndexCategory(@Param("category") IndexCategory category);
 }
