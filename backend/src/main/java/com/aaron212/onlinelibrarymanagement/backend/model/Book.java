@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "book")
@@ -40,4 +41,12 @@ public class Book {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createTime;
+
+    private String coverURL;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookAuthor> authors;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookPublisher> publishers;
 }
