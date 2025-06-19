@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { useDarkMode } from '@/composables/useDarkMode'
@@ -16,19 +16,11 @@ const route = useRoute()
 // Define page titles for each route
 const pageTitle = computed(() => {
   const routeTitles: Record<string, string> = {
-    home: 'Home',
-    dashboard: 'Dashboard',
-    login: 'Login',
-    register: 'Register',
-    books: 'Books',
-    members: 'Members',
-    search: 'Search',
     borrow: 'Borrow Books',
-    categories: 'Categories',
-    profile: 'Profile',
   }
 
-  return routeTitles[route.name as string] || toTitleCase(route.name?.toString() || 'Unknown Page')
+  const routeName = route.name?.toString()
+  return routeTitles[routeName || ''] || (routeName ? toTitleCase(routeName) : 'Unknown Page')
 })
 </script>
 
@@ -43,8 +35,35 @@ const pageTitle = computed(() => {
         <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
       </header>
       <div class="flex flex-1 flex-col gap-4 p-4 pt-6">
-        <RouterView />
+        <RouterView v-slot="{ Component, route }">
+          <Transition mode="out-in" name="fade">
+            <div :key="route.name">
+              <component :is="Component"></component>
+            </div>
+          </Transition>
+        </RouterView>
       </div>
     </main>
   </SidebarProvider>
 </template>
+
+<!--suppress CssUnusedSymbol-->
+<style scoped>
+.fade-enter-active {
+  animation: fade 0.25s;
+}
+
+.fade-leave-active {
+  animation: fade 0.25s reverse;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 100%;
+  }
+}
+</style>
