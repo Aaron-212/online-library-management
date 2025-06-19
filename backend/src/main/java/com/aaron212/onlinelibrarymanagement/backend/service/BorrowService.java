@@ -1,11 +1,15 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
+import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
+import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,7 @@ public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BookCopyRepository bookCopyRepository;
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
 
     public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
                         UserRepository userRepository) {
@@ -38,13 +43,13 @@ public class BorrowService {
      */
     public Borrow borrowBook(Long userId, Long copyId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         BookCopy copy = bookCopyRepository.findById(copyId)
-                .orElseThrow(() -> new RuntimeException("图书副本不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", copyId));
 
         if (copy.getStatus() != BookCopy.Status.AVAILABLE) {
-            throw new RuntimeException("图书不可借");
+            throw new BusinessLogicException("图书不可借");
         }
 
         // Check if user already borrowed this book
@@ -53,7 +58,7 @@ public class BorrowService {
                 .anyMatch(b -> b.getUser().getId().equals(userId) && b.getStatus() == Borrow.Status.BORROWED);
 
         if (userAlreadyBorrowed) {
-            throw new RuntimeException("您已借阅此书，不能重复借阅");
+            throw new BusinessLogicException("您已借阅此书，不能重复借阅");
         }
 
         // Create borrow record
@@ -82,7 +87,7 @@ public class BorrowService {
      */
     public Borrow returnBook(Long userId, Long copyId) {
         Borrow borrow = findActiveBorrow(userId, copyId)
-                .orElseThrow(() -> new RuntimeException("无借阅记录"));
+                .orElseThrow(() -> new ResourceNotFoundException("Active borrow record for user " + userId + " and copy " + copyId));
 
         LocalDateTime now = LocalDateTime.now();
         boolean overdue = now.isAfter(borrow.getReturnTime());
@@ -120,11 +125,11 @@ public class BorrowService {
      */
     public Borrow renewBook(Long userId, Long copyId) {
         Borrow borrow = findActiveBorrow(userId, copyId)
-                .orElseThrow(() -> new RuntimeException("无续借权限"));
+                .orElseThrow(() -> new ResourceNotFoundException("Active borrow record for user " + userId + " and copy " + copyId));
         
         // Check if book is overdue
         if (LocalDateTime.now().isAfter(borrow.getReturnTime())) {
-            throw new RuntimeException("图书已逾期，无法续借");
+            throw new BusinessLogicException("图书已逾期，无法续借");
         }
 
         // TODO: Check for reservations
@@ -185,7 +190,7 @@ public class BorrowService {
     public void reserveBook(Long userId, Long bookId) {
         // TODO: Implement reservation functionality
         // This would require creating a Reservation entity and ReservationService
-        throw new RuntimeException("预约功能暂未实现");
+        throw new BusinessLogicException("预约功能暂未实现");
     }
 
     /**
@@ -193,6 +198,6 @@ public class BorrowService {
      */
     private void sendNotification(Long userId, String message) {
         // TODO: Implement notification service
-        System.out.println("向用户 " + userId + " 发送通知：" + message);
+        logger.info("向用户 {} 发送通知：{}", userId, message);
     }
 }
