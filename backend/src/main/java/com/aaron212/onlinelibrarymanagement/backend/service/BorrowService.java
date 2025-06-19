@@ -6,6 +6,8 @@ import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BookCopyRepository bookCopyRepository;
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
 
     public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
                         UserRepository userRepository) {
@@ -193,6 +196,6 @@ public class BorrowService {
      */
     private void sendNotification(Long userId, String message) {
         // TODO: Implement notification service
-        System.out.println("向用户 " + userId + " 发送通知：" + message);
+        logger.info("向用户 {} 发送通知：{}", userId, message);
     }
 }
