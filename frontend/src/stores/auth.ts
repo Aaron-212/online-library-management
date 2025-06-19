@@ -1,5 +1,8 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { authService, usersService } from '@/lib/api'
+import type { ApiError } from '@/lib/api/client'
+import type { UserLoginDto, UserRegisterDto } from '@/lib/api'
 
 interface User {
   username: string
@@ -30,38 +33,20 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const hashedPassword = await hashPassword(password)
 
-      const response = await fetch('http://localhost:8090/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          email,
-          password: hashedPassword,
-        }),
-      })
-
-      if (!response.ok) {
-        // Handle error response
-        let errorText = 'Registration failed. Please try again.'
-        try {
-          const errorData = await response.text()
-          if (errorData) {
-            errorText = errorData
-          }
-        } catch (e) {
-          // If we can't parse the error, use default message
-        }
-        throw new Error(errorText)
+      const registerData: UserRegisterDto = {
+        username,
+        email,
+        password: hashedPassword,
       }
 
-      return { success: true, message: 'Registration successful! Please log in.' }
+      const response = await authService.register(registerData)
+      return { success: true, message: response.message || 'Registration successful! Please log in.' }
     } catch (error) {
       console.error('Registration error:', error)
+      const apiError = error as ApiError
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Registration failed. Please try again.',
+        message: apiError.error || apiError.message || 'Registration failed. Please try again.',
       }
     } finally {
       isLoading.value = false
@@ -70,50 +55,109 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Login function
   const login = async (
-    username: string,
+    usernameOrEmail: string,
     password: string,
   ): Promise<{ success: boolean; message?: string }> => {
     isLoading.value = true
     try {
       const hashedPassword = await hashPassword(password)
 
-      const response = await fetch('http://localhost:8090/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password: hashedPassword,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Login failed' }))
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+      const loginData: UserLoginDto = {
+        usernameOrEmail,
+        password: hashedPassword,
       }
 
-      const token = await response.text()
+      const response = await authService.login(loginData)
 
-      user.value = {
-        username,
-        token: token,
+      // Handle different response formats from backend
+      let token: string
+      let message: string
+      
+      if (typeof response === 'string') {
+        // Backend returned plain text token
+        token = response
+        message = 'Login successful!'
+      } else if (response && typeof response === 'object') {
+        // Backend returned JSON object
+        if ('token' in response && typeof response.token === 'string') {
+          token = response.token
+          message = ('message' in response && typeof response.message === 'string') 
+            ? response.message 
+            : 'Login successful!'
+        } else {
+          // No valid token found in response object
+          throw new Error('No valid token found in server response')
+        }
+      } else {
+        throw new Error('Invalid response format from server')
       }
 
-      isAuthenticated.value = true
-
+      // Get the actual user data to retrieve correct username
+      // Temporarily set the token for the API call
       localStorage.setItem('auth_token', token)
-      localStorage.setItem('username', username)
+      
+      try {
+        const userData = await usersService.getCurrentUser()
+        
+        user.value = {
+          username: userData.username, // Use actual username from user data
+          token: token,
+        }
 
-      return { success: true }
+        isAuthenticated.value = true
+        localStorage.setItem('username', userData.username)
+
+        return { success: true, message }
+      } catch (userError) {
+        // If getting user data fails, clean up and throw error
+        localStorage.removeItem('auth_token')
+        throw userError
+      }
     } catch (error) {
       console.error('Login error:', error)
+      const apiError = error as ApiError
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Login failed. Please try again.',
+        message: apiError.error || apiError.message || 'Login failed. Please try again.',
       }
     } finally {
       isLoading.value = false
+    }
+  }
+
+  // Change password function
+  const changePassword = async (
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message?: string }> => {
+    isLoading.value = true
+    try {
+      const hashedOldPassword = await hashPassword(oldPassword)
+      const hashedNewPassword = await hashPassword(newPassword)
+
+      const response = await authService.changePassword(hashedOldPassword, hashedNewPassword)
+      return { success: true, message: response.message || 'Password changed successfully!' }
+    } catch (error) {
+      console.error('Change password error:', error)
+      const apiError = error as ApiError
+      return {
+        success: false,
+        message: apiError.error || apiError.message || 'Failed to change password. Please try again.',
+      }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Verify token function
+  const verifyToken = async (): Promise<boolean> => {
+    try {
+      await authService.verifyToken()
+      return true
+    } catch (error) {
+      console.error('Token verification failed:', error)
+      logout() // Auto logout if token is invalid
+      return false
     }
   }
 
@@ -126,19 +170,33 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Initialize auth state from localStorage
-  const initAuth = () => {
+  const initAuth = async () => {
     const token = localStorage.getItem('auth_token')
     const username = localStorage.getItem('username')
 
     if (token && username) {
       user.value = { username, token }
       isAuthenticated.value = true
+      
+      // Verify token is still valid
+      const isValid = await verifyToken()
+      if (!isValid) {
+        user.value = null
+        isAuthenticated.value = false
+      }
     }
   }
 
   // Get authorization header for API calls
   const getAuthHeader = () => {
-    return user.value?.token ? `Bearer ${user.value.token}` : null
+    // First check if we have the token in the user object
+    if (user.value?.token) {
+      return `Bearer ${user.value.token}`
+    }
+    
+    // Fallback to localStorage (useful during login process when user.value is not yet set)
+    const token = localStorage.getItem('auth_token')
+    return token ? `Bearer ${token}` : null
   }
 
   return {
@@ -148,6 +206,8 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     logout,
+    changePassword,
+    verifyToken,
     initAuth,
     getAuthHeader,
   }

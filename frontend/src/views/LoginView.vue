@@ -73,7 +73,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
       <div class="bg-card border border-border rounded-lg p-6 shadow-sm">
         <form class="space-y-6" @submit.prevent="handleLogin">
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="email"> Username </label>
+            <label class="text-sm font-medium text-foreground" for="username"> Username or Email </label>
             <div class="relative">
               <User
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -82,7 +82,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
                 id="username"
                 v-model="username"
                 class="w-full pl-10"
-                placeholder="Enter your username"
+                placeholder="Enter your username or email"
                 required
                 type="text"
                 @onKeyDown="handleKeyPress"
