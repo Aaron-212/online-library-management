@@ -19,7 +19,8 @@ const pageTitle = computed(() => {
     borrow: 'Borrow Books',
   }
 
-  return routeTitles[route.name as string] || toTitleCase(route.name as string) || 'Unknown Page'
+  const routeName = route.name?.toString()
+  return routeTitles[routeName || ''] || (routeName ? toTitleCase(routeName) : 'Unknown Page')
 })
 </script>
 
