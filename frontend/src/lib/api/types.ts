@@ -99,17 +99,21 @@ export interface Borrow {
 }
 
 export interface BorrowRequestDto {
-  bookId: number
+  userId: number
+  copyId: number
 }
 
 export interface BorrowResponseDto {
-  id: number
+  borrowId: number
   userId: number
-  bookCopyId: number
-  borrowDate: string
-  dueDate: string
+  username: string
+  copyId: number
   bookTitle: string
-  bookIsbn: string
+  isbn: string
+  borrowTime: string
+  returnTime: string
+  status: string
+  message: string
 }
 
 // Comment types

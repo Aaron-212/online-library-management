@@ -10,6 +10,9 @@ import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -248,5 +251,10 @@ public class BorrowService {
     private void sendNotification(Long userId, String message) {
         // TODO: Implement notification service
         logger.info("向用户 {} 发送通知：{}", userId, message);
+    }
+
+    public List<Borrow> getAllBorrowings(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
+        return borrowRepository.findAll(pageable).getContent();
     }
 }

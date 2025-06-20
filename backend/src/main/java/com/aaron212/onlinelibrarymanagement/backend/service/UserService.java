@@ -11,6 +11,8 @@ import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjectio
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -111,5 +113,13 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public Page<UserPublicProjection> findAllUsers(Pageable pageable) {
+        return userRepository.findAllProjectedBy(pageable);
+    }
+
+    public Page<UserPublicProjection> searchUsers(String search, Pageable pageable) {
+        return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search, pageable);
     }
 }

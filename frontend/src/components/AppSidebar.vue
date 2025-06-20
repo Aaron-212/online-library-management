@@ -99,6 +99,11 @@ const adminItems = [
     icon: Users,
   },
   {
+    title: 'Borrowing Management',
+    url: '/admin/borrowing',
+    icon: Clock,
+  },
+  {
     title: 'Borrowing Rules',
     url: '/admin/borrowing-rules',
     icon: Settings,
