@@ -1,23 +1,20 @@
 <script lang="ts" setup>
 import { RouterLink, useRouter } from 'vue-router'
 import { computed } from 'vue'
-import { 
-  BookOpen, 
-  Clock, 
-  Gauge, 
-  Home, 
-  Library, 
-  LogOut, 
-  Search, 
-  User, 
-  Users,
+import {
+  BarChart3,
   Bell,
+  BookOpen,
+  Clock,
   CreditCard,
+  Gauge,
+  Home,
+  Library,
+  LogOut,
   Settings,
   Shield,
-  UserCog,
-  FileText,
-  BarChart3
+  User,
+  Users,
 } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/auth'
@@ -65,6 +62,11 @@ const navigationItems = [
   {
     title: 'Notices',
     url: '/notices',
+    icon: Bell,
+  },
+  {
+    title: 'Api Test',
+    url: '/api-test',
     icon: Bell,
   },
 ]
@@ -115,17 +117,15 @@ const adminItems = [
 
 // Computed properties
 const isAdmin = computed(() => {
-  // TODO: Replace with actual role checking when user roles are available
-  // return authStore.user?.role === 'ADMIN'
-  return authStore.isAuthenticated // Temporary for demo
+  return authStore.isAuthenticated && authStore.isAdmin()
 })
 
 const filteredNavigationItems = computed(() => {
-  return navigationItems.filter(item => !item.requiresAuth || authStore.isAuthenticated)
+  return navigationItems.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
 })
 
 const filteredLibraryItems = computed(() => {
-  return libraryItems.filter(item => !item.requiresAuth || authStore.isAuthenticated)
+  return libraryItems.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
 })
 
 const handleLogout = () => {
@@ -217,7 +217,7 @@ const handleLogout = () => {
                 </div>
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" class="w-56" side="top">
+            <DropdownMenuContent class="w-56" side="top">
               <DropdownMenuItem as-child>
                 <RouterLink class="flex items-center gap-2" to="/profile">
                   <User class="h-4 w-4" />

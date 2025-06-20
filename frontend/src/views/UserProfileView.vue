@@ -1,34 +1,27 @@
-<script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+<script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
-  User,
-  Mail,
-  Calendar,
-  BookOpen,
-  Clock,
   AlertTriangle,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
   Edit,
-  Save,
-  X,
   Lock,
-  CheckCircle
+  Mail,
+  Save,
+  User,
+  X,
 } from 'lucide-vue-next'
-import { usersService, borrowService, statisticsService } from '@/lib/api'
-import type { User as UserType, Borrow } from '@/lib/api/types'
+import { borrowService, usersService } from '@/lib/api'
+import type { Borrow, User as UserType } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -41,7 +34,7 @@ const borrowStats = ref({
   totalBorrows: 0,
   activeBorrows: 0,
   overdueBorrows: 0,
-  returnedBorrows: 0
+  returnedBorrows: 0,
 })
 const isLoading = ref(false)
 const isEditingProfile = ref(false)
@@ -50,30 +43,20 @@ const isSaving = ref(false)
 
 // Form data
 const profileForm = ref({
-  firstName: '',
-  lastName: '',
-  email: ''
+  username: '',
+  email: '',
 })
 
 const passwordForm = ref({
   currentPassword: '',
   newPassword: '',
-  confirmPassword: ''
+  confirmPassword: '',
 })
 
 // Computed
 const userInitials = computed(() => {
   if (!user.value) return 'U'
-  const firstName = user.value.firstName || ''
-  const lastName = user.value.lastName || ''
-  return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() || user.value.username.charAt(0).toUpperCase()
-})
-
-const fullName = computed(() => {
-  if (!user.value) return 'Unknown User'
-  const firstName = user.value.firstName || ''
-  const lastName = user.value.lastName || ''
-  return firstName || lastName ? `${firstName} ${lastName}`.trim() : user.value.username
+  return user.value.username.charAt(0).toUpperCase()
 })
 
 // Methods
@@ -81,12 +64,11 @@ const loadUserData = async () => {
   try {
     isLoading.value = true
     user.value = await usersService.getCurrentUser()
-    
+
     // Initialize form with current user data
     profileForm.value = {
-      firstName: user.value.firstName || '',
-      lastName: user.value.lastName || '',
-      email: user.value.email || ''
+      username: user.value.username,
+      email: user.value.email || '',
     }
   } catch (error) {
     console.error('Error loading user data:', error)
@@ -101,16 +83,17 @@ const loadBorrowingData = async () => {
     // Load recent borrows
     const borrowsResponse = await borrowService.getUserBorrows({ page: 0, size: 5 })
     recentBorrows.value = borrowsResponse.content
-    
+
     // Calculate statistics
     const allBorrows = await borrowService.getUserBorrows({ page: 0, size: 1000 })
     const borrows = allBorrows.content
-    
+
     borrowStats.value = {
       totalBorrows: borrows.length,
-      activeBorrows: borrows.filter(b => !b.isReturned).length,
-      overdueBorrows: borrows.filter(b => !b.isReturned && new Date(b.dueDate) < new Date()).length,
-      returnedBorrows: borrows.filter(b => b.isReturned).length
+      activeBorrows: borrows.filter((b) => !b.isReturned).length,
+      overdueBorrows: borrows.filter((b) => !b.isReturned && new Date(b.dueDate) < new Date())
+        .length,
+      returnedBorrows: borrows.filter((b) => b.isReturned).length,
     }
   } catch (error) {
     console.error('Error loading borrowing data:', error)
@@ -126,9 +109,8 @@ const cancelEditProfile = () => {
   // Reset form to original values
   if (user.value) {
     profileForm.value = {
-      firstName: user.value.firstName || '',
-      lastName: user.value.lastName || '',
-      email: user.value.email || ''
+      username: user.value.username,
+      email: user.value.email || '',
     }
   }
 }
@@ -136,13 +118,12 @@ const cancelEditProfile = () => {
 const saveProfile = async () => {
   try {
     isSaving.value = true
-    
+
     await usersService.updateCurrentUser({
-      firstName: profileForm.value.firstName || undefined,
-      lastName: profileForm.value.lastName || undefined,
-      email: profileForm.value.email || undefined
+      username: profileForm.value.username || undefined,
+      email: profileForm.value.email || undefined,
     })
-    
+
     await loadUserData()
     isEditingProfile.value = false
     toast.success('Profile updated successfully!')
@@ -159,7 +140,7 @@ const startChangePassword = () => {
   passwordForm.value = {
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   }
 }
 
@@ -168,7 +149,7 @@ const cancelChangePassword = () => {
   passwordForm.value = {
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   }
 }
 
@@ -177,20 +158,20 @@ const changePassword = async () => {
     toast.error('New passwords do not match')
     return
   }
-  
+
   if (passwordForm.value.newPassword.length < 6) {
     toast.error('New password must be at least 6 characters long')
     return
   }
-  
+
   try {
     isSaving.value = true
-    
+
     const result = await authStore.changePassword(
       passwordForm.value.currentPassword,
-      passwordForm.value.newPassword
+      passwordForm.value.newPassword,
     )
-    
+
     if (result.success) {
       isChangingPassword.value = false
       toast.success('Password changed successfully!')
@@ -213,19 +194,19 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.isReturned) {
     return { color: 'text-green-600', text: 'Returned' }
   }
-  
+
   const dueDate = new Date(borrow.dueDate)
   const now = new Date()
-  
+
   if (dueDate < now) {
     return { color: 'text-red-600', text: 'Overdue' }
   }
-  
+
   const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
   if (daysUntilDue <= 3) {
     return { color: 'text-orange-600', text: 'Due Soon' }
   }
-  
+
   return { color: 'text-blue-600', text: 'Active' }
 }
 
@@ -235,7 +216,7 @@ onMounted(() => {
     router.push('/login')
     return
   }
-  
+
   loadUserData()
   loadBorrowingData()
 })
@@ -250,18 +231,15 @@ onMounted(() => {
         <AvatarFallback class="text-lg">{{ userInitials }}</AvatarFallback>
       </Avatar>
       <div>
-        <h1 class="text-2xl font-bold">{{ fullName }}</h1>
-        <p class="text-muted-foreground">@{{ user?.username || 'loading...' }}</p>
+        <h1 class="text-2xl font-bold">{{ user?.username }}</h1>
         <p class="text-sm text-muted-foreground">
-          Member since {{ user ? formatDate(user.registrationDate) : 'loading...' }}
+          Member since {{ user ? formatDate(user.createdTime) : 'loading...' }}
         </p>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading profile...
-    </div>
+    <div v-if="isLoading" class="text-center py-8">Loading profile...</div>
 
     <template v-else>
       <!-- Profile Information -->
@@ -271,11 +249,7 @@ onMounted(() => {
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>Manage your personal information</CardDescription>
           </div>
-          <Button 
-            v-if="!isEditingProfile" 
-            variant="outline" 
-            @click="startEditProfile"
-          >
+          <Button v-if="!isEditingProfile" variant="outline" @click="startEditProfile">
             <Edit class="h-4 w-4 mr-2" />
             Edit Profile
           </Button>
@@ -289,7 +263,7 @@ onMounted(() => {
                 <span>{{ user?.username || 'N/A' }}</span>
               </div>
             </div>
-            
+
             <div class="space-y-2">
               <Label class="text-sm font-medium text-muted-foreground">Email</Label>
               <div class="flex items-center gap-2">
@@ -297,25 +271,15 @@ onMounted(() => {
                 <span>{{ user?.email || 'N/A' }}</span>
               </div>
             </div>
-            
-            <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">First Name</Label>
-              <span>{{ user?.firstName || 'N/A' }}</span>
-            </div>
-            
-            <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">Last Name</Label>
-              <span>{{ user?.lastName || 'N/A' }}</span>
-            </div>
-            
+
             <div class="space-y-2">
               <Label class="text-sm font-medium text-muted-foreground">Registration Date</Label>
               <div class="flex items-center gap-2">
                 <Calendar class="h-4 w-4 text-muted-foreground" />
-                <span>{{ user ? formatDate(user.registrationDate) : 'N/A' }}</span>
+                <span>{{ user ? formatDate(user.createdTime) : 'N/A' }}</span>
               </div>
             </div>
-            
+
             <div class="space-y-2">
               <Label class="text-sm font-medium text-muted-foreground">Last Updated</Label>
               <span>{{ user ? formatDate(user.lastUpdateTime) : 'N/A' }}</span>
@@ -325,37 +289,28 @@ onMounted(() => {
           <!-- Edit Form -->
           <div v-else class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="firstName">First Name</Label>
+              <div class="space-y-2 md:col-span-2">
+                <Label for="firstName">User Name</Label>
                 <Input
                   id="firstName"
-                  v-model="profileForm.firstName"
+                  v-model="profileForm.username"
                   placeholder="Enter your first name"
                 />
               </div>
-              
-              <div class="space-y-2">
-                <Label for="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  v-model="profileForm.lastName"
-                  placeholder="Enter your last name"
-                />
-              </div>
-              
+
               <div class="space-y-2 md:col-span-2">
                 <Label for="email">Email</Label>
                 <Input
                   id="email"
                   v-model="profileForm.email"
-                  type="email"
                   placeholder="Enter your email address"
+                  type="email"
                 />
               </div>
             </div>
-            
+
             <div class="flex gap-2">
-              <Button @click="saveProfile" :disabled="isSaving">
+              <Button :disabled="isSaving" @click="saveProfile">
                 <Save class="h-4 w-4 mr-2" />
                 {{ isSaving ? 'Saving...' : 'Save Changes' }}
               </Button>
@@ -375,11 +330,7 @@ onMounted(() => {
             <CardTitle>Security</CardTitle>
             <CardDescription>Manage your account security</CardDescription>
           </div>
-          <Button 
-            v-if="!isChangingPassword" 
-            variant="outline" 
-            @click="startChangePassword"
-          >
+          <Button v-if="!isChangingPassword" variant="outline" @click="startChangePassword">
             <Lock class="h-4 w-4 mr-2" />
             Change Password
           </Button>
@@ -396,33 +347,33 @@ onMounted(() => {
               <Input
                 id="currentPassword"
                 v-model="passwordForm.currentPassword"
-                type="password"
                 placeholder="Enter your current password"
+                type="password"
               />
             </div>
-            
+
             <div class="space-y-2">
               <Label for="newPassword">New Password</Label>
               <Input
                 id="newPassword"
                 v-model="passwordForm.newPassword"
-                type="password"
                 placeholder="Enter your new password"
+                type="password"
               />
             </div>
-            
+
             <div class="space-y-2">
               <Label for="confirmPassword">Confirm New Password</Label>
               <Input
                 id="confirmPassword"
                 v-model="passwordForm.confirmPassword"
-                type="password"
                 placeholder="Confirm your new password"
+                type="password"
               />
             </div>
-            
+
             <div class="flex gap-2">
-              <Button @click="changePassword" :disabled="isSaving">
+              <Button :disabled="isSaving" @click="changePassword">
                 <Save class="h-4 w-4 mr-2" />
                 {{ isSaving ? 'Changing...' : 'Change Password' }}
               </Button>
@@ -447,17 +398,17 @@ onMounted(() => {
               <div class="text-2xl font-bold text-blue-600">{{ borrowStats.totalBorrows }}</div>
               <div class="text-sm text-muted-foreground">Total Borrows</div>
             </div>
-            
+
             <div class="text-center">
               <div class="text-2xl font-bold text-green-600">{{ borrowStats.returnedBorrows }}</div>
               <div class="text-sm text-muted-foreground">Returned</div>
             </div>
-            
+
             <div class="text-center">
               <div class="text-2xl font-bold text-orange-600">{{ borrowStats.activeBorrows }}</div>
               <div class="text-sm text-muted-foreground">Active</div>
             </div>
-            
+
             <div class="text-center">
               <div class="text-2xl font-bold text-red-600">{{ borrowStats.overdueBorrows }}</div>
               <div class="text-sm text-muted-foreground">Overdue</div>
@@ -473,15 +424,13 @@ onMounted(() => {
             <CardTitle>Recent Borrowing Activity</CardTitle>
             <CardDescription>Your latest book borrowing activity</CardDescription>
           </div>
-          <Button variant="outline" @click="router.push('/borrows')">
-            View All
-          </Button>
+          <Button variant="outline" @click="router.push('/borrows')"> View All </Button>
         </CardHeader>
         <CardContent>
           <div v-if="recentBorrows.length === 0" class="text-center py-8 text-muted-foreground">
             No recent borrowing activity
           </div>
-          
+
           <div v-else class="space-y-4">
             <div
               v-for="borrow in recentBorrows"
@@ -492,21 +441,22 @@ onMounted(() => {
                 <div class="w-10 h-12 bg-muted rounded flex items-center justify-center">
                   <BookOpen class="h-5 w-5 text-muted-foreground" />
                 </div>
-                
+
                 <div>
                   <h4 class="font-medium">{{ borrow.bookCopy.book.title }}</h4>
-                  <p class="text-sm text-muted-foreground">
-                    Due: {{ formatDate(borrow.dueDate) }}
-                  </p>
+                  <p class="text-sm text-muted-foreground">Due: {{ formatDate(borrow.dueDate) }}</p>
                 </div>
               </div>
-              
+
               <div class="flex items-center gap-2">
                 <span :class="getBorrowStatusBadge(borrow).color" class="text-sm font-medium">
                   {{ getBorrowStatusBadge(borrow).text }}
                 </span>
                 <CheckCircle v-if="borrow.isReturned" class="h-4 w-4 text-green-600" />
-                <Clock v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')" class="h-4 w-4 text-blue-600" />
+                <Clock
+                  v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')"
+                  class="h-4 w-4 text-blue-600"
+                />
                 <AlertTriangle v-else class="h-4 w-4 text-red-600" />
               </div>
             </div>

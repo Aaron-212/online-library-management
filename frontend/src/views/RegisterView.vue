@@ -86,7 +86,7 @@ const goToLogin = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background">
+  <div class="py-50 flex items-center justify-center bg-background">
     <div class="w-full max-w-md space-y-8">
       <div class="text-center">
         <h1 class="text-3xl font-bold tracking-tight text-foreground">Create your account</h1>

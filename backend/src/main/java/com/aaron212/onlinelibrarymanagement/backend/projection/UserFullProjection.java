@@ -7,5 +7,6 @@ public interface UserFullProjection {
     String getUsername();
     String getEmail();
     String getRole();
+    Timestamp getCreatedTime();
     Timestamp getLastUpdateTime();
 }

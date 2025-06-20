@@ -3,19 +3,15 @@ export interface User {
   id: number
   username: string
   email: string
-  firstName: string
-  lastName: string
   role: 'USER' | 'ADMIN'
-  registrationDate: string
+  createdTime: string
   lastUpdateTime: string
 }
 
 export interface UserPublic {
   id: number
   username: string
-  firstName: string
-  lastName: string
-  registrationDate: string
+  createdTime: string
 }
 
 export interface UserLoginDto {
@@ -27,14 +23,11 @@ export interface UserRegisterDto {
   username: string
   email: string
   password: string
-  firstName?: string
-  lastName?: string
 }
 
 export interface UserUpdateDto {
   email?: string
-  firstName?: string
-  lastName?: string
+  username?: string
 }
 
 // Book types
