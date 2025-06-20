@@ -34,7 +34,7 @@ const pageTitle = computed(() => {
         <div class="py-2 w-px bg-sidebar-border" />
         <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
       </header>
-      <div class="flex flex-1 flex-col gap-4 p-4 pt-6">
+      <div class="flex flex-1 flex-col gap-4 p-4 pt-6 overflow-auto">
         <RouterView v-slot="{ Component, route }">
           <Transition mode="out-in" name="fade">
             <div :key="route.name">

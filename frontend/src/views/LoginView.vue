@@ -63,7 +63,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background">
+  <div class="min-h-[80vh] flex items-center justify-center bg-background">
     <div class="w-full max-w-md space-y-8">
       <div class="text-center">
         <h1 class="text-3xl font-bold tracking-tight text-foreground">Sign in to your account</h1>
@@ -73,7 +73,9 @@ const handleKeyPress = (event: KeyboardEvent) => {
       <div class="bg-card border border-border rounded-lg p-6 shadow-sm">
         <form class="space-y-6" @submit.prevent="handleLogin">
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="username"> Username or Email </label>
+            <label class="text-sm font-medium text-foreground" for="username">
+              Username or Email
+            </label>
             <div class="relative">
               <User
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
