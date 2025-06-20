@@ -27,14 +27,17 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookCopyRepository bookCopyRepository;
     private final IndexCategoryRepository indexCategoryRepository;
+    private final IndexCategoryService indexCategoryService;
 
     public BookService(
             BookRepository bookRepository,
             BookCopyRepository bookCopyRepository,
-            IndexCategoryRepository indexCategoryRepository) {
+            IndexCategoryRepository indexCategoryRepository,
+            IndexCategoryService indexCategoryService) {
         this.bookRepository = bookRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.indexCategoryRepository = indexCategoryRepository;
+        this.indexCategoryService = indexCategoryService;
     }
 
     public void createBook(BookCreateDto bookCreateDto) {
@@ -43,7 +46,7 @@ public class BookService {
             throw new DuplicateResourceException("Book", "ISBN", bookCreateDto.isbn());
         }
 
-        IndexCategory category = handleParseIndexCategory(bookCreateDto.indexCategory());
+        IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookCreateDto.indexCategory());
 
         Book book = new Book();
         book.setIsbn(bookCreateDto.isbn());
@@ -74,29 +77,13 @@ public class BookService {
         Book book = bookRepository
                 .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
-        IndexCategory category = handleParseIndexCategory(bookUpdateDto.indexCategory());
+        IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookUpdateDto.indexCategory());
 
         book.setTitle(bookUpdateDto.title());
         book.setIndexCategory(category);
         book.setLocation(bookUpdateDto.location());
 
         bookRepository.save(book);
-    }
-
-    private IndexCategory handleParseIndexCategory(String indexCode) {
-        // Try to find existing category first (atomic operation)
-        Optional<IndexCategory> existingCategory = indexCategoryRepository.findByIndexCode(indexCode);
-        
-        if (existingCategory.isPresent()) {
-            return existingCategory.get();
-        } else {
-            // Create new category if not found
-            IndexCategory category = new IndexCategory();
-            category.setIndexCode(indexCode);
-            // Assign the saved entity back to get the managed entity with generated ID
-            category = indexCategoryRepository.save(category);
-            return category;
-        }
     }
 
     public void deleteBook(Long id) {
