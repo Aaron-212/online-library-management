@@ -380,4 +380,86 @@ public class BorrowController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @Operation(
+            summary = "Admin create borrow",
+            description = "Allows an admin to create a borrowing record for any user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book borrowed successfully",
+                        content = @Content(schema = @Schema(implementation = BorrowResponseDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid request or book unavailable",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/borrow")
+    public ResponseEntity<?> adminBorrowBook(@Valid @RequestBody BorrowRequestDto requestDto) {
+        try {
+            Borrow borrow = borrowService.borrowBook(requestDto.userId(), requestDto.copyId());
+            BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
+            responseDto = new BorrowResponseDto(
+                responseDto.borrowId(),
+                responseDto.userId(),
+                responseDto.username(),
+                responseDto.copyId(),
+                responseDto.bookTitle(),
+                responseDto.isbn(),
+                responseDto.borrowTime(),
+                responseDto.returnTime(),
+                responseDto.status(),
+                "管理员代为借书成功，应还日期：" + borrow.getReturnTime().toLocalDate()
+            );
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(
+            summary = "Get all borrowings (Admin only)",
+            description = "Retrieves all borrowing records across the system (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Borrowings retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = List.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/all")
+    public ResponseEntity<?> getAllBorrowings(
+            @Parameter(description = "Page number", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10") int size) {
+        try {
+            List<Borrow> allBorrowings = borrowService.getAllBorrowings(page, size);
+            List<BorrowDto> borrowingsDto = allBorrowings.stream()
+                    .map(BorrowMapper.INSTANCE::toBorrowDto)
+                    .toList();
+            return ResponseEntity.ok(borrowingsDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
 }

@@ -3,7 +3,8 @@ import type {
   User, 
   UserPublic, 
   UserUpdateDto, 
-  MessageResponse 
+  MessageResponse,
+  PagedResponse
 } from '../types'
 
 export class UsersService {
@@ -23,6 +24,11 @@ export class UsersService {
 
   async updateCurrentUser(userData: UserUpdateDto): Promise<MessageResponse> {
     return apiClient.put<MessageResponse>(`${this.basePath}/me`, userData)
+  }
+
+  // Admin methods
+  async getAllUsers(params?: { page?: number; size?: number; search?: string }): Promise<PagedResponse<UserPublic>> {
+    return apiClient.get<PagedResponse<UserPublic>>(`${this.basePath}/all`, params)
   }
 }
 

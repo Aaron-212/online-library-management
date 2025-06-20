@@ -50,6 +50,15 @@ export class BorrowService {
   async cancelReservation(reservationId: number): Promise<MessageResponse> {
     return apiClient.delete<MessageResponse>(`${this.basePath}/reservations/${reservationId}`)
   }
+
+  // Admin methods
+  async adminBorrowBook(request: { userId: number; copyId: number }): Promise<BorrowResponseDto> {
+    return apiClient.post<BorrowResponseDto>(`${this.basePath}/admin/borrow`, request)
+  }
+
+  async adminGetAllBorrows(params?: { page?: number; size?: number }): Promise<Borrow[]> {
+    return apiClient.get<Borrow[]>(`${this.basePath}/admin/all`, params)
+  }
 }
 
 export const borrowService = new BorrowService()
