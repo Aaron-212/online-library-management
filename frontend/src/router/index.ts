@@ -126,6 +126,12 @@ const router = createRouter({
       component: () => import('@/views/ReservationsView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: () => import('@/views/FavoritesView.vue'),
+      meta: { requiresAuth: true },
+    },
     // Catch-all route for 404
     {
       path: '/:pathMatch(.*)*',
