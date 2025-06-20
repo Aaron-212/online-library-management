@@ -50,12 +50,6 @@ const navigationItems = computed(() => [
     icon: Home,
   },
   {
-    title: 'Dashboard',
-    url: authStore.isAuthenticated && authStore.isAdmin() ? '/admin/dashboard' : '/dashboard',
-    icon: Gauge,
-    requiresAuth: true,
-  },
-  {
     title: 'Books',
     url: '/books',
     icon: BookOpen,
