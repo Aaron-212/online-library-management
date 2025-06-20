@@ -8,6 +8,7 @@ import {
   Clock,
   CreditCard,
   Gauge,
+  Heart,
   Home,
   Library,
   LogOut,
@@ -63,6 +64,24 @@ const navigationItems = computed(() => [
     title: 'Notices',
     url: '/notices',
     icon: Bell,
+  },
+  {
+    title: '我的预约',
+    url: '/reservations',
+    icon: Clock,
+    requiresAuth: true,
+  },
+  {
+    title: '收藏夹',
+    url: '/favorites',
+    icon: Heart, 
+    requiresAuth: true,
+  },
+  {
+    title: '账单中心',
+    url: '/billing',
+    icon: CreditCard,
+    requiresAuth: true,
   },
   {
     title: 'Api Test',
