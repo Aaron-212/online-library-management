@@ -1,83 +1,152 @@
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">收藏夹</h1>
-    <div class="bg-white p-4 rounded-md shadow-md">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr>
-            <th class="border-b p-2">收藏ID</th>
-            <th class="border-b p-2">书籍ID</th>
-            <th class="border-b p-2">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="favorite in favorites" :key="favorite.id">
-            <td class="border-b p-2">{{ favorite.id }}</td>
-            <td class="border-b p-2">{{ favorite.bookId }}</td>
-            <td class="border-b p-2">
-              <button 
-                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                @click="removeFavorite(favorite.id)"
-              >
-                移除
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-2xl font-bold">Favorites</h1>
+      <p class="text-muted-foreground">Manage your favorite books</p>
     </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="text-center py-8">
+      <div class="text-muted-foreground">Loading favorites...</div>
+    </div>
+
+    <template v-else>
+      <!-- Favorites List -->
+      <div class="bg-background border rounded-lg shadow-sm">
+        <div class="p-4 border-b">
+          <h2 class="text-xl font-semibold">My Favorite Books</h2>
+          <p class="text-sm text-muted-foreground">{{ favorites.length }} book{{ favorites.length !== 1 ? 's' : '' }} in your favorites</p>
+        </div>
+        <div class="p-4">
+          <div v-if="favorites.length === 0" class="text-center py-12 text-muted-foreground">
+            <div class="mb-4">
+              <svg class="mx-auto h-12 w-12 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">No favorites yet</h3>
+            <p>Start adding books to your favorites to see them here.</p>
+          </div>
+          <div v-else class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-3">Book Title</th>
+                  <th class="text-left p-3">Author(s)</th>
+                  <th class="text-left p-3">Category</th>
+                  <th class="text-left p-3">Added Date</th>
+                  <th class="text-left p-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="favorite in favorites" :key="favorite.id" class="border-b hover:bg-muted/50">
+                  <td class="p-3">
+                    <div class="font-medium">{{ favorite.book.title }}</div>
+                    <div class="text-sm text-muted-foreground">ISBN: {{ favorite.book.isbn }}</div>
+                  </td>
+                  <td class="p-3">
+                    <div class="text-sm">
+                      {{ favorite.book.authors.map(a => a.name).join(', ') }}
+                    </div>
+                  </td>
+                  <td class="p-3">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {{ favorite.book.indexCategory?.name || 'Uncategorized' }}
+                    </span>
+                  </td>
+                  <td class="p-3 text-sm text-muted-foreground">
+                    {{ formatDate(favorite.createdDate) }}
+                  </td>
+                  <td class="p-3">
+                    <div class="flex gap-2">
+                      <button 
+                        class="px-3 py-1 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors"
+                        @click="viewBook(favorite.book.id)"
+                      >
+                        View Details
+                      </button>
+                      <button 
+                        class="px-3 py-1 bg-destructive text-destructive-foreground rounded-md text-sm hover:bg-destructive/90 transition-colors"
+                        @click="removeFavorite(favorite.id)"
+                        :disabled="isRemoving"
+                      >
+                        {{ isRemoving ? 'Removing...' : 'Remove' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { favoritesService } from '@/lib/api'
+import type { Favorite } from '@/lib/api/services/favorites'
+import { toast } from 'vue-sonner'
 
-// 定义收藏项的类型接口
-interface Favorite {
-  id: number;
-  bookId: number;
-  // 可根据实际需求添加更多字段
-}
+const router = useRouter()
 
-// 明确指定 favorites 的类型
-const favorites = ref<Favorite[]>([]);
+// Reactive data
+const isLoading = ref(false)
+const isRemoving = ref(false)
+const favorites = ref<Favorite[]>([])
 
-// 获取收藏列表
+// Methods
 const fetchFavorites = async () => {
   try {
-    const response = await axios.get('/api/v1/favorites/user/1'); // 替换为实际用户ID
-    favorites.value = response.data as Favorite[]; // 类型断言
+    isLoading.value = true
+    const response = await favoritesService.getUserFavorites({ page: 0, size: 100 })
+    favorites.value = response.content
   } catch (error) {
-    console.error('获取收藏信息失败:', error);
+    console.error('Failed to fetch favorites:', error)
+    toast.error('Failed to load favorites')
+  } finally {
+    isLoading.value = false
   }
-};
+}
 
-// 移除收藏
 const removeFavorite = async (favoriteId: number) => {
-  if (confirm('确定要移除这个收藏吗？')) {
-    try {
-      await axios.delete(`/api/v1/favorites/${favoriteId}`);
-      fetchFavorites(); // 刷新列表
-    } catch (error) {
-      console.error('移除收藏失败:', error);
-    }
+  if (!confirm('Are you sure you want to remove this book from your favorites?')) {
+    return
   }
-};
 
-onMounted(fetchFavorites);
+  try {
+    isRemoving.value = true
+    await favoritesService.removeFavorite(favoriteId)
+    toast.success('Book removed from favorites!')
+    // Refresh the favorites list
+    await fetchFavorites()
+  } catch (error) {
+    console.error('Failed to remove favorite:', error)
+    toast.error('Failed to remove favorite. Please try again.')
+  } finally {
+    isRemoving.value = false
+  }
+}
+
+const viewBook = (bookId: number) => {
+  router.push(`/books/${bookId}`)
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString()
+}
+
+// Lifecycle
+onMounted(() => {
+  fetchFavorites()
+})
 </script>
 
 <style scoped>
 table {
   border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #e2e8f0;
-}
-
-button {
-  transition: background-color 0.2s;
 }
 </style>

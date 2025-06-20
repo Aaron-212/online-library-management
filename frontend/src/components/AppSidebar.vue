@@ -66,19 +66,19 @@ const navigationItems = computed(() => [
     icon: Bell,
   },
   {
-    title: '我的预约',
+    title: 'My Reservations',
     url: '/reservations',
     icon: Clock,
     requiresAuth: true,
   },
   {
-    title: '收藏夹',
+    title: 'Favorites',
     url: '/favorites',
     icon: Heart, 
     requiresAuth: true,
   },
   {
-    title: '账单中心',
+    title: 'Billing Center',
     url: '/billing',
     icon: CreditCard,
     requiresAuth: true,

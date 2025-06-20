@@ -1,8 +1,8 @@
 // Export the main client
-export { apiClient, default as client } from './client'
+export { default as apiClient } from './client'
 
 // Export all types
-export * from './types'
+export type * from './types'
 
 // Import services
 import { authService } from './services/auth'
@@ -14,9 +14,11 @@ import { noticesService } from './services/notices'
 import { feesService } from './services/fees'
 import { statisticsService } from './services/statistics'
 import { borrowingRulesService } from './services/borrowing-rules'
+import { reservationsService } from './services/reservations'
+import { favoritesService } from './services/favorites'
 
 // Export all services
-export { authService, booksService, usersService, borrowService, commentsService, noticesService, feesService, statisticsService, borrowingRulesService }
+export { authService, booksService, usersService, borrowService, commentsService, noticesService, feesService, statisticsService, borrowingRulesService, reservationsService, favoritesService }
 
 // Create a unified API object
 export const api = {
@@ -29,6 +31,8 @@ export const api = {
   fees: feesService,
   statistics: statisticsService,
   borrowingRules: borrowingRulesService,
+  reservations: reservationsService,
+  favorites: favoritesService,
 }
 
 // Export service classes for advanced usage
@@ -41,3 +45,5 @@ export { NoticesService } from './services/notices'
 export { FeesService } from './services/fees'
 export { StatisticsService } from './services/statistics'
 export { BorrowingRulesService } from './services/borrowing-rules'
+export { ReservationsService } from './services/reservations'
+export { FavoritesService } from './services/favorites'
