@@ -9,8 +9,8 @@ interface AuthUser {
   token: string
   role: 'USER' | 'ADMIN'
   email: string
-  firstName?: string
-  lastName?: string
+  createdTime: string
+  lastUpdateTime: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -112,8 +112,8 @@ export const useAuthStore = defineStore('auth', () => {
           token: token,
           role: userData.role,
           email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
+          createdTime: userData.createdTime,
+          lastUpdateTime: userData.lastUpdateTime,
         }
 
         isAuthenticated.value = true
@@ -195,8 +195,8 @@ export const useAuthStore = defineStore('auth', () => {
           token: token,
           role: userData.role,
           email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
+          createdTime: userData.createdTime,
+          lastUpdateTime: userData.lastUpdateTime,
         }
         isAuthenticated.value = true
         

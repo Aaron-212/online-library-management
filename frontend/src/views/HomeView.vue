@@ -43,7 +43,7 @@ const statistics = ref<BookStatisticsDto | null>(null)
 // Computed
 const heroTitle = computed(() => {
   if (authStore.isAuthenticated) {
-    return `Welcome back, ${authStore.user?.firstName || authStore.user?.username || 'Reader'}!`
+    return `Welcome back, ${authStore.user?.username || 'Reader'}!`
   }
   return 'Welcome to Your Digital Library'
 })
@@ -328,7 +328,7 @@ onMounted(() => {
                 {{ book.description }}
               </div>
               <div class="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{{ book.category?.name || 'General' }}</span>
+                <span>{{ book.indexCategory?.name || 'General' }}</span>
                 <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
               </div>
             </CardContent>

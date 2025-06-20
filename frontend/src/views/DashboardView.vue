@@ -13,14 +13,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
   BookOpen, 
-  Users, 
   Clock, 
-  TrendingUp, 
-  AlertTriangle,
-  Plus,
+  Heart,
   Search,
   Eye,
-  Download
+  User,
+  BookmarkPlus,
+  History
 } from 'lucide-vue-next'
 import { statisticsService, booksService, borrowService, noticesService } from '@/lib/api'
 import type { BookStatisticsDto, Book, Borrow, Notice } from '@/lib/api/types'
@@ -33,24 +32,17 @@ const authStore = useAuthStore()
 const isLoading = ref(false)
 const statistics = ref<BookStatisticsDto | null>(null)
 const recentBooks = ref<Book[]>([])
-const recentBorrows = ref<Borrow[]>([])
+const userBorrows = ref<Borrow[]>([])
 const recentNotices = ref<Notice[]>([])
-
-// Computed
-const isAdmin = computed(() => {
-  // This should be replaced with actual role checking when user roles are available
-  return authStore.isAuthenticated
+const userStats = ref({
+  totalBorrows: 0,
+  activeBorrows: 0,
+  overdueBorrows: 0,
+  favoriteGenres: [] as string[]
 })
 
-const dashboardCards = computed(() => [
-  {
-    title: 'Total Books',
-    value: statistics.value?.totalBooks || 0,
-    description: 'Books in library',
-    icon: BookOpen,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-  },
+// Computed
+const userDashboardCards = computed(() => [
   {
     title: 'Available Books',
     value: statistics.value?.availableBooks || 0,
@@ -60,18 +52,26 @@ const dashboardCards = computed(() => [
     bgColor: 'bg-green-50',
   },
   {
-    title: 'Active Borrows',
-    value: statistics.value?.activeBorrows || 0,
+    title: 'Your Active Loans',
+    value: userStats.value.activeBorrows,
     description: 'Currently borrowed',
     icon: Clock,
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-50',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+  },
+  {
+    title: 'Books Read',
+    value: userStats.value.totalBorrows - userStats.value.activeBorrows,
+    description: 'Successfully returned',
+    icon: Heart,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
   },
   {
     title: 'Overdue Books',
-    value: statistics.value?.overdueBorrows || 0,
-    description: 'Need attention',
-    icon: AlertTriangle,
+    value: userStats.value.overdueBorrows,
+    description: 'Need to return',
+    icon: Clock,
     color: 'text-red-600',
     bgColor: 'bg-red-50',
   }
@@ -86,27 +86,25 @@ const quickActions = [
     variant: 'default' as const
   },
   {
-    title: 'Add New Book',
-    description: 'Add books to library',
-    icon: Plus,
-    action: () => router.push('/admin/books/new'),
-    variant: 'default' as const,
-    adminOnly: true
+    title: 'My Borrowings',
+    description: 'View borrowing history',
+    icon: History,
+    action: () => router.push('/borrows'),
+    variant: 'default' as const
   },
   {
-    title: 'Manage Borrows',
-    description: 'View borrowing history',
-    icon: Clock,
-    action: () => router.push('/borrows'),
+    title: 'My Profile',
+    description: 'Manage your account',
+    icon: User,
+    action: () => router.push('/profile'),
     variant: 'outline' as const
   },
   {
-    title: 'View Reports',
-    description: 'Generate reports',
-    icon: Download,
-    action: () => router.push('/reports'),
-    variant: 'outline' as const,
-    adminOnly: true
+    title: 'Reading List',
+    description: 'Manage your wishlist',
+    icon: BookmarkPlus,
+    action: () => router.push('/reading-list'),
+    variant: 'outline' as const
   }
 ]
 
@@ -120,6 +118,29 @@ const loadStatistics = async () => {
   }
 }
 
+const loadUserStats = async () => {
+  try {
+    if (authStore.isAuthenticated) {
+      // Get user's borrowing history to calculate stats
+      const borrowsResponse = await borrowService.getUserBorrows({ page: 0, size: 100 })
+      const allBorrows = borrowsResponse.content
+      
+      userStats.value = {
+        totalBorrows: allBorrows.length,
+        activeBorrows: allBorrows.filter(b => !b.isReturned).length,
+        overdueBorrows: allBorrows.filter(b => {
+          if (b.isReturned) return false
+          const dueDate = new Date(b.dueDate)
+          return dueDate < new Date()
+        }).length,
+        favoriteGenres: [] // This would require additional API to get user's reading preferences
+      }
+    }
+  } catch (error) {
+    console.error('Error loading user stats:', error)
+  }
+}
+
 const loadRecentBooks = async () => {
   try {
     const response = await booksService.getAll({ page: 0, size: 5, sort: 'id,desc' })
@@ -129,14 +150,14 @@ const loadRecentBooks = async () => {
   }
 }
 
-const loadRecentBorrows = async () => {
+const loadUserBorrows = async () => {
   try {
     if (authStore.isAuthenticated) {
       const response = await borrowService.getUserBorrows({ page: 0, size: 5 })
-      recentBorrows.value = response.content
+      userBorrows.value = response.content
     }
   } catch (error) {
-    console.error('Error loading recent borrows:', error)
+    console.error('Error loading user borrows:', error)
   }
 }
 
@@ -155,8 +176,9 @@ const loadDashboardData = async () => {
     await Promise.all([
       loadStatistics(),
       loadRecentBooks(),
-      loadRecentBorrows(),
-      loadRecentNotices()
+      loadUserBorrows(),
+      loadRecentNotices(),
+      loadUserStats()
     ])
   } finally {
     isLoading.value = false
@@ -187,6 +209,13 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+const getGreeting = () => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
 // Lifecycle
 onMounted(() => {
   loadDashboardData()
@@ -194,24 +223,34 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="dashboard space-y-6">
+  <div class="user-dashboard space-y-6">
     <!-- Welcome Section -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-3xl font-bold">Welcome back{{ authStore.user?.username ? ', ' + authStore.user.username : '' }}!</h1>
-        <p class="text-muted-foreground">Here's what's happening in your library today.</p>
+        <h1 class="text-3xl font-bold">
+          {{ getGreeting() }}{{ authStore.user?.username ? ', ' + authStore.user.username : '' }}!
+        </h1>
+        <p class="text-muted-foreground">Ready to explore your library today?</p>
+      </div>
+      <div v-if="authStore.isAuthenticated" class="text-right">
+        <Badge variant="outline" class="text-sm px-3 py-1">
+          {{ authStore.user?.role === 'ADMIN' ? 'Administrator' : 'Reader' }}
+        </Badge>
+        <p class="text-xs text-muted-foreground mt-1">
+          Member since {{ authStore.user?.createdTime ? formatDate(authStore.user.createdTime) : 'recently' }}
+        </p>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-8">
-      Loading dashboard...
+      Loading your dashboard...
     </div>
 
     <template v-else>
-      <!-- Statistics Cards -->
+      <!-- User Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="card in dashboardCards" :key="card.title" class="hover:shadow-lg transition-shadow">
+        <Card v-for="card in userDashboardCards" :key="card.title" class="hover:shadow-lg transition-shadow">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">{{ card.title }}</CardTitle>
             <div :class="[card.bgColor, 'p-2 rounded-md']">
@@ -229,7 +268,7 @@ onMounted(() => {
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks and shortcuts</CardDescription>
+          <CardDescription>What would you like to do today?</CardDescription>
         </CardHeader>
         <CardContent>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -239,7 +278,6 @@ onMounted(() => {
               :variant="action.variant"
               class="h-auto p-4 flex flex-col items-center gap-2"
               @click="action.action"
-              :class="{ 'hidden': action.adminOnly && !isAdmin }"
             >
               <component :is="action.icon" class="h-6 w-6" />
               <div class="text-center">
@@ -253,16 +291,16 @@ onMounted(() => {
 
       <!-- Content Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Books -->
+        <!-- Recently Added Books -->
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recently Added Books</CardTitle>
-              <CardDescription>Latest additions to the library</CardDescription>
+              <CardTitle>New Arrivals</CardTitle>
+              <CardDescription>Recently added to the library</CardDescription>
             </div>
             <Button variant="outline" size="sm" @click="router.push('/books')">
               <Eye class="h-4 w-4 mr-2" />
-              View All
+              Browse All
             </Button>
           </CardHeader>
           <CardContent>
@@ -283,19 +321,19 @@ onMounted(() => {
                   </p>
                 </div>
                 <Badge :variant="book.availableQuantity > 0 ? 'success' : 'destructive'" size="sm">
-                  {{ book.availableQuantity > 0 ? 'Available' : 'Out of Stock' }}
+                  {{ book.availableQuantity > 0 ? 'Available' : 'Unavailable' }}
                 </Badge>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <!-- Recent Borrows -->
+        <!-- Your Recent Borrows -->
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Your Recent Borrows</CardTitle>
-              <CardDescription>Your borrowing activity</CardDescription>
+              <CardTitle>Your Recent Activity</CardTitle>
+              <CardDescription>Your borrowing history</CardDescription>
             </div>
             <Button variant="outline" size="sm" @click="router.push('/borrows')">
               <Eye class="h-4 w-4 mr-2" />
@@ -304,21 +342,31 @@ onMounted(() => {
           </CardHeader>
           <CardContent>
             <div v-if="!authStore.isAuthenticated" class="text-center py-4 text-muted-foreground">
-              Please log in to view your borrows
+              Please log in to view your activity
             </div>
-            <div v-else-if="recentBorrows.length === 0" class="text-center py-4 text-muted-foreground">
-              No recent borrows found
+            <div v-else-if="userBorrows.length === 0" class="text-center py-4 text-muted-foreground">
+              No borrowing activity yet
+              <div class="mt-2">
+                <Button variant="outline" size="sm" @click="router.push('/books')">
+                  Start browsing books
+                </Button>
+              </div>
             </div>
             <div v-else class="space-y-3">
               <div
-                v-for="borrow in recentBorrows"
+                v-for="borrow in userBorrows"
                 :key="borrow.id"
-                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50"
+                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
+                @click="router.push(`/books/${borrow.bookCopy.book.id}`)"
               >
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ borrow.bookCopy.book.title }}</p>
                   <p class="text-xs text-muted-foreground">
-                    Due: {{ formatDate(borrow.dueDate) }}
+                    {{ borrow.isReturned ? 'Returned' : 'Due' }}: {{ 
+                      borrow.isReturned && borrow.returnDate 
+                        ? formatDate(borrow.returnDate) 
+                        : formatDate(borrow.dueDate) 
+                    }}
                   </p>
                 </div>
                 <Badge 
@@ -332,11 +380,11 @@ onMounted(() => {
           </CardContent>
         </Card>
 
-        <!-- Recent Notices -->
+        <!-- Library Notices -->
         <Card class="lg:col-span-2">
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Notices</CardTitle>
+              <CardTitle>Library Notices</CardTitle>
               <CardDescription>Important updates and announcements</CardDescription>
             </div>
             <Button variant="outline" size="sm" @click="router.push('/notices')">
@@ -352,7 +400,8 @@ onMounted(() => {
               <div
                 v-for="notice in recentNotices"
                 :key="notice.id"
-                class="border-l-4 border-primary pl-4 py-2"
+                class="border-l-4 border-primary pl-4 py-2 hover:bg-muted/50 rounded-r cursor-pointer"
+                @click="router.push(`/notices/${notice.id}`)"
               >
                 <h4 class="font-medium">{{ notice.title }}</h4>
                 <p class="text-sm text-muted-foreground mt-1 line-clamp-2">
@@ -366,6 +415,21 @@ onMounted(() => {
           </CardContent>
         </Card>
       </div>
+
+      <!-- Personalized Recommendations Section (if authenticated) -->
+      <Card v-if="authStore.isAuthenticated" class="mt-6">
+        <CardHeader>
+          <CardTitle>Recommended for You</CardTitle>
+          <CardDescription>Based on your reading history and preferences</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div class="text-center py-8 text-muted-foreground">
+            <BookOpen class="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Personalized recommendations coming soon!</p>
+            <p class="text-sm mt-2">Keep borrowing books to help us learn your preferences.</p>
+          </div>
+        </CardContent>
+      </Card>
     </template>
   </div>
 </template>
