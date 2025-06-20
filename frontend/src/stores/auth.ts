@@ -2,17 +2,25 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { authService, usersService } from '@/lib/api'
 import type { ApiError } from '@/lib/api/client'
-import type { UserLoginDto, UserRegisterDto } from '@/lib/api'
+import type { UserLoginDto, UserRegisterDto, User } from '@/lib/api'
 
-interface User {
+interface AuthUser {
   username: string
   token: string
+  role: 'USER' | 'ADMIN'
+  email: string
+  firstName?: string
+  lastName?: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>(null)
+  const user = ref<AuthUser | null>(null)
   const isAuthenticated = ref(false)
   const isLoading = ref(false)
+
+  // Computed properties for role checking
+  const isAdmin = () => user.value?.role === 'ADMIN'
+  const isUser = () => user.value?.role === 'USER'
 
   // Hash password using Web Crypto API
   const hashPassword = async (password: string): Promise<string> => {
@@ -102,6 +110,10 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = {
           username: userData.username, // Use actual username from user data
           token: token,
+          role: userData.role,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
         }
 
         isAuthenticated.value = true
@@ -175,14 +187,29 @@ export const useAuthStore = defineStore('auth', () => {
     const username = localStorage.getItem('username')
 
     if (token && username) {
-      user.value = { username, token }
-      isAuthenticated.value = true
-      
-      // Verify token is still valid
-      const isValid = await verifyToken()
-      if (!isValid) {
-        user.value = null
-        isAuthenticated.value = false
+      // Try to get full user data from API
+      try {
+        const userData = await usersService.getCurrentUser()
+        user.value = {
+          username: userData.username,
+          token: token,
+          role: userData.role,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+        }
+        isAuthenticated.value = true
+        
+        // Verify token is still valid
+        const isValid = await verifyToken()
+        if (!isValid) {
+          user.value = null
+          isAuthenticated.value = false
+        }
+      } catch (error) {
+        // If we can't get user data, clear auth state
+        console.error('Failed to get user data during init:', error)
+        logout()
       }
     }
   }
@@ -210,5 +237,7 @@ export const useAuthStore = defineStore('auth', () => {
     verifyToken,
     initAuth,
     getAuthHeader,
+    isAdmin,
+    isUser,
   }
 })
