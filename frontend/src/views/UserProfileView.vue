@@ -290,11 +290,11 @@ onMounted(() => {
           <div v-else class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2 md:col-span-2">
-                <Label for="firstName">User Name</Label>
+                <Label for="username">User Name</Label>
                 <Input
-                  id="firstName"
+                  id="username"
                   v-model="profileForm.username"
-                  placeholder="Enter your first name"
+                  placeholder="Enter your username"
                 />
               </div>
 
