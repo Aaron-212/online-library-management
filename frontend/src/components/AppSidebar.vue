@@ -51,9 +51,10 @@ const navigationItems = computed(() => [
   },
   {
     title: 'Dashboard',
-    url: authStore.isAuthenticated && authStore.isAdmin() ? '/admin/dashboard' : '/dashboard',
+    url: '/dashboard',
     icon: Gauge,
     requiresAuth: true,
+    hideForAdmin: true, // Hide this for admins since they have Admin Dashboard
   },
   {
     title: 'Books',
@@ -145,7 +146,15 @@ const isAdmin = computed(() => {
 })
 
 const filteredNavigationItems = computed(() => {
-  return navigationItems.value.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
+  return navigationItems.value.filter((item) => {
+    // Filter out items that require auth when user is not authenticated
+    if (item.requiresAuth && !authStore.isAuthenticated) return false
+    
+    // Filter out items that should be hidden for admins when user is admin
+    if (item.hideForAdmin && authStore.isAuthenticated && authStore.isAdmin()) return false
+    
+    return true
+  })
 })
 
 const filteredLibraryItems = computed(() => {
