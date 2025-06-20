@@ -380,8 +380,8 @@ onMounted(() => {
                       size="sm"
                       variant="ghost"
                       @click="
-                        selectedUser = null
-                        userSearchKeyword = ''
+                        selectedUser = null;
+                        userSearchKeyword = '';
                       "
                     >
                       ×
@@ -445,8 +445,8 @@ onMounted(() => {
                       size="sm"
                       variant="ghost"
                       @click="
-                        selectedBook = null
-                        bookSearchKeyword = ''
+                        selectedBook = null;
+                        bookSearchKeyword = '';
                       "
                     >
                       ×
