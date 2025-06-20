@@ -89,7 +89,7 @@ const adminActions = [
     title: 'Add New Book',
     description: 'Add books to library',
     icon: Plus,
-    action: () => router.push('/admin/books/new'),
+    action: () => router.push('/books/create'),
     variant: 'default' as const
   },
   {
@@ -342,7 +342,7 @@ onMounted(() => {
               <CardTitle>Overdue Borrowings</CardTitle>
               <CardDescription>Books that need admin attention</CardDescription>
             </div>
-            <Button variant="outline" size="sm" @click="router.push('/admin/borrowing-management')">
+            <Button variant="outline" size="sm" @click="router.push('/admin/borrowing')">
               <Eye class="h-4 w-4 mr-2" />
               Manage All
             </Button>
