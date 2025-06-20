@@ -3,6 +3,12 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import { useAuthStore } from '@/stores/auth'
+import UserProfileView from '@/views/UserProfileView.vue';
+import BorrowingRecordView from '@/views/BorrowingRecordView.vue';
+import ReservationView from '@/views/ReservationView.vue';
+import FavoriteView from '@/views/FavoriteView.vue';
+import BillingCenterView from '@/views/BillingCenterView.vue';
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -149,5 +155,49 @@ router.beforeEach((to, from, next) => {
 
   next()
 })
+
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: HomeView
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginView
+  },
+  // 个人中心相关路由
+  {
+    path: '/profile',
+    name: 'UserProfile',
+    component: UserProfileView,
+    meta: { requiresAuth: true } // 添加权限控制
+  },
+  {
+    path: '/borrowing-record',
+    name: 'BorrowingRecord',
+    component: BorrowingRecordView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/reservation',
+    name: 'Reservation',
+    component: ReservationView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/favorite',
+    name: 'Favorite',
+    component: FavoriteView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/billing-center',
+    name: 'BillingCenter',
+    component: BillingCenterView,
+    meta: { requiresAuth: true }
+  },
+];
 
 export default router
