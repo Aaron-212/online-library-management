@@ -81,8 +81,7 @@ const searchParams = computed<BookSearchParams>(() => ({
 }))
 
 const isAdmin = computed(() => {
-  // You might want to check user role here when user data is available
-  return authStore.isAuthenticated
+  return authStore.isAdmin()
 })
 
 // Methods
@@ -169,8 +168,20 @@ const handleCreateBook = async () => {
 
   try {
     isSubmitting.value = true
-    // TODO: Implement actual book creation via API
-    // await booksService.createBook(bookForm.value)
+    
+    // Create the book data object matching the BookCreateDto
+    const bookData = {
+      isbn: bookForm.value.isbn,
+      title: bookForm.value.title,
+      language: bookForm.value.language,
+      description: bookForm.value.description,
+      authorNames: bookForm.value.authors.split(',').map(author => author.trim()).filter(Boolean),
+      publisherNames: bookForm.value.publisher ? [bookForm.value.publisher.trim()] : [],
+      categoryName: bookForm.value.category,
+      totalQuantity: bookForm.value.totalQuantity
+    }
+    
+    await booksService.create(bookData)
     
     toast.success('Book added successfully!')
     closeAddBookDialog()

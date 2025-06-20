@@ -40,6 +40,11 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/api-test',
+      name: 'api-test',
+      component: () => import('@/views/ApiTestView.vue'),
+    },
+    {
       path: '/borrows',
       name: 'borrows',
       component: () => import('@/views/BorrowingManagementView.vue'),
@@ -134,11 +139,11 @@ router.beforeEach((to, from, next) => {
 
   // Check if route requires admin access
   if (to.meta.requiresAdmin && authStore.isAuthenticated) {
-    // TODO: Add proper admin role checking when user roles are available
-    // For now, just check if user is authenticated
-    // This should be: !authStore.user?.role === 'ADMIN'
-    // next('/dashboard')
-    // return
+    if (!authStore.isAdmin()) {
+      // Redirect non-admin users to dashboard
+      next('/dashboard')
+      return
+    }
   }
 
   // Redirect to dashboard if user is already authenticated and trying to access login/register

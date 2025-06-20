@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/stores/auth'
 
-// Base configuration
-const API_BASE_URL = 'http://localhost:8090/api/v1'
+// Base configuration - use environment variable or fallback
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8090/api/v1'
 
 // API Response types
 export interface ApiResponse<T = any> {
