@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { api } from '@/lib/api'
 import type { ApiError } from '@/lib/api/client'
 
@@ -27,7 +27,7 @@ export function useApi() {
   const execute = async <T>(apiCall: () => Promise<T>): Promise<T | null> => {
     isLoading.value = true
     error.value = null
-    
+
     try {
       const result = await apiCall()
       data.value = result
@@ -47,17 +47,17 @@ export function useApi() {
     isLoading,
     error,
     data,
-    
+
     // Computed
     hasError,
     hasData,
-    
+
     // Actions
     execute,
     clearError,
     clearData,
     reset,
-    
+
     // API instances
     api,
   }
@@ -111,19 +111,21 @@ export function useBorrow() {
   const borrowBook = async (bookId: number) => {
     // Get current user data to get the user ID
     const currentUser = await api.users.getCurrentUser()
-    
+
     // Get available copies for the book
     const copies = await api.books.getCopies(bookId)
-    const availableCopy = copies.find(copy => copy.isAvailable)
-    
+    const availableCopy = copies.find((copy) => copy.isAvailable)
+
     if (!availableCopy) {
       throw new Error('No available copies for this book')
     }
-    
-    return execute(() => api.borrow.borrowBook({ 
-      userId: currentUser.id, 
-      copyId: availableCopy.id 
-    }))
+
+    return execute(() =>
+      api.borrow.borrowBook({
+        userId: currentUser.id,
+        copyId: availableCopy.id,
+      }),
+    )
   }
 
   const returnBook = (borrowId: number) => {

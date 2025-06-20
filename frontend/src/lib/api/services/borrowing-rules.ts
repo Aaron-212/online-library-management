@@ -1,10 +1,10 @@
 import { apiClient } from '../client'
-import type { 
-  BorrowingRule, 
-  BorrowingRuleDto, 
+import type {
+  BorrowingRule,
+  BorrowingRuleDto,
   BorrowingRuleUpdateDto,
+  MessageResponse,
   PagedResponse,
-  MessageResponse 
 } from '../types'
 
 export class BorrowingRulesService {

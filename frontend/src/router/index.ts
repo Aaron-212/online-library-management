@@ -6,9 +6,6 @@ import { useAuthStore } from '@/stores/auth'
 import BorrowingManagementView from '@/views/BorrowingManagementView.vue'
 import AdminBorrowingView from '@/views/AdminBorrowingView.vue'
 import BorrowingRulesView from '@/views/BorrowingRulesView.vue'
-import ReservationsView from '@/views/ReservationsView.vue'
-import FavoritesView from '@/views/FavoritesView.vue'
-import BillingView from '@/views/BillingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -103,7 +100,7 @@ const router = createRouter({
       path: '/admin/borrowing',
       name: 'admin-borrowing',
       component: AdminBorrowingView,
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/borrowing-rules',

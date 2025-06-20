@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import { ChevronDown, ChevronLeft, ChevronRight, Search, Plus } from 'lucide-vue-next'
+import { computed, onMounted, ref, watch } from 'vue'
+import { ChevronDown, ChevronLeft, ChevronRight, Plus, Search } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BookCard from '@/components/BookCard.vue'
 import { Card } from '@/components/ui/card'
@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { booksService } from '@/lib/api'
-import type { Book, PagedResponse, BookSearchParams } from '@/lib/api/types'
+import type { Book, BookSearchParams, PagedResponse } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -59,7 +59,7 @@ const bookForm = ref({
   publisher: '',
   publishedYear: new Date().getFullYear(),
   description: '',
-  totalQuantity: 1
+  totalQuantity: 1,
 })
 
 const languages = ['All Languages', 'English', 'Chinese', 'Spanish', 'French', 'German', 'Japanese']
@@ -67,7 +67,7 @@ const sortOptions = [
   { label: 'Title (A-Z)', value: 'title', direction: 'asc' },
   { label: 'Title (Z-A)', value: 'title', direction: 'desc' },
   { label: 'Available First', value: 'availableQuantity', direction: 'desc' },
-  { label: 'Total Copies', value: 'totalQuantity', direction: 'desc' }
+  { label: 'Total Copies', value: 'totalQuantity', direction: 'desc' },
 ]
 
 // Computed
@@ -77,7 +77,7 @@ const searchParams = computed<BookSearchParams>(() => ({
   language: selectedLanguage.value !== 'All Languages' ? selectedLanguage.value : undefined,
   page: currentPage.value,
   size: pageSize.value,
-  sort: `${sortBy.value},${sortDirection.value}`
+  sort: `${sortBy.value},${sortDirection.value}`,
 }))
 
 const isAdmin = computed(() => {
@@ -122,7 +122,7 @@ const handleSearch = () => {
   loadBooks()
 }
 
-const handleSortChange = (option: typeof sortOptions[0]) => {
+const handleSortChange = (option: (typeof sortOptions)[0]) => {
   sortBy.value = option.value
   sortDirection.value = option.direction as 'asc' | 'desc'
   currentPage.value = 0
@@ -155,7 +155,7 @@ const closeAddBookDialog = () => {
     publisher: '',
     publishedYear: new Date().getFullYear(),
     description: '',
-    totalQuantity: 1
+    totalQuantity: 1,
   }
   isSubmitting.value = false
 }
@@ -168,21 +168,24 @@ const handleCreateBook = async () => {
 
   try {
     isSubmitting.value = true
-    
+
     // Create the book data object matching the BookCreateDto
     const bookData = {
       isbn: bookForm.value.isbn,
       title: bookForm.value.title,
       language: bookForm.value.language,
       description: bookForm.value.description,
-      authorNames: bookForm.value.authors.split(',').map(author => author.trim()).filter(Boolean),
+      authorNames: bookForm.value.authors
+        .split(',')
+        .map((author) => author.trim())
+        .filter(Boolean),
       publisherNames: bookForm.value.publisher ? [bookForm.value.publisher.trim()] : [],
       categoryName: bookForm.value.category,
-      totalQuantity: bookForm.value.totalQuantity
+      totalQuantity: bookForm.value.totalQuantity,
     }
-    
+
     await booksService.create(bookData)
-    
+
     toast.success('Book added successfully!')
     closeAddBookDialog()
     await loadBooks()
@@ -228,7 +231,9 @@ onMounted(() => {
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
           <Label for="search">Search</Label>
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
             <Input
               id="search"
               v-model="searchKeyword"
@@ -253,8 +258,8 @@ onMounted(() => {
               <DropdownMenuItem @click="selectedCategory = 'All Categories'">
                 All Categories
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                v-for="category in categories" 
+              <DropdownMenuItem
+                v-for="category in categories"
                 :key="category"
                 @click="selectedCategory = category"
               >
@@ -275,8 +280,8 @@ onMounted(() => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem 
-                v-for="language in languages" 
+              <DropdownMenuItem
+                v-for="language in languages"
                 :key="language"
                 @click="selectedLanguage = language"
               >
@@ -292,13 +297,16 @@ onMounted(() => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
-                {{ sortOptions.find(opt => opt.value === sortBy && opt.direction === sortDirection)?.label || 'Title (A-Z)' }}
+                {{
+                  sortOptions.find((opt) => opt.value === sortBy && opt.direction === sortDirection)
+                    ?.label || 'Title (A-Z)'
+                }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem 
-                v-for="option in sortOptions" 
+              <DropdownMenuItem
+                v-for="option in sortOptions"
                 :key="`${option.value}-${option.direction}`"
                 @click="handleSortChange(option)"
               >
@@ -321,24 +329,25 @@ onMounted(() => {
     </div>
 
     <!-- Books Grid -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading books...
-    </div>
-    
+    <div v-if="isLoading" class="text-center py-8">Loading books...</div>
+
     <div v-else-if="books.length === 0" class="text-center py-8 text-muted-foreground">
       No books found matching your criteria.
     </div>
-    
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-      <div 
-        v-for="book in books" 
+
+    <div
+      v-else
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+    >
+      <div
+        v-for="book in books"
         :key="book.id"
         class="cursor-pointer transform transition-transform hover:scale-105"
         @click="goToBookDetail(book.id)"
       >
-        <BookCard 
+        <BookCard
           :title="book.title"
-          :author="book.authors.map(a => a.name).join(', ')"
+          :author="book.authors.map((a) => a.name).join(', ')"
           :isbn="book.isbn"
           :available="book.availableQuantity > 0"
           :total-copies="book.totalQuantity"
@@ -349,20 +358,20 @@ onMounted(() => {
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         :disabled="currentPage === 0"
         @click="handlePageChange(currentPage - 1)"
       >
         <ChevronLeft class="h-4 w-4" />
         Previous
       </Button>
-      
+
       <span class="text-sm text-muted-foreground px-4">
         Page {{ currentPage + 1 }} of {{ totalPages }}
       </span>
-      
-      <Button 
+
+      <Button
         variant="outline"
         :disabled="currentPage === totalPages - 1"
         @click="handlePageChange(currentPage + 1)"
@@ -384,24 +393,14 @@ onMounted(() => {
       <form @submit.prevent="handleCreateBook" class="space-y-4">
         <div class="space-y-2">
           <Label for="title">Title</Label>
-          <Input
-            id="title"
-            v-model="bookForm.title"
-            placeholder="Enter book title..."
-            required
-          />
+          <Input id="title" v-model="bookForm.title" placeholder="Enter book title..." required />
         </div>
-        
+
         <div class="space-y-2">
           <Label for="isbn">ISBN</Label>
-          <Input
-            id="isbn"
-            v-model="bookForm.isbn"
-            placeholder="Enter ISBN..."
-            required
-          />
+          <Input id="isbn" v-model="bookForm.isbn" placeholder="Enter ISBN..." required />
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <Label for="language">Language</Label>
@@ -412,7 +411,7 @@ onMounted(() => {
               required
             />
           </div>
-          
+
           <div class="space-y-2">
             <Label for="category">Category</Label>
             <Input
@@ -423,7 +422,7 @@ onMounted(() => {
             />
           </div>
         </div>
-        
+
         <div class="space-y-2">
           <Label for="authors">Authors</Label>
           <Input
@@ -433,17 +432,13 @@ onMounted(() => {
             required
           />
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <Label for="publisher">Publisher</Label>
-            <Input
-              id="publisher"
-              v-model="bookForm.publisher"
-              placeholder="Enter publisher..."
-            />
+            <Input id="publisher" v-model="bookForm.publisher" placeholder="Enter publisher..." />
           </div>
-          
+
           <div class="space-y-2">
             <Label for="publishedYear">Published Year</Label>
             <Input
@@ -455,7 +450,7 @@ onMounted(() => {
             />
           </div>
         </div>
-        
+
         <div class="space-y-2">
           <Label for="description">Description</Label>
           <textarea
@@ -465,7 +460,7 @@ onMounted(() => {
             class="w-full min-h-[100px] p-3 border rounded-md resize-none"
           />
         </div>
-        
+
         <div class="space-y-2">
           <Label for="totalQuantity">Total Quantity</Label>
           <Input
@@ -476,11 +471,9 @@ onMounted(() => {
             required
           />
         </div>
-        
+
         <DialogFooter>
-          <Button type="button" variant="outline" @click="closeAddBookDialog">
-            Cancel
-          </Button>
+          <Button type="button" variant="outline" @click="closeAddBookDialog"> Cancel </Button>
           <Button type="submit" :disabled="isSubmitting">
             {{ isSubmitting ? 'Adding...' : 'Add Book' }}
           </Button>

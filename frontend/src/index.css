@@ -117,14 +117,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html, body, #app {
     height: 100%;
     margin: 0;
     padding: 0;
   }
+
   #app {
     display: flex;
     min-height: 100vh;

@@ -20,10 +20,11 @@ const goBack = () => {
       <h1 class="text-6xl font-bold text-muted-foreground">404</h1>
       <h2 class="text-2xl font-semibold">Page Not Found</h2>
       <p class="text-muted-foreground max-w-md">
-        The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
+        The page you're looking for doesn't exist. It might have been moved, deleted, or you entered
+        the wrong URL.
       </p>
     </div>
-    
+
     <div class="flex gap-4">
       <Button @click="goBack" variant="outline">
         <ArrowLeft class="h-4 w-4 mr-2" />

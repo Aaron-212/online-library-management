@@ -25,11 +25,11 @@ import java.util.Optional;
 @Transactional
 public class BorrowService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
     private final BorrowRepository borrowRepository;
     private final BookCopyRepository bookCopyRepository;
     private final UserRepository userRepository;
     private final BorrowingRuleService borrowingRuleService;
-    private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
 
     public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
                         UserRepository userRepository, BorrowingRuleService borrowingRuleService) {

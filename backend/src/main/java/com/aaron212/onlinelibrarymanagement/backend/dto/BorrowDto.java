@@ -5,15 +5,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record BorrowDto(
-    Long borrowId,
-    Long userId,
-    String username,
-    Long copyId,
-    String bookTitle,
-    String isbn,
-    LocalDateTime borrowTime,
-    LocalDateTime returnTime,
-    LocalDateTime actualReturnTime,
-    Borrow.Status status,
-    BigDecimal fine
-) {} 
+        Long borrowId,
+        Long userId,
+        String username,
+        Long copyId,
+        String bookTitle,
+        String isbn,
+        LocalDateTime borrowTime,
+        LocalDateTime returnTime,
+        LocalDateTime actualReturnTime,
+        Borrow.Status status,
+        BigDecimal fine) {}

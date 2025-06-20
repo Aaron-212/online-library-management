@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useImage } from '@vueuse/core'
 import { computed } from 'vue'
 import {
@@ -48,36 +48,46 @@ const availabilityText = computed(() => {
       >
         <img
           v-if="!isLoading && !error && props.coverImageUrl"
-          :src="props.coverImageUrl"
           :alt="altText"
+          :src="props.coverImageUrl"
           class="object-cover w-full h-full"
         />
         <div v-else-if="isLoading" class="text-sm text-muted-foreground p-4 text-center">
           Loading image...
         </div>
         <div v-else class="text-sm text-muted-foreground p-4 text-center">No image available</div>
-        
+
         <!-- Availability Badge -->
         <div v-if="availabilityStatus" class="absolute top-2 right-2">
-          <Badge 
-            :variant="availabilityStatus === 'available' ? 'default' : 
-                     availabilityStatus === 'limited' ? 'secondary' : 'destructive'"
+          <Badge
+            :variant="
+              availabilityStatus === 'available'
+                ? 'default'
+                : availabilityStatus === 'limited'
+                  ? 'secondary'
+                  : 'destructive'
+            "
             class="text-xs"
           >
-            {{ availabilityStatus === 'available' ? 'Available' : 
-               availabilityStatus === 'limited' ? 'Limited' : 'Out of Stock' }}
+            {{
+              availabilityStatus === 'available'
+                ? 'Available'
+                : availabilityStatus === 'limited'
+                  ? 'Limited'
+                  : 'Out of Stock'
+            }}
           </Badge>
         </div>
       </div>
     </CardHeader>
     <CardContent class="pt-4 pb-2 flex-grow">
-      <CardTitle class="text-lg leading-tight mb-2 line-clamp-2" :title="props.title">
+      <CardTitle :title="props.title" class="text-lg leading-tight mb-2 line-clamp-2">
         {{ props.title }}
       </CardTitle>
-      <CardDescription class="text-sm mb-2 line-clamp-1" :title="props.author">
+      <CardDescription :title="props.author" class="text-sm mb-2 line-clamp-1">
         By: {{ props.author }}
       </CardDescription>
-      
+
       <!-- Availability Info -->
       <div v-if="availableCopies !== undefined" class="text-xs text-muted-foreground mb-1">
         {{ availabilityText }}
@@ -85,7 +95,7 @@ const availabilityText = computed(() => {
       </div>
     </CardContent>
     <CardFooter v-if="props.isbn" class="pb-4 pt-0">
-      <p class="text-xs text-muted-foreground truncate w-full" :title="props.isbn">
+      <p :title="props.isbn" class="text-xs text-muted-foreground truncate w-full">
         ISBN: {{ props.isbn }}
       </p>
     </CardFooter>

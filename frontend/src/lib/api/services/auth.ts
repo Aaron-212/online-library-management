@@ -1,10 +1,5 @@
 import { apiClient } from '../client'
-import type { 
-  UserLoginDto, 
-  UserRegisterDto, 
-  AuthResponse, 
-  MessageResponse 
-} from '../types'
+import type { AuthResponse, MessageResponse, UserLoginDto, UserRegisterDto } from '../types'
 
 export class AuthService {
   private basePath = '/auth'
@@ -22,7 +17,9 @@ export class AuthService {
   }
 
   async changePassword(oldPassword: string, newPassword: string): Promise<MessageResponse> {
-    return apiClient.put<MessageResponse>(`${this.basePath}/password?oldPassword=${encodeURIComponent(oldPassword)}&newPassword=${encodeURIComponent(newPassword)}`)
+    return apiClient.put<MessageResponse>(
+      `${this.basePath}/password?oldPassword=${encodeURIComponent(oldPassword)}&newPassword=${encodeURIComponent(newPassword)}`,
+    )
   }
 }
 

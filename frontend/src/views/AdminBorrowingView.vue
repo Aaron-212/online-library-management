@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -29,22 +23,27 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
+  AlertTriangle,
   Book,
   BookOpen,
   Calendar,
-  AlertTriangle,
   CheckCircle,
-  Search,
   ChevronDown,
-  RefreshCw,
-  Plus,
-  User,
   Clock,
+  Plus,
+  RefreshCw,
+  Search,
+  User,
   Users,
-  ArrowLeft
 } from 'lucide-vue-next'
-import { borrowService, usersService, booksService } from '@/lib/api'
-import type { Borrow, UserPublic, Book as BookType, BookCopy, BorrowResponseDto } from '@/lib/api/types'
+import { booksService, borrowService, usersService } from '@/lib/api'
+import type {
+  Book as BookType,
+  BookCopy,
+  Borrow,
+  BorrowResponseDto,
+  UserPublic,
+} from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -77,34 +76,35 @@ const statusOptions = [
   { value: 'all', label: 'All Borrows' },
   { value: 'active', label: 'Active' },
   { value: 'returned', label: 'Returned' },
-  { value: 'overdue', label: 'Overdue' }
+  { value: 'overdue', label: 'Overdue' },
 ]
 
 // Computed
 const filteredUsers = computed(() => {
   if (!userSearchKeyword.value) return users.value.slice(0, 10)
-  
+
   const keyword = userSearchKeyword.value.toLowerCase()
-  return users.value.filter(user =>
-    user.username.toLowerCase().includes(keyword)
-  ).slice(0, 10)
+  return users.value.filter((user) => user.username.toLowerCase().includes(keyword)).slice(0, 10)
 })
 
 const filteredBooks = computed(() => {
   if (!bookSearchKeyword.value) return books.value.slice(0, 10)
-  
+
   const keyword = bookSearchKeyword.value.toLowerCase()
-  return books.value.filter(book =>
-    book.title.toLowerCase().includes(keyword) ||
-    book.isbn.toLowerCase().includes(keyword) ||
-    book.authors.some(author => author.name.toLowerCase().includes(keyword))
-  ).slice(0, 10)
+  return books.value
+    .filter(
+      (book) =>
+        book.title.toLowerCase().includes(keyword) ||
+        book.isbn.toLowerCase().includes(keyword) ||
+        book.authors.some((author) => author.name.toLowerCase().includes(keyword)),
+    )
+    .slice(0, 10)
 })
 
 const availableCopies = computed(() => {
   if (!selectedBook.value) return []
-  return bookCopies.value.filter(copy => 
-    copy.book.id === selectedBook.value?.id && copy.isAvailable
+  return bookCopies.value.filter(
+    (copy) => copy.book.id === selectedBook.value?.id && copy.isAvailable,
   )
 })
 
@@ -113,15 +113,16 @@ const filteredBorrows = computed(() => {
 
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase()
-    filtered = filtered.filter(borrow =>
-      borrow.user.username.toLowerCase().includes(keyword) ||
-      borrow.bookCopy.book.title.toLowerCase().includes(keyword) ||
-      borrow.bookCopy.book.isbn.toLowerCase().includes(keyword)
+    filtered = filtered.filter(
+      (borrow) =>
+        borrow.user.username.toLowerCase().includes(keyword) ||
+        borrow.bookCopy.book.title.toLowerCase().includes(keyword) ||
+        borrow.bookCopy.book.isbn.toLowerCase().includes(keyword),
     )
   }
 
   if (statusFilter.value !== 'all') {
-    filtered = filtered.filter(borrow => {
+    filtered = filtered.filter((borrow) => {
       switch (statusFilter.value) {
         case 'active':
           return !borrow.isReturned && !isOverdue(borrow)
@@ -138,12 +139,10 @@ const filteredBorrows = computed(() => {
   return filtered
 })
 
-const activeBorrows = computed(() => 
-  borrows.value.filter(borrow => !borrow.isReturned)
-)
+const activeBorrows = computed(() => borrows.value.filter((borrow) => !borrow.isReturned))
 
-const overdueBorrows = computed(() => 
-  borrows.value.filter(borrow => !borrow.isReturned && isOverdue(borrow))
+const overdueBorrows = computed(() =>
+  borrows.value.filter((borrow) => !borrow.isReturned && isOverdue(borrow)),
 )
 
 // Form validation
@@ -166,16 +165,16 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.isReturned) {
     return { variant: 'success' as const, text: 'Returned', icon: CheckCircle }
   }
-  
+
   if (isOverdue(borrow)) {
     return { variant: 'destructive' as const, text: 'Overdue', icon: AlertTriangle }
   }
-  
+
   const daysUntilDue = getDaysUntilDue(borrow)
   if (daysUntilDue <= 3) {
     return { variant: 'secondary' as const, text: 'Due Soon', icon: Clock }
   }
-  
+
   return { variant: 'default' as const, text: 'Active', icon: BookOpen }
 }
 
@@ -261,9 +260,9 @@ const handleCreateBorrow = async () => {
     isSubmitting.value = true
     const response: BorrowResponseDto = await borrowService.adminBorrowBook({
       userId: selectedUser.value!.id,
-      copyId: selectedCopy.value!.id
+      copyId: selectedCopy.value!.id,
     })
-    
+
     toast.success(response.message || 'Book borrowed successfully!')
     isCreateDialogOpen.value = false
     resetForm()
@@ -305,7 +304,7 @@ onMounted(() => {
     router.push('/login')
     return
   }
-  
+
   loadBorrows()
   loadUsers()
   loadBooks()
@@ -335,13 +334,15 @@ onMounted(() => {
                 Select a user and book copy to register a new borrowing record
               </DialogDescription>
             </DialogHeader>
-            
+
             <div class="space-y-6">
               <!-- User Selection -->
               <div class="space-y-2">
                 <Label for="user-search">Select User</Label>
                 <div class="relative">
-                  <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search
+                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     id="user-search"
                     v-model="userSearchKeyword"
@@ -349,8 +350,11 @@ onMounted(() => {
                     class="pl-10"
                   />
                 </div>
-                
-                <div v-if="userSearchKeyword && !selectedUser" class="border rounded-lg max-h-40 overflow-y-auto">
+
+                <div
+                  v-if="userSearchKeyword && !selectedUser"
+                  class="border rounded-lg max-h-40 overflow-y-auto"
+                >
                   <div
                     v-for="user in filteredUsers"
                     :key="user.id"
@@ -364,7 +368,7 @@ onMounted(() => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div v-if="selectedUser" class="p-3 border rounded-lg bg-muted/50">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -372,7 +376,14 @@ onMounted(() => {
                       <span class="font-medium">{{ selectedUser.username }}</span>
                       <Badge variant="outline">ID: {{ selectedUser.id }}</Badge>
                     </div>
-                    <Button size="sm" variant="ghost" @click="selectedUser = null; userSearchKeyword = ''">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      @click="
+                        selectedUser = null
+                        userSearchKeyword = ''
+                      "
+                    >
                       ×
                     </Button>
                   </div>
@@ -383,7 +394,9 @@ onMounted(() => {
               <div class="space-y-2">
                 <Label for="book-search">Select Book</Label>
                 <div class="relative">
-                  <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search
+                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     id="book-search"
                     v-model="bookSearchKeyword"
@@ -391,8 +404,11 @@ onMounted(() => {
                     class="pl-10"
                   />
                 </div>
-                
-                <div v-if="bookSearchKeyword && !selectedBook" class="border rounded-lg max-h-40 overflow-y-auto">
+
+                <div
+                  v-if="bookSearchKeyword && !selectedBook"
+                  class="border rounded-lg max-h-40 overflow-y-auto"
+                >
                   <div
                     v-for="book in filteredBooks"
                     :key="book.id"
@@ -405,7 +421,7 @@ onMounted(() => {
                         <span class="font-medium">{{ book.title }}</span>
                       </div>
                       <div class="text-sm text-muted-foreground">
-                        {{ book.authors.map(a => a.name).join(', ') }} | ISBN: {{ book.isbn }}
+                        {{ book.authors.map((a) => a.name).join(', ') }} | ISBN: {{ book.isbn }}
                       </div>
                       <div class="text-xs text-muted-foreground">
                         Available: {{ book.availableQuantity }} / {{ book.totalQuantity }}
@@ -413,7 +429,7 @@ onMounted(() => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div v-if="selectedBook" class="p-3 border rounded-lg bg-muted/50">
                   <div class="flex items-center justify-between">
                     <div class="space-y-1">
@@ -422,10 +438,17 @@ onMounted(() => {
                         <span class="font-medium">{{ selectedBook.title }}</span>
                       </div>
                       <div class="text-sm text-muted-foreground">
-                        {{ selectedBook.authors.map(a => a.name).join(', ') }}
+                        {{ selectedBook.authors.map((a) => a.name).join(', ') }}
                       </div>
                     </div>
-                    <Button size="sm" variant="ghost" @click="selectedBook = null; bookSearchKeyword = ''">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      @click="
+                        selectedBook = null
+                        bookSearchKeyword = ''
+                      "
+                    >
                       ×
                     </Button>
                   </div>
@@ -449,19 +472,17 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div v-else-if="selectedBook && availableCopies.length === 0" class="text-center py-4 text-muted-foreground">
+              <div
+                v-else-if="selectedBook && availableCopies.length === 0"
+                class="text-center py-4 text-muted-foreground"
+              >
                 No available copies for this book
               </div>
             </div>
-            
+
             <DialogFooter>
-              <Button variant="outline" @click="isCreateDialogOpen = false">
-                Cancel
-              </Button>
-              <Button 
-                @click="handleCreateBorrow" 
-                :disabled="!isFormValid || isSubmitting"
-              >
+              <Button variant="outline" @click="isCreateDialogOpen = false"> Cancel </Button>
+              <Button @click="handleCreateBorrow" :disabled="!isFormValid || isSubmitting">
                 {{ isSubmitting ? 'Creating...' : 'Register Borrow' }}
               </Button>
             </DialogFooter>
@@ -513,7 +534,9 @@ onMounted(() => {
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
           <Label for="search">Search Records</Label>
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
             <Input
               id="search"
               v-model="searchKeyword"
@@ -529,13 +552,15 @@ onMounted(() => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
-                {{ statusOptions.find(opt => opt.value === statusFilter)?.label || 'All Borrows' }}
+                {{
+                  statusOptions.find((opt) => opt.value === statusFilter)?.label || 'All Borrows'
+                }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem 
-                v-for="option in statusOptions" 
+              <DropdownMenuItem
+                v-for="option in statusOptions"
                 :key="option.value"
                 @click="statusFilter = option.value"
               >
@@ -563,14 +588,15 @@ onMounted(() => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div v-if="isLoading" class="text-center py-8">
-          Loading borrowing records...
-        </div>
-        
-        <div v-else-if="filteredBorrows.length === 0" class="text-center py-8 text-muted-foreground">
+        <div v-if="isLoading" class="text-center py-8">Loading borrowing records...</div>
+
+        <div
+          v-else-if="filteredBorrows.length === 0"
+          class="text-center py-8 text-muted-foreground"
+        >
           No borrowing records found
         </div>
-        
+
         <div v-else class="space-y-4">
           <div
             v-for="borrow in filteredBorrows"
@@ -583,26 +609,26 @@ onMounted(() => {
                 <div class="w-16 h-20 bg-muted rounded flex items-center justify-center">
                   <BookOpen class="h-6 w-6 text-muted-foreground" />
                 </div>
-                
+
                 <div class="flex-1 min-w-0 space-y-2">
                   <div class="flex items-center gap-2">
                     <User class="h-4 w-4" />
-                    <span 
+                    <span
                       class="font-medium hover:text-primary cursor-pointer"
                       @click="goToUserProfile(borrow.user.id)"
                     >
                       {{ borrow.user.username }}
                     </span>
                   </div>
-                  
-                  <h3 
+
+                  <h3
                     class="font-medium hover:text-primary cursor-pointer truncate"
                     @click="goToBookDetail(borrow.bookCopy.book.id)"
                   >
                     {{ borrow.bookCopy.book.title }}
                   </h3>
                   <p class="text-sm text-muted-foreground truncate">
-                    {{ borrow.bookCopy.book.authors.map(a => a.name).join(', ') }}
+                    {{ borrow.bookCopy.book.authors.map((a) => a.name).join(', ') }}
                   </p>
                   <p class="text-xs text-muted-foreground">
                     ISBN: {{ borrow.bookCopy.book.isbn }} | Copy #{{ borrow.bookCopy.id }}
@@ -612,14 +638,11 @@ onMounted(() => {
 
               <!-- Dates and Status -->
               <div class="flex flex-col lg:items-end gap-2">
-                <Badge 
-                  :variant="getBorrowStatusBadge(borrow).variant"
-                  class="w-fit"
-                >
+                <Badge :variant="getBorrowStatusBadge(borrow).variant" class="w-fit">
                   <component :is="getBorrowStatusBadge(borrow).icon" class="h-3 w-3 mr-1" />
                   {{ getBorrowStatusBadge(borrow).text }}
                 </Badge>
-                
+
                 <div class="text-sm text-muted-foreground">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-3 w-3" />
@@ -629,7 +652,11 @@ onMounted(() => {
                     <Clock class="h-3 w-3" />
                     Due: {{ formatDate(borrow.dueDate) }}
                     <span v-if="!borrow.isReturned" class="ml-1">
-                      ({{ getDaysUntilDue(borrow) > 0 ? `${getDaysUntilDue(borrow)} days left` : `${Math.abs(getDaysUntilDue(borrow))} days overdue` }})
+                      ({{
+                        getDaysUntilDue(borrow) > 0
+                          ? `${getDaysUntilDue(borrow)} days left`
+                          : `${Math.abs(getDaysUntilDue(borrow))} days overdue`
+                      }})
                     </span>
                   </div>
                   <div v-if="borrow.returnDate" class="flex items-center gap-1">

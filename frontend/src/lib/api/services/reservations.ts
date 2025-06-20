@@ -1,19 +1,20 @@
 import { apiClient } from '../client'
-import type { 
-  Reservation,
-  ReserveRequestDto,
-  PagedResponse,
-  MessageResponse 
-} from '../types'
+import type { MessageResponse, PagedResponse, Reservation, ReserveRequestDto } from '../types'
 
 export class ReservationsService {
   private basePath = '/reservations'
 
-  async getUserReservations(params?: { page?: number; size?: number }): Promise<PagedResponse<Reservation>> {
+  async getUserReservations(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Reservation>> {
     return apiClient.get<PagedResponse<Reservation>>(`${this.basePath}/user`, params)
   }
 
-  async getAllReservations(params?: { page?: number; size?: number }): Promise<PagedResponse<Reservation>> {
+  async getAllReservations(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Reservation>> {
     return apiClient.get<PagedResponse<Reservation>>(this.basePath, params)
   }
 

@@ -1,28 +1,13 @@
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  BookOpen, 
-  Clock, 
-  Heart,
-  Search,
-  Eye,
-  User,
-  BookmarkPlus,
-  History
-} from 'lucide-vue-next'
-import { statisticsService, booksService, borrowService, noticesService } from '@/lib/api'
-import type { BookStatisticsDto, Book, Borrow, Notice } from '@/lib/api/types'
+import { BookmarkPlus, BookOpen, Clock, Eye, Heart, History, Search, User } from 'lucide-vue-next'
+import { booksService, borrowService, noticesService, statisticsService } from '@/lib/api'
+import type { Book, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -38,7 +23,7 @@ const userStats = ref({
   totalBorrows: 0,
   activeBorrows: 0,
   overdueBorrows: 0,
-  favoriteGenres: [] as string[]
+  favoriteGenres: [] as string[],
 })
 
 // Computed
@@ -74,7 +59,7 @@ const userDashboardCards = computed(() => [
     icon: Clock,
     color: 'text-red-600',
     bgColor: 'bg-red-50',
-  }
+  },
 ])
 
 const quickActions = [
@@ -83,29 +68,29 @@ const quickActions = [
     description: 'Explore available books',
     icon: Search,
     action: () => router.push('/books'),
-    variant: 'default' as const
+    variant: 'default' as const,
   },
   {
     title: 'My Borrowings',
     description: 'View borrowing history',
     icon: History,
     action: () => router.push('/borrows'),
-    variant: 'default' as const
+    variant: 'default' as const,
   },
   {
     title: 'My Profile',
     description: 'Manage your account',
     icon: User,
     action: () => router.push('/profile'),
-    variant: 'outline' as const
+    variant: 'outline' as const,
   },
   {
     title: 'Reading List',
     description: 'Manage your wishlist',
     icon: BookmarkPlus,
     action: () => router.push('/reading-list'),
-    variant: 'outline' as const
-  }
+    variant: 'outline' as const,
+  },
 ]
 
 // Methods
@@ -124,16 +109,16 @@ const loadUserStats = async () => {
       // Get user's borrowing history to calculate stats
       const borrowsResponse = await borrowService.getUserBorrows({ page: 0, size: 100 })
       const allBorrows = borrowsResponse.content
-      
+
       userStats.value = {
         totalBorrows: allBorrows.length,
-        activeBorrows: allBorrows.filter(b => !b.isReturned).length,
-        overdueBorrows: allBorrows.filter(b => {
+        activeBorrows: allBorrows.filter((b) => !b.isReturned).length,
+        overdueBorrows: allBorrows.filter((b) => {
           if (b.isReturned) return false
           const dueDate = new Date(b.dueDate)
           return dueDate < new Date()
         }).length,
-        favoriteGenres: [] // This would require additional API to get user's reading preferences
+        favoriteGenres: [], // This would require additional API to get user's reading preferences
       }
     }
   } catch (error) {
@@ -178,7 +163,7 @@ const loadDashboardData = async () => {
       loadRecentBooks(),
       loadUserBorrows(),
       loadRecentNotices(),
-      loadUserStats()
+      loadUserStats(),
     ])
   } finally {
     isLoading.value = false
@@ -189,19 +174,19 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.isReturned) {
     return { variant: 'success' as const, text: 'Returned' }
   }
-  
+
   const dueDate = new Date(borrow.dueDate)
   const now = new Date()
-  
+
   if (dueDate < now) {
     return { variant: 'destructive' as const, text: 'Overdue' }
   }
-  
+
   const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
   if (daysUntilDue <= 3) {
     return { variant: 'secondary' as const, text: 'Due Soon' }
   }
-  
+
   return { variant: 'default' as const, text: 'Active' }
 }
 
@@ -237,20 +222,23 @@ onMounted(() => {
           {{ authStore.user?.role === 'ADMIN' ? 'Administrator' : 'Reader' }}
         </Badge>
         <p class="text-xs text-muted-foreground mt-1">
-          Member since {{ authStore.user?.createdTime ? formatDate(authStore.user.createdTime) : 'recently' }}
+          Member since
+          {{ authStore.user?.createdTime ? formatDate(authStore.user.createdTime) : 'recently' }}
         </p>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading your dashboard...
-    </div>
+    <div v-if="isLoading" class="text-center py-8">Loading your dashboard...</div>
 
     <template v-else>
       <!-- User Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="card in userDashboardCards" :key="card.title" class="hover:shadow-lg transition-shadow">
+        <Card
+          v-for="card in userDashboardCards"
+          :key="card.title"
+          class="hover:shadow-lg transition-shadow"
+        >
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">{{ card.title }}</CardTitle>
             <div :class="[card.bgColor, 'p-2 rounded-md']">
@@ -317,7 +305,7 @@ onMounted(() => {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ book.title }}</p>
                   <p class="text-xs text-muted-foreground truncate">
-                    {{ book.authors.map(a => a.name).join(', ') }}
+                    {{ book.authors.map((a) => a.name).join(', ') }}
                   </p>
                 </div>
                 <Badge :variant="book.availableQuantity > 0 ? 'success' : 'destructive'" size="sm">
@@ -344,7 +332,10 @@ onMounted(() => {
             <div v-if="!authStore.isAuthenticated" class="text-center py-4 text-muted-foreground">
               Please log in to view your activity
             </div>
-            <div v-else-if="userBorrows.length === 0" class="text-center py-4 text-muted-foreground">
+            <div
+              v-else-if="userBorrows.length === 0"
+              class="text-center py-4 text-muted-foreground"
+            >
               No borrowing activity yet
               <div class="mt-2">
                 <Button variant="outline" size="sm" @click="router.push('/books')">
@@ -362,17 +353,15 @@ onMounted(() => {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ borrow.bookCopy.book.title }}</p>
                   <p class="text-xs text-muted-foreground">
-                    {{ borrow.isReturned ? 'Returned' : 'Due' }}: {{ 
-                      borrow.isReturned && borrow.returnDate 
-                        ? formatDate(borrow.returnDate) 
-                        : formatDate(borrow.dueDate) 
+                    {{ borrow.isReturned ? 'Returned' : 'Due' }}:
+                    {{
+                      borrow.isReturned && borrow.returnDate
+                        ? formatDate(borrow.returnDate)
+                        : formatDate(borrow.dueDate)
                     }}
                   </p>
                 </div>
-                <Badge 
-                  :variant="getBorrowStatusBadge(borrow).variant" 
-                  size="sm"
-                >
+                <Badge :variant="getBorrowStatusBadge(borrow).variant" size="sm">
                   {{ getBorrowStatusBadge(borrow).text }}
                 </Badge>
               </div>
