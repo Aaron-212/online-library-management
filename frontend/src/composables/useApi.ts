@@ -108,8 +108,22 @@ export function useBorrow() {
     return execute(() => api.borrow.getUserBorrows(params))
   }
 
-  const borrowBook = (bookId: number) => {
-    return execute(() => api.borrow.borrowBook({ bookId }))
+  const borrowBook = async (bookId: number) => {
+    // Get current user data to get the user ID
+    const currentUser = await api.users.getCurrentUser()
+    
+    // Get available copies for the book
+    const copies = await api.books.getCopies(bookId)
+    const availableCopy = copies.find(copy => copy.isAvailable)
+    
+    if (!availableCopy) {
+      throw new Error('No available copies for this book')
+    }
+    
+    return execute(() => api.borrow.borrowBook({ 
+      userId: currentUser.id, 
+      copyId: availableCopy.id 
+    }))
   }
 
   const returnBook = (borrowId: number) => {

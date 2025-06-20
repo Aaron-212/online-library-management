@@ -27,7 +27,7 @@ import {
   Package
 } from 'lucide-vue-next'
 import CommentList from '@/components/CommentList.vue'
-import { booksService, borrowService, commentsService } from '@/lib/api'
+import { booksService, borrowService, commentsService, usersService } from '@/lib/api'
 import type { Book, Comment } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
@@ -111,7 +111,23 @@ const handleBorrow = async () => {
 
   try {
     isBorrowing.value = true
-    await borrowService.borrowBook({ bookId: bookId.value })
+    
+    // Get current user data to get the user ID
+    const currentUser = await usersService.getCurrentUser()
+    
+    // Get available copies for the book
+    const copies = await booksService.getCopies(bookId.value)
+    const availableCopy = copies.find(copy => copy.isAvailable)
+    
+    if (!availableCopy) {
+      toast.error('No available copies for this book')
+      return
+    }
+    
+    await borrowService.borrowBook({ 
+      userId: currentUser.id, 
+      copyId: availableCopy.id 
+    })
     toast.success('Book borrowed successfully!')
     // Reload book data to update availability
     await loadBook()
