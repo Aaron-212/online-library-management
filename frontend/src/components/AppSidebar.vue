@@ -8,6 +8,7 @@ import {
   Clock,
   CreditCard,
   Gauge,
+  Heart,
   Home,
   Library,
   LogOut,
@@ -63,6 +64,24 @@ const navigationItems = computed(() => [
     title: 'Notices',
     url: '/notices',
     icon: Bell,
+  },
+  {
+    title: 'My Reservations',
+    url: '/reservations',
+    icon: Clock,
+    requiresAuth: true,
+  },
+  {
+    title: 'Favorites',
+    url: '/favorites',
+    icon: Heart, 
+    requiresAuth: true,
+  },
+  {
+    title: 'Billing Center',
+    url: '/billing',
+    icon: CreditCard,
+    requiresAuth: true,
   },
   {
     title: 'Api Test',

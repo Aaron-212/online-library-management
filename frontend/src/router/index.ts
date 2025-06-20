@@ -6,6 +6,9 @@ import { useAuthStore } from '@/stores/auth'
 import BorrowingManagementView from '@/views/BorrowingManagementView.vue'
 import AdminBorrowingView from '@/views/AdminBorrowingView.vue'
 import BorrowingRulesView from '@/views/BorrowingRulesView.vue'
+import ReservationsView from '@/views/ReservationsView.vue'
+import FavoritesView from '@/views/FavoritesView.vue'
+import BillingView from '@/views/BillingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -119,6 +122,24 @@ const router = createRouter({
       name: 'admin-reports',
       component: () => import('@/views/ReportsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+      path: '/reservations',
+      name: 'reservations',
+      component: () => import('@/views/ReservationsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: () => import('@/views/FavoritesView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/billing',
+      name: 'billing',
+      component: () => import('@/views/BillingView.vue'),
+      meta: { requiresAuth: true },
     },
     // Catch-all route for 404
     {
