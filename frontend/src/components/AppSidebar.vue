@@ -17,7 +17,8 @@ import {
   Shield,
   UserCog,
   FileText,
-  BarChart3
+  BarChart3,
+  Heart
 } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/auth'
@@ -66,6 +67,36 @@ const navigationItems = [
     title: 'Notices',
     url: '/notices',
     icon: Bell,
+  },
+  {
+    title: 'PersonalProfile',
+    url: '/profile',
+    icon: User,
+    requiresAuth: true,
+  },
+  {
+    title: 'BorrowRecord',
+    url: '/borrowing-record',
+    icon: Clock,
+    requiresAuth: true,
+  },
+  {
+    title: 'MyReservation',
+    url: '/reservation',
+    icon: BookOpen,
+    requiresAuth: true,
+  },
+  {
+    title: 'favorites',
+    url: '/favorite',
+    icon: Heart,
+    requiresAuth: true,
+  },
+  {
+    title: 'BillingCenter',
+    url: '/billing-center',
+    icon: CreditCard,
+    requiresAuth: true,
   },
 ]
 
@@ -133,6 +164,7 @@ const handleLogout = () => {
   router.push('/login')
 }
 </script>
+
 
 <template>
   <Sidebar>
