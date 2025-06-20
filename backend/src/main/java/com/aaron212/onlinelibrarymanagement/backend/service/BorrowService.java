@@ -254,7 +254,7 @@ public class BorrowService {
     }
 
     public List<Borrow> getAllBorrowings(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "borrowTime"));
         return borrowRepository.findAll(pageable).getContent();
     }
 }

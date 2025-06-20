@@ -40,6 +40,7 @@ const router = createRouter({
       path: '/books/:id',
       name: 'book-detail',
       component: () => import('@/views/BookDetailView.vue'),
+      props: true,
     },
     {
       path: '/books/create',
@@ -52,6 +53,7 @@ const router = createRouter({
       name: 'book-edit',
       component: () => import('@/views/BookFormView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
+      props: true,
     },
     {
       path: '/borrows',
