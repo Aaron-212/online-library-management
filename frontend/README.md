@@ -1,6 +1,83 @@
-# frontend
+# Online Library Management System - Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue.js frontend application for the Online Library Management System.
+
+## Features
+
+### Dashboard System
+The application now features separate dashboards for different user roles:
+
+#### User Dashboard (`/dashboard`)
+- **Audience**: Regular library users
+- **Features**:
+  - Personal borrowing statistics
+  - Recent borrowing activity
+  - Available books display
+  - Quick actions for browsing and managing personal account
+  - Personalized recommendations (coming soon)
+  - Library notices and announcements
+
+#### Admin Dashboard (`/admin/dashboard`)
+- **Audience**: Library administrators  
+- **Features**:
+  - System-wide statistics (total users, books, borrows)
+  - Administrative quick actions
+  - Recent system activity
+  - User management shortcuts
+  - System configuration tools
+  - Notice management
+
+### Smart Navigation
+The application automatically routes users to the appropriate dashboard:
+- **Regular users** → User Dashboard (`/dashboard`)
+- **Administrators** → Admin Dashboard (`/admin/dashboard`)
+- **Sidebar navigation** → Dynamically shows appropriate dashboard link based on user role
+
+### Authentication & Authorization
+- Role-based access control (USER vs ADMIN)
+- Protected routes with authentication guards
+- Admin-only routes and features
+
+## Getting Started
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun run dev
+
+# Build for production
+bun run build
+```
+
+## Project Structure
+
+```
+src/
+├── views/
+│   ├── DashboardView.vue      # User dashboard
+│   ├── AdminDashboardView.vue # Admin dashboard
+│   └── ...
+├── components/
+│   ├── AppSidebar.vue         # Smart navigation sidebar
+│   └── ...
+├── stores/
+│   └── auth.ts                # Authentication store with role management
+├── router/
+│   └── index.ts               # Route configuration with role-based guards
+└── ...
+```
+
+## Technologies Used
+
+- Vue 3 with Composition API
+- TypeScript
+- Vue Router for navigation
+- Pinia for state management
+- Tailwind CSS for styling
+- Radix Vue components
+- Lucide Vue for icons
 
 ## Recommended IDE Setup
 

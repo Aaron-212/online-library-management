@@ -71,7 +71,7 @@ const router = createRouter({
     {
       path: '/admin/dashboard',
       name: 'admin-dashboard',
-      component: () => import('@/views/DashboardView.vue'), // Can reuse dashboard with admin features
+      component: () => import('@/views/AdminDashboardView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
@@ -146,9 +146,26 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  // Redirect to dashboard if user is already authenticated and trying to access login/register
+  // Smart dashboard routing: redirect authenticated users to appropriate dashboard
+  if (to.name === 'dashboard' && authStore.isAuthenticated) {
+    if (authStore.isAdmin()) {
+      // Redirect admins to admin dashboard unless they specifically want user dashboard
+      if (from.name !== 'admin-dashboard' && !from.path?.includes('/admin/')) {
+        next('/admin/dashboard')
+        return
+      }
+    }
+    // Regular users go to regular dashboard (no redirect needed)
+  }
+
+  // Redirect to appropriate dashboard if user is already authenticated and trying to access login/register
   if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
-    next('/dashboard')
+    // Redirect admins to admin dashboard, regular users to user dashboard
+    if (authStore.isAdmin()) {
+      next('/admin/dashboard')
+    } else {
+      next('/dashboard')
+    }
     return
   }
 

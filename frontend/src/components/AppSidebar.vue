@@ -41,8 +41,8 @@ import {
 const router = useRouter()
 const authStore = useAuthStore()
 
-// Main navigation for all users
-const navigationItems = [
+// Main navigation for all users - computed to allow dynamic URLs
+const navigationItems = computed(() => [
   {
     title: 'Home',
     url: '/',
@@ -50,7 +50,7 @@ const navigationItems = [
   },
   {
     title: 'Dashboard',
-    url: '/dashboard',
+    url: authStore.isAuthenticated && authStore.isAdmin() ? '/admin/dashboard' : '/dashboard',
     icon: Gauge,
     requiresAuth: true,
   },
@@ -69,7 +69,7 @@ const navigationItems = [
     url: '/api-test',
     icon: Bell,
   },
-]
+])
 
 // Library management for authenticated users
 const libraryItems = [
@@ -121,7 +121,7 @@ const isAdmin = computed(() => {
 })
 
 const filteredNavigationItems = computed(() => {
-  return navigationItems.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
+  return navigationItems.value.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
 })
 
 const filteredLibraryItems = computed(() => {
