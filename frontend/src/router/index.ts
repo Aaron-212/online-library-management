@@ -3,6 +3,9 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import { useAuthStore } from '@/stores/auth'
+import BorrowingManagementView from '@/views/BorrowingManagementView.vue'
+import AdminBorrowingView from '@/views/AdminBorrowingView.vue'
+import BorrowingRulesView from '@/views/BorrowingRulesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,12 +40,20 @@ const router = createRouter({
       path: '/books/:id',
       name: 'book-detail',
       component: () => import('@/views/BookDetailView.vue'),
-      props: true
+      props: true,
     },
     {
-      path: '/api-test',
-      name: 'api-test',
-      component: () => import('@/views/ApiTestView.vue'),
+      path: '/books/create',
+      name: 'book-create',
+      component: () => import('@/views/BookFormView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+      path: '/books/:id/edit',
+      name: 'book-edit',
+      component: () => import('@/views/BookFormView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+      props: true,
     },
     {
       path: '/borrows',
@@ -61,54 +72,46 @@ const router = createRouter({
       name: 'notices',
       component: () => import('@/views/NoticesView.vue'),
     },
-    // Admin routes (these should have additional admin checks in the components)
     {
-      path: '/admin',
-      name: 'admin',
-      redirect: '/admin/dashboard',
-      meta: { requiresAuth: true, requiresAdmin: true },
+      path: '/api-test',
+      name: 'api-test',
+      component: () => import('@/views/ApiTestView.vue'),
     },
+    // Admin routes
     {
       path: '/admin/dashboard',
       name: 'admin-dashboard',
-      component: () => import('@/views/DashboardView.vue'), // Can reuse dashboard with admin features
+      component: () => import('@/views/DashboardView.vue'), // Will create separate admin dashboard
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/books',
       name: 'admin-books',
-      component: () => import('@/views/BooksView.vue'), // Can reuse books view with admin features
-      meta: { requiresAuth: true, requiresAdmin: true },
-    },
-    {
-      path: '/admin/books/new',
-      name: 'admin-books-new',
-      component: () => import('@/views/BookFormView.vue'), // Will create this
-      meta: { requiresAuth: true, requiresAdmin: true },
-    },
-    {
-      path: '/admin/books/:id/edit',
-      name: 'admin-books-edit',
-      component: () => import('@/views/BookFormView.vue'), // Will create this
-      props: true,
+      component: () => import('@/views/BooksView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/users',
       name: 'admin-users',
-      component: () => import('@/views/UserManagementView.vue'), // Will create this
+      component: () => import('@/views/UserManagementView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+      path: '/admin/borrowing',
+      name: 'admin-borrowing',
+      component: () => import('@/views/AdminBorrowingView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
       path: '/admin/borrowing-rules',
       name: 'admin-borrowing-rules',
-      component: () => import('@/views/BorrowingRulesView.vue'), // Will create this
+      component: () => import('@/views/BorrowingRulesView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/fees',
       name: 'admin-fees',
-      component: () => import('@/views/FeesManagementView.vue'), // Will create this
+      component: () => import('@/views/FeesManagementView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
@@ -117,38 +120,46 @@ const router = createRouter({
       component: () => import('@/views/ReportsView.vue'), // Will create this
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    {
+      path: '/borrowing',
+      name: 'borrowing',
+      component: BorrowingManagementView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/borrowing-rules',
+      name: 'borrowing-rules',
+      component: BorrowingRulesView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
     // Catch-all route for 404
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('@/views/NotFoundView.vue'), // Will create this
-    }
+      component: () => import('@/views/NotFoundView.vue'),
+    },
   ],
 })
 
-// Navigation guard for authentication
+// Navigation guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
+  // Redirect authenticated users away from login/register pages
+  if (authStore.isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+    next('/dashboard')
+    return
+  }
+
   // Check if route requires authentication
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // Redirect to login if route requires auth and user is not authenticated
     next('/login')
     return
   }
 
-  // Check if route requires admin access
-  if (to.meta.requiresAdmin && authStore.isAuthenticated) {
-    if (!authStore.isAdmin()) {
-      // Redirect non-admin users to dashboard
-      next('/dashboard')
-      return
-    }
-  }
-
-  // Redirect to dashboard if user is already authenticated and trying to access login/register
-  if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
-    next('/dashboard')
+  // Check if route requires admin privileges (only for authenticated users)
+  if (to.meta.requiresAdmin && authStore.isAuthenticated && !authStore.isAdmin()) {
+    next('/dashboard') // Redirect to dashboard if not admin
     return
   }
 
