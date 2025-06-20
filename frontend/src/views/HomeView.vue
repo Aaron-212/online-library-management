@@ -19,7 +19,7 @@ import {
   Library
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
-import { booksService, noticesService, statisticsService } from '@/lib/api'
+import { booksService, noticesService, statisticsService, categoriesService } from '@/lib/api'
 import type { Book, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
@@ -177,12 +177,8 @@ const loadRecentNotices = async () => {
 // 加载分类导航
 const loadCategories = async () => {
   try {
-    const all = await booksService.getAll({ size: 1000 })
-    const set = new Set<string>()
-    all.content.forEach((b: any) => {
-      if (b.indexCategory?.name) set.add(b.indexCategory.name)
-    })
-    categories.value = Array.from(set).sort()
+    const allCategories = await categoriesService.getAll()
+    categories.value = allCategories.map(category => category.name).sort()
   } catch (e) {
     console.error(e)
   }
