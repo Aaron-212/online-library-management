@@ -167,11 +167,11 @@ const loadRecentBooks = async () => {
 
 const loadRecentBorrows = async () => {
   try {
-    // For admin, we want to see all recent borrows, not just user's own
-    const response = await borrowService.getAllBorrows({ page: 0, size: 5 })
+    // For admin, show overdue borrowings that need attention
+    const response = await borrowService.getOverdueBorrows({ page: 0, size: 5 })
     recentBorrows.value = response.content
   } catch (error) {
-    console.error('Error loading recent borrows:', error)
+    console.error('Error loading overdue borrows:', error)
   }
 }
 
@@ -335,21 +335,21 @@ onMounted(() => {
           </CardContent>
         </Card>
 
-        <!-- Recent System Borrows -->
+        <!-- Overdue Borrows -->
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent System Activity</CardTitle>
-              <CardDescription>Latest borrowing activity</CardDescription>
+              <CardTitle>Overdue Borrowings</CardTitle>
+              <CardDescription>Books that need admin attention</CardDescription>
             </div>
-            <Button variant="outline" size="sm" @click="router.push('/borrows')">
+            <Button variant="outline" size="sm" @click="router.push('/admin/borrowing-management')">
               <Eye class="h-4 w-4 mr-2" />
-              View All
+              Manage All
             </Button>
           </CardHeader>
           <CardContent>
             <div v-if="recentBorrows.length === 0" class="text-center py-4 text-muted-foreground">
-              No recent borrows found
+              No overdue borrowings
             </div>
             <div v-else class="space-y-3">
               <div

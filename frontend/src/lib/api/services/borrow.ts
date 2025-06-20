@@ -28,9 +28,7 @@ export class BorrowService {
     return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/user`, params)
   }
 
-  async getAllBorrows(params?: { page?: number; size?: number }): Promise<PagedResponse<Borrow>> {
-    return apiClient.get<PagedResponse<Borrow>>(this.basePath, params)
-  }
+
 
   async getBorrowById(id: number): Promise<Borrow> {
     return apiClient.get<Borrow>(`${this.basePath}/${id}`)
