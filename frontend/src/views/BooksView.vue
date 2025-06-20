@@ -1,206 +1,3 @@
-<template>
-  <div class="books-view space-y-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold">Books</h1>
-        <p class="text-muted-foreground">Browse and manage library books</p>
-      </div>
-      <Button v-if="isAdmin" @click="handleAddBook">
-        <Plus class="h-4 w-4 mr-2" />
-        Add Book
-      </Button>
-    </div>
-
-    <!-- Search and Filters -->
-    <Card class="p-6">
-      <div class="flex flex-wrap gap-4">
-        <!-- Search -->
-        <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
-          <Label for="search">Search</Label>
-          <div class="relative">
-            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="search"
-              v-model="searchKeyword"
-              placeholder="Search books by title, author, or ISBN..."
-              class="pl-10"
-              @input="handleSearch" 
-            />
-          </div>
-        </div>
-        <!-- 其他筛选条件保持不变 -->
-      </div>
-    </Card>
-
-    <!-- Results Summary -->
-    <div class="text-sm text-muted-foreground">
-      Showing {{ books.length }} of {{ totalElements }} books
-    </div>
-
-    <!-- Books Grid -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading books...
-    </div>
-    
-    <div v-else-if="books.length === 0" class="text-center py-8 text-muted-foreground">
-      No books found matching your criteria.
-    </div>
-    
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-      <div 
-        v-for="book in books" 
-        :key="book.id"
-        class="cursor-pointer transform transition-transform hover:scale-105"
-        @click="goToBookDetail(book.id)"
-      >
-        <BookCard 
-          :title="book.title"
-          :author="book.authors.map(a => a.name).join(', ')"
-          :isbn="book.isbn"
-          :available="book.availableQuantity > 0"
-          :total-copies="book.totalQuantity"
-          :available-copies="book.availableQuantity"
-        />
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
-      <Button 
-        variant="outline" 
-        :disabled="currentPage === 0"
-        @click="handlePageChange(currentPage - 1)"
-      >
-        <ChevronLeft class="h-4 w-4" />
-        Previous
-      </Button>
-      
-      <span class="text-sm text-muted-foreground px-4">
-        Page {{ currentPage + 1 }} of {{ totalPages }}
-      </span>
-      
-      <Button 
-        variant="outline"
-        :disabled="currentPage === totalPages - 1"
-        @click="handlePageChange(currentPage + 1)"
-      >
-        Next
-        <ChevronRight class="h-4 w-4" />
-      </Button>
-    </div>
-
-    <!-- Add Book Dialog -->
-    <Dialog v-model:open="showAddBookDialog">
-      <DialogContent class="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Add Book</DialogTitle>
-          <DialogDescription>Fill in the details of the new book</DialogDescription>
-        </DialogHeader>
-
-        <form @submit.prevent="handleCreateBook" class="space-y-4">
-          <div class="space-y-2">
-            <Label for="title">Title</Label>
-            <Input
-              id="title"
-              v-model="bookForm.title"
-              placeholder="Enter book title..."
-              required
-            />
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="isbn">ISBN</Label>
-            <Input
-              id="isbn"
-              v-model="bookForm.isbn"
-              placeholder="Enter ISBN..."
-              required
-            />
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <Label for="language">Language</Label>
-              <Input
-                id="language"
-                v-model="bookForm.language"
-                placeholder="Enter language..."
-              />
-            </div>
-            <div class="space-y-2">
-              <Label for="category">Category</Label>
-              <Input
-                id="category"
-                v-model="bookForm.category"
-                placeholder="Enter category..."
-              />
-            </div>
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="authors">Authors</Label>
-            <Input
-              id="authors"
-              v-model="bookForm.authors"
-              placeholder="Enter authors (comma-separated)..."
-            />
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="publisher">Publisher</Label>
-            <Input
-              id="publisher"
-              v-model="bookForm.publisher"
-              placeholder="Enter publisher..."
-            />
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="publishedYear">Published Year</Label>
-            <Input
-              id="publishedYear"
-              type="number"
-              v-model="bookForm.publishedYear"
-              placeholder="Enter published year..."
-            />
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="description">Description</Label>
-            <textarea
-              id="description"
-              v-model="bookForm.description"
-              placeholder="Enter book description..."
-              class="w-full min-h-[100px] p-3 border rounded-md resize-none"
-            />
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="totalQuantity">Total Quantity</Label>
-            <Input
-              id="totalQuantity"
-              type="number"
-              v-model="bookForm.totalQuantity"
-              :min="1"
-              required
-            />
-          </div>
-          
-          <DialogFooter>
-            <Button type="button" variant="outline" @click="closeAddBookDialog">
-              Cancel
-            </Button>
-            <Button type="submit" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Adding...' : 'Add Book' }}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { ChevronDown, ChevronLeft, ChevronRight, Search, Plus } from 'lucide-vue-next'
@@ -411,6 +208,206 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="books-view space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Books</h1>
+        <p class="text-muted-foreground">Browse and manage library books</p>
+      </div>
+      <Button v-if="isAdmin" @click="handleAddBook">
+        <Plus class="h-4 w-4 mr-2" />
+        Add Book
+      </Button>
+    </div>
+
+    <!-- Search and Filters -->
+    <Card class="p-6">
+      <div class="flex flex-wrap gap-4">
+        <!-- Search -->
+        <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
+          <Label for="search">Search</Label>
+          <div class="relative">
+            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="search"
+              v-model="searchKeyword"
+              placeholder="Search books by title, author, or ISBN..."
+              class="pl-10"
+              @input="handleSearch" 
+            />
+          </div>
+        </div>
+        <!-- 其他筛选条件保持不变 -->
+      </div>
+    </Card>
+
+    <!-- Results Summary -->
+    <div class="text-sm text-muted-foreground">
+      Showing {{ books.length }} of {{ totalElements }} books
+    </div>
+
+    <!-- Books Grid -->
+    <div v-if="isLoading" class="text-center py-8">
+      Loading books...
+    </div>
+    
+    <div v-else-if="books.length === 0" class="text-center py-8 text-muted-foreground">
+      No books found matching your criteria.
+    </div>
+    
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <div 
+        v-for="book in books" 
+        :key="book.id"
+        class="cursor-pointer transform transition-transform hover:scale-105"
+        @click="goToBookDetail(book.id)"
+      >
+        <BookCard 
+          :title="book.title"
+          :author="book.authors.map(a => a.name).join(', ')"
+          :isbn="book.isbn"
+          :available="book.availableQuantity > 0"
+          :total-copies="book.totalQuantity"
+          :available-copies="book.availableQuantity"
+        />
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
+      <Button 
+        variant="outline" 
+        :disabled="currentPage === 0"
+        @click="handlePageChange(currentPage - 1)"
+      >
+        <ChevronLeft class="h-4 w-4" />
+        Previous
+      </Button>
+      
+      <span class="text-sm text-muted-foreground px-4">
+        Page {{ currentPage + 1 }} of {{ totalPages }}
+      </span>
+      
+      <Button 
+        variant="outline"
+        :disabled="currentPage === totalPages - 1"
+        @click="handlePageChange(currentPage + 1)"
+      >
+        Next
+        <ChevronRight class="h-4 w-4" />
+      </Button>
+    </div>
+
+    <!-- Add Book Dialog -->
+    <Dialog v-model:open="showAddBookDialog">
+      <DialogContent class="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Add Book</DialogTitle>
+          <DialogDescription>Fill in the details of the new book</DialogDescription>
+        </DialogHeader>
+
+        <form @submit.prevent="handleCreateBook" class="space-y-4">
+          <div class="space-y-2">
+            <Label for="title">Title</Label>
+            <Input
+              id="title"
+              v-model="bookForm.title"
+              placeholder="Enter book title..."
+              required
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="isbn">ISBN</Label>
+            <Input
+              id="isbn"
+              v-model="bookForm.isbn"
+              placeholder="Enter ISBN..."
+              required
+            />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="language">Language</Label>
+              <Input
+                id="language"
+                v-model="bookForm.language"
+                placeholder="Enter language..."
+              />
+            </div>
+            <div class="space-y-2">
+              <Label for="category">Category</Label>
+              <Input
+                id="category"
+                v-model="bookForm.category"
+                placeholder="Enter category..."
+              />
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="authors">Authors</Label>
+            <Input
+              id="authors"
+              v-model="bookForm.authors"
+              placeholder="Enter authors (comma-separated)..."
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="publisher">Publisher</Label>
+            <Input
+              id="publisher"
+              v-model="bookForm.publisher"
+              placeholder="Enter publisher..."
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="publishedYear">Published Year</Label>
+            <Input
+              id="publishedYear"
+              type="number"
+              v-model="bookForm.publishedYear"
+              placeholder="Enter published year..."
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="description">Description</Label>
+            <textarea
+              id="description"
+              v-model="bookForm.description"
+              placeholder="Enter book description..."
+              class="w-full min-h-[100px] p-3 border rounded-md resize-none"
+            />
+          </div>
+          
+          <div class="space-y-2">
+            <Label for="totalQuantity">Total Quantity</Label>
+            <Input
+              id="totalQuantity"
+              type="number"
+              v-model="bookForm.totalQuantity"
+              :min="1"
+              required
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" @click="closeAddBookDialog">
+              Cancel
+            </Button>
+            <Button type="submit" :disabled="isSubmitting">
+              {{ isSubmitting ? 'Adding...' : 'Add Book' }}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  </div>
   <div class="books-view space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
