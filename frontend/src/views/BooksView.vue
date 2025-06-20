@@ -25,7 +25,7 @@
               v-model="searchKeyword"
               placeholder="Search books by title, author, or ISBN..."
               class="pl-10"
-              @input="handleSearch" <!-- 监听输入事件 -->
+              @input="handleSearch" 
             />
           </div>
         </div>
