@@ -120,6 +120,12 @@ const router = createRouter({
       component: () => import('@/views/ReportsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    {
+      path: '/reservations',
+      name: 'reservations',
+      component: () => import('@/views/ReservationsView.vue'),
+      meta: { requiresAuth: true },
+    },
     // Catch-all route for 404
     {
       path: '/:pathMatch(.*)*',
