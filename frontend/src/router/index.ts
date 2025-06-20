@@ -58,7 +58,7 @@ const router = createRouter({
     {
       path: '/borrows',
       name: 'borrows',
-      component: () => import('@/views/BorrowingManagementView.vue'),
+      component: BorrowingManagementView,
       meta: { requiresAuth: true },
     },
     {
@@ -99,13 +99,13 @@ const router = createRouter({
     {
       path: '/admin/borrowing',
       name: 'admin-borrowing',
-      component: () => import('@/views/AdminBorrowingView.vue'),
+      component: AdminBorrowingView,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
       path: '/admin/borrowing-rules',
       name: 'admin-borrowing-rules',
-      component: () => import('@/views/BorrowingRulesView.vue'),
+      component: BorrowingRulesView,
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
@@ -117,20 +117,8 @@ const router = createRouter({
     {
       path: '/admin/reports',
       name: 'admin-reports',
-      component: () => import('@/views/ReportsView.vue'), // Will create this
+      component: () => import('@/views/ReportsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
-    },
-    {
-      path: '/borrowing',
-      name: 'borrowing',
-      component: BorrowingManagementView,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/borrowing-rules',
-      name: 'borrowing-rules',
-      component: BorrowingRulesView,
-      meta: { requiresAuth: true, requiresAdmin: true }
     },
     // Catch-all route for 404
     {
@@ -141,51 +129,34 @@ const router = createRouter({
   ],
 })
 
-// Navigation guard
+// Simplified navigation guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  const isAuthenticated = authStore.isAuthenticated
+  const isAdmin = authStore.isAdmin()
 
   // Redirect authenticated users away from login/register pages
-  if (authStore.isAuthenticated && (to.name === 'login' || to.name === 'register')) {
-    next('/dashboard')
+  if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+    const redirectTo = isAdmin ? '/admin/dashboard' : '/dashboard'
+    next(redirectTo)
     return
   }
 
-  // Check if route requires authentication
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+  // Check authentication requirement
+  if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
     return
   }
 
-  // Check if route requires admin access
-  if (to.meta.requiresAdmin && authStore.isAuthenticated) {
-    if (!authStore.isAdmin()) {
-      // Redirect non-admin users to dashboard
-      next('/dashboard')
-      return
-    }
+  // Check admin requirement
+  if (to.meta.requiresAdmin && (!isAuthenticated || !isAdmin)) {
+    next('/dashboard')
+    return
   }
 
-  // Smart dashboard routing: redirect authenticated users to appropriate dashboard
-  if (to.name === 'dashboard' && authStore.isAuthenticated) {
-    if (authStore.isAdmin()) {
-      // Redirect admins to admin dashboard unless they specifically want user dashboard
-      if (from.name !== 'admin-dashboard' && !from.path?.includes('/admin/')) {
-        next('/admin/dashboard')
-        return
-      }
-    }
-    // Regular users go to regular dashboard (no redirect needed)
-  }
-
-  // Redirect to appropriate dashboard if user is already authenticated and trying to access login/register
-  if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
-    // Redirect admins to admin dashboard, regular users to user dashboard
-    if (authStore.isAdmin()) {
-      next('/admin/dashboard')
-    } else {
-      next('/dashboard')
-    }
+  // Smart dashboard routing for authenticated users
+  if (to.name === 'dashboard' && isAuthenticated && isAdmin) {
+    next('/admin/dashboard')
     return
   }
 
