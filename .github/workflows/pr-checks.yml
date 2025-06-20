@@ -32,6 +32,18 @@ jobs:
     name: Backend Verify Check
     runs-on: ubuntu-latest
     
+    services:
+      mysql:
+        image: mysql:9.3
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: librarydb
+          MYSQL_USER: libraryuser
+          MYSQL_PASSWORD: librarypass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -48,6 +60,32 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+        
+    - name: Setup MySQL and wait for it to be ready
+      run: |
+        # Wait for MySQL to be ready
+        until mysqladmin ping -h"127.0.0.1" -P3306 -uroot -prootpassword --silent; do
+          echo 'Waiting for MySQL to be available...'
+          sleep 2
+        done
+        echo 'MySQL is ready!'
+        
+    - name: Setup .env file
+      working-directory: ./backend
+      run: |
+        cat > .env << EOF
+        OLM_DB_HOST=127.0.0.1
+        OLM_DB_PORT=3306
+        OLM_DB_NAME=librarydb
+        OLM_DB_USERNAME=libraryuser
+        OLM_DB_PASSWORD=librarypass
+        JWT_EXPIRATION_MS=604800000
+        EOF
+    
+    - name: Generate JWT secret
+      working-directory: ./backend
+      run: |
+        echo "JWT_SECRET=$(openssl rand -hex 32)" >> .env
         
     - name: Make mvnw executable
       working-directory: ./backend
