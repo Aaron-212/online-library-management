@@ -1,33 +1,26 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  BookOpen, 
-  Users, 
-  Search, 
-  LogIn, 
-  UserPlus,
-  Clock,
-  Star,
-  TrendingUp,
-  Bell,
+import { Input } from '@/components/ui/input'
+import {
+  Search,
   ArrowRight,
-  Library,
+  Bell,
+  BookOpen,
+  Users,
+  Clock,
+  TrendingUp,
+  LogIn,
+  UserPlus,
   Heart,
-  Eye
+  Library
 } from 'lucide-vue-next'
-import { booksService, noticesService, statisticsService } from '@/lib/api'
-import type { Book, Notice, BookStatisticsDto } from '@/lib/api/types'
+import { useAuthStore } from '@/stores/auth'
+import { booksService, noticesService, statisticsService, categoriesService } from '@/lib/api'
+import type { Book, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -35,10 +28,17 @@ const authStore = useAuthStore()
 
 // Data
 const isLoading = ref(false)
-const featuredBooks = ref<Book[]>([])
-const popularBooks = ref<Book[]>([])
+// 推荐图书
+const recommendedBooks = ref<Book[]>([])
+// 热门借阅榜
+const topBorrowBooks = ref<Book[]>([])
+// 公告轮播
 const recentNotices = ref<Notice[]>([])
-const statistics = ref<BookStatisticsDto | null>(null)
+// 分类导航
+const categories = ref<string[]>([])
+
+// 搜索关键字
+const searchKeyword = ref('')
 
 // Computed
 const heroTitle = computed(() => {
@@ -144,51 +144,43 @@ const libraryFeatures = [
 ]
 
 // Methods
-const loadFeaturedBooks = async () => {
+// 加载推荐图书（最新上架）
+const loadRecommendedBooks = async () => {
   try {
-    const response = await booksService.getAll({ 
-      page: 0, 
-      size: 6, 
-      sort: 'id,desc' 
-    })
-    featuredBooks.value = response.content
-  } catch (error) {
-    console.error('Error loading featured books:', error)
+    const res = await booksService.getAll({ page: 0, size: 8, sort: 'id,desc' })
+    recommendedBooks.value = res.content
+  } catch (e) {
+    console.error(e)
   }
 }
 
-const loadPopularBooks = async () => {
+// 加载热门借阅榜
+const loadTopBorrowBooks = async () => {
   try {
-    // This would ideally be a separate endpoint for popular books
-    // For now, we'll use a different sort or the same endpoint
-    const response = await booksService.getAll({ 
-      page: 0, 
-      size: 4, 
-      sort: 'title,asc' 
-    })
-    popularBooks.value = response.content
-  } catch (error) {
-    console.error('Error loading popular books:', error)
+    const res = await statisticsService.getTopBooks({ limit: 10 })
+    topBorrowBooks.value = res
+  } catch (e) {
+    console.error(e)
   }
 }
 
+// 加载最新公告
 const loadRecentNotices = async () => {
   try {
-    const response = await noticesService.getAll({ 
-      page: 0, 
-      size: 3 
-    })
-    recentNotices.value = response.content
-  } catch (error) {
-    console.error('Error loading recent notices:', error)
+    const res = await noticesService.getAll({ page: 0, size: 5 })
+    recentNotices.value = res.content
+  } catch (e) {
+    console.error(e)
   }
 }
 
-const loadStatistics = async () => {
+// 加载分类导航
+const loadCategories = async () => {
   try {
-    statistics.value = await statisticsService.getBookStatistics()
-  } catch (error) {
-    console.error('Error loading statistics:', error)
+    const allCategories = await categoriesService.getAll()
+    categories.value = allCategories.map(category => category.name).sort()
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -196,16 +188,26 @@ const loadHomeData = async () => {
   isLoading.value = true
   try {
     await Promise.all([
-      loadFeaturedBooks(),
-      loadPopularBooks(),
+      loadRecommendedBooks(),
+      loadTopBorrowBooks(),
       loadRecentNotices(),
-      loadStatistics()
+      loadCategories()
     ])
-  } catch (error) {
+  } catch {
     toast.error('Failed to load some content')
   } finally {
     isLoading.value = false
   }
+}
+
+// 处理搜索
+const handleSearch = () => {
+  if (!searchKeyword.value.trim()) return
+  router.push({ path: '/books', query: { keyword: searchKeyword.value.trim() } })
+}
+
+const goToCategory = (cat: string) => {
+  router.push({ path: '/books', query: { category: cat } })
 }
 
 const formatDate = (dateString: string) => {
@@ -252,23 +254,19 @@ onMounted(() => {
           </Button>
         </div>
 
-        <!-- Statistics (if available) -->
-        <div v-if="statistics" class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="text-center">
-            <div class="text-2xl font-bold text-primary">{{ statistics.totalBooks?.toLocaleString() || 0 }}</div>
-            <div class="text-sm text-muted-foreground">Total Books</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-green-600">{{ statistics.availableBooks?.toLocaleString() || 0 }}</div>
-            <div class="text-sm text-muted-foreground">Available</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-orange-600">{{ statistics.activeBorrows?.toLocaleString() || 0 }}</div>
-            <div class="text-sm text-muted-foreground">Active Borrows</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-purple-600">{{ featuredBooks.length }}</div>
-            <div class="text-sm text-muted-foreground">Featured Today</div>
+        <!-- Search Bar -->
+        <div class="mt-8 max-w-xl">
+          <div class="relative">
+            <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              v-model="searchKeyword"
+              placeholder="Search books, ISBN or author..."
+              class="pl-12 pr-32"
+              @keyup.enter="handleSearch"
+            />
+            <Button class="absolute right-2 top-1/2 -translate-y-1/2" @click="handleSearch">
+              Search
+            </Button>
           </div>
         </div>
       </div>
@@ -285,11 +283,47 @@ onMounted(() => {
     </div>
 
     <template v-else>
+      <!-- Notice Carousel (desktop only) -->
+      <section v-if="recentNotices.length" class="hidden sm:block">
+        <div class="overflow-x-auto flex gap-6 snap-x pb-4 scrollbar-hide">
+          <Card
+            v-for="notice in recentNotices"
+            :key="notice.id"
+            class="min-w-[280px] snap-start cursor-pointer hover:shadow-md transition-shadow"
+            @click="router.push('/notices')"
+          >
+            <CardHeader>
+              <CardTitle class="line-clamp-2">{{ notice.title }}</CardTitle>
+              <CardDescription>{{ formatDate(notice.publishDate) }}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p class="text-sm text-muted-foreground line-clamp-3">{{ notice.content }}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <!-- Category Navigation -->
+      <section v-if="categories.length" class="space-y-4">
+        <h2 class="text-xl font-semibold">Browse by Category</h2>
+        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <Button
+            variant="outline"
+            class="shrink-0"
+            v-for="cat in categories"
+            :key="cat"
+            @click="goToCategory(cat)"
+          >
+            {{ cat }}
+          </Button>
+        </div>
+      </section>
+
       <!-- Featured Books Section -->
-      <section v-if="featuredBooks.length > 0">
+      <section v-if="recommendedBooks.length > 0">
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h2 class="text-2xl font-bold">Featured Books</h2>
+            <h2 class="text-2xl font-bold">Recommended Books</h2>
             <p class="text-muted-foreground">Recently added to our collection</p>
           </div>
           <Button variant="outline" @click="router.push('/books')">
@@ -298,9 +332,9 @@ onMounted(() => {
           </Button>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           <Card
-            v-for="book in featuredBooks"
+            v-for="book in recommendedBooks"
             :key="book.id"
             class="group cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
             @click="goToBookDetail(book.id)"
@@ -331,6 +365,32 @@ onMounted(() => {
                 <span>{{ book.indexCategory?.name || 'General' }}</span>
                 <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <!-- Popular Borrow Leaderboard -->
+      <section v-if="topBorrowBooks.length" class="space-y-4">
+        <h2 class="text-2xl font-bold">Hot Borrows</h2>
+        <p class="text-muted-foreground">Most borrowed books recently</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <Card
+            v-for="(book, idx) in topBorrowBooks"
+            :key="book.id"
+            class="cursor-pointer hover:shadow-md transition-shadow"
+            @click="goToBookDetail(book.id)"
+          >
+            <CardHeader class="flex-row items-center gap-4">
+              <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
+              <div class="flex-1 min-w-0">
+                <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
+                <CardDescription>{{ book.authors.map(a => a.name).join(', ') }}</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent class="text-xs text-muted-foreground flex justify-between">
+              <span>{{ book.indexCategory?.name || 'General' }}</span>
+              <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
             </CardContent>
           </Card>
         </div>
@@ -370,37 +430,6 @@ onMounted(() => {
             </div>
             <h3 class="font-semibold mb-2">{{ feature.title }}</h3>
             <p class="text-sm text-muted-foreground">{{ feature.description }}</p>
-          </Card>
-        </div>
-      </section>
-
-      <!-- Notices Section -->
-      <section v-if="recentNotices.length > 0">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h2 class="text-2xl font-bold">Latest Notices</h2>
-            <p class="text-muted-foreground">Stay updated with library announcements</p>
-          </div>
-          <Button variant="outline" @click="router.push('/notices')">
-            <Bell class="h-4 w-4 mr-2" />
-            View All Notices
-          </Button>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card
-            v-for="notice in recentNotices"
-            :key="notice.id"
-            class="hover:shadow-md transition-shadow cursor-pointer"
-            @click="router.push('/notices')"
-          >
-            <CardHeader>
-              <CardTitle class="text-lg line-clamp-2">{{ notice.title }}</CardTitle>
-              <CardDescription>{{ formatDate(notice.publishDate) }}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p class="text-sm text-muted-foreground line-clamp-3">{{ notice.content }}</p>
-            </CardContent>
           </Card>
         </div>
       </section>

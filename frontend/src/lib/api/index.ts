@@ -16,9 +16,10 @@ import { statisticsService } from './services/statistics'
 import { borrowingRulesService } from './services/borrowing-rules'
 import { reservationsService } from './services/reservations'
 import { favoritesService } from './services/favorites'
+import { categoriesService } from './services/categories'
 
 // Export all services
-export { authService, booksService, usersService, borrowService, commentsService, noticesService, feesService, statisticsService, borrowingRulesService, reservationsService, favoritesService }
+export { authService, booksService, usersService, borrowService, commentsService, noticesService, feesService, statisticsService, borrowingRulesService, reservationsService, favoritesService, categoriesService }
 
 // Create a unified API object
 export const api = {
@@ -33,6 +34,7 @@ export const api = {
   borrowingRules: borrowingRulesService,
   reservations: reservationsService,
   favorites: favoritesService,
+  categories: categoriesService,
 }
 
 // Export service classes for advanced usage
@@ -47,3 +49,4 @@ export { StatisticsService } from './services/statistics'
 export { BorrowingRulesService } from './services/borrowing-rules'
 export { ReservationsService } from './services/reservations'
 export { FavoritesService } from './services/favorites'
+export { CategoriesService } from './services/categories'
