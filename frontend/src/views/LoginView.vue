@@ -63,7 +63,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <div class="py-50 flex items-center justify-center bg-background">
+  <div class="min-h-[80vh] flex items-center justify-center bg-background">
     <div class="w-full max-w-md space-y-8">
       <div class="text-center">
         <h1 class="text-3xl font-bold tracking-tight text-foreground">Sign in to your account</h1>
