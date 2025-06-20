@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {
   MenubarRadioGroup,
   type MenubarRadioGroupEmits,
@@ -13,10 +13,7 @@ const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>
-  <MenubarRadioGroup
-    data-slot="menubar-radio-group"
-    v-bind="forwarded"
-  >
+  <MenubarRadioGroup data-slot="menubar-radio-group" v-bind="forwarded">
     <slot />
   </MenubarRadioGroup>
 </template>

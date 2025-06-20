@@ -1,13 +1,11 @@
 <template>
   <div class="comment-list space-y-4">
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-4">
-      Loading comments...
-    </div>
+    <div v-if="loading" class="text-center py-4">Loading comments...</div>
 
     <!-- Add Comment Button -->
     <div v-if="canAddComment" class="flex justify-center">
-      <Button @click="showAddComment = true" variant="outline">
+      <Button variant="outline" @click="showAddComment = true">
         <Plus class="h-4 w-4 mr-2" />
         Add Review
       </Button>
@@ -22,8 +20,8 @@
             <button
               v-for="star in renderStars(5, true, newRating)"
               :key="star.index"
-              @click="newRating = star.index"
               class="p-1 hover:scale-110 transition-transform"
+              @click="newRating = star.index"
             >
               <Star
                 :class="star.filled ? 'text-yellow-400 fill-current' : 'text-gray-300'"
@@ -39,19 +37,17 @@
           <textarea
             id="comment"
             v-model="newComment"
-            placeholder="Share your thoughts about this book..."
             class="w-full mt-1 p-3 border rounded-md resize-none"
+            placeholder="Share your thoughts about this book..."
             rows="4"
           />
         </div>
 
         <div class="flex gap-2">
-          <Button @click="handleAddComment" :disabled="isSubmitting || !newComment.trim()">
+          <Button :disabled="isSubmitting || !newComment.trim()" @click="handleAddComment">
             {{ isSubmitting ? 'Submitting...' : 'Submit Review' }}
           </Button>
-          <Button variant="outline" @click="showAddComment = false">
-            Cancel
-          </Button>
+          <Button variant="outline" @click="showAddComment = false"> Cancel </Button>
         </div>
       </div>
     </Card>
@@ -73,22 +69,18 @@
                 <p class="text-xs text-muted-foreground">{{ formatTime(comment.commentDate) }}</p>
               </div>
             </div>
-            
+
             <!-- Action Buttons -->
             <div v-if="canEditComment(comment)" class="flex gap-1">
               <Button
                 v-if="editingCommentId !== comment.id"
-                variant="ghost"
                 size="sm"
+                variant="ghost"
                 @click="startEdit(comment)"
               >
                 <Edit class="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                @click="handleDeleteComment(comment.id)"
-              >
+              <Button size="sm" variant="ghost" @click="handleDeleteComment(comment.id)">
                 <Trash2 class="h-4 w-4" />
               </Button>
             </div>
@@ -116,8 +108,8 @@
                 <button
                   v-for="star in renderStars(5, true, editRating)"
                   :key="star.index"
-                  @click="editRating = star.index"
                   class="p-1 hover:scale-110 transition-transform"
+                  @click="editRating = star.index"
                 >
                   <Star
                     :class="star.filled ? 'text-yellow-400 fill-current' : 'text-gray-300'"
@@ -139,12 +131,8 @@
 
             <!-- Edit Actions -->
             <div class="flex gap-2">
-              <Button size="sm" @click="handleUpdateComment(comment.id)">
-                Save Changes
-              </Button>
-              <Button variant="outline" size="sm" @click="cancelEdit">
-                Cancel
-              </Button>
+              <Button size="sm" @click="handleUpdateComment(comment.id)"> Save Changes </Button>
+              <Button size="sm" variant="outline" @click="cancelEdit"> Cancel </Button>
             </div>
           </div>
 
@@ -157,18 +145,21 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="!loading && sortedComments.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+    <div
+      v-if="!loading && sortedComments.length === 0"
+      class="flex flex-col items-center justify-center py-12 text-center"
+    >
       <div class="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
         <MessageCircle class="w-6 h-6 text-muted-foreground" />
       </div>
       <p class="text-sm text-muted-foreground">No reviews yet</p>
       <p class="text-xs text-muted-foreground mt-1">Be the first to share your thoughts!</p>
-      
-      <Button 
-        v-if="authStore.isAuthenticated && !showAddComment" 
-        @click="showAddComment = true"
-        variant="outline" 
+
+      <Button
+        v-if="authStore.isAuthenticated && !showAddComment"
         class="mt-4"
+        variant="outline"
+        @click="showAddComment = true"
       >
         <Plus class="h-4 w-4 mr-2" />
         Write a Review
@@ -178,21 +169,21 @@
     <!-- Not Logged In Message -->
     <div v-if="!authStore.isAuthenticated && !showAddComment" class="text-center py-4">
       <p class="text-sm text-muted-foreground">
-        Please <router-link to="/login" class="text-primary hover:underline">log in</router-link> to add a review
+        Please
+        <router-link class="text-primary hover:underline" to="/login">log in</router-link>
+        to add a review
       </p>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { MessageCircle, Star, Edit, Trash2, Plus } from 'lucide-vue-next'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
+import { Edit, MessageCircle, Plus, Star, Trash2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { commentsService } from '@/lib/api'
 import type { Comment } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
@@ -205,7 +196,9 @@ interface Props {
 
 interface Emits {
   (e: 'comment-added'): void
+
   (e: 'comment-updated'): void
+
   (e: 'comment-deleted'): void
 }
 
@@ -227,8 +220,8 @@ const editRating = ref(5)
 
 // Computed
 const sortedComments = computed(() => {
-  return [...props.comments].sort((a, b) => 
-    new Date(b.commentDate).getTime() - new Date(a.commentDate).getTime()
+  return [...props.comments].sort(
+    (a, b) => new Date(b.commentDate).getTime() - new Date(a.commentDate).getTime(),
   )
 })
 
@@ -241,16 +234,16 @@ const formatTime = (time: string) => {
   const date = new Date(time)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
-  
+
   const minutes = Math.floor(diff / (1000 * 60))
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  
+
   if (minutes < 1) return 'Just now'
   if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
   if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
   if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`
-  
+
   return date.toLocaleDateString()
 }
 
@@ -259,7 +252,7 @@ const renderStars = (rating: number, interactive = false, currentRating = 0) => 
   for (let i = 1; i <= 5; i++) {
     stars.push({
       index: i,
-      filled: i <= (interactive ? currentRating : rating)
+      filled: i <= (interactive ? currentRating : rating),
     })
   }
   return stars
@@ -276,14 +269,14 @@ const handleAddComment = async () => {
     await commentsService.create({
       bookId: props.bookId,
       content: newComment.value.trim(),
-      rating: newRating.value
+      rating: newRating.value,
     })
-    
+
     // Reset form
     newComment.value = ''
     newRating.value = 5
     showAddComment.value = false
-    
+
     toast.success('Comment added successfully!')
     emit('comment-added')
   } catch (error) {
@@ -315,9 +308,9 @@ const handleUpdateComment = async (commentId: number) => {
   try {
     await commentsService.update(commentId, {
       content: editComment.value.trim(),
-      rating: editRating.value
+      rating: editRating.value,
     })
-    
+
     cancelEdit()
     toast.success('Comment updated successfully!')
     emit('comment-updated')

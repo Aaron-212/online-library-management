@@ -1,30 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   ArrowLeft,
   BookOpen,
-  Calendar,
+  Building,
   Edit,
-  Heart,
   MessageSquare,
+  Package,
   Share,
   Star,
-  User,
-  Building,
   Tag,
-  Package
+  User,
 } from 'lucide-vue-next'
 import CommentList from '@/components/CommentList.vue'
 import { booksService, borrowService, commentsService, usersService } from '@/lib/api'
@@ -111,22 +103,22 @@ const handleBorrow = async () => {
 
   try {
     isBorrowing.value = true
-    
+
     // Get current user data to get the user ID
     const currentUser = await usersService.getCurrentUser()
-    
+
     // Get available copies for the book
     const copies = await booksService.getCopies(bookId.value)
-    const availableCopy = copies.find(copy => copy.isAvailable)
-    
+    const availableCopy = copies.find((copy) => copy.isAvailable)
+
     if (!availableCopy) {
       toast.error('No available copies for this book')
       return
     }
-    
-    await borrowService.borrowBook({ 
-      userId: currentUser.id, 
-      copyId: availableCopy.id 
+
+    await borrowService.borrowBook({
+      userId: currentUser.id,
+      copyId: availableCopy.id,
     })
     toast.success('Book borrowed successfully!')
     // Reload book data to update availability
@@ -185,9 +177,7 @@ onMounted(() => {
     </Button>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading book details...
-    </div>
+    <div v-if="isLoading" class="text-center py-8">Loading book details...</div>
 
     <!-- Book Details -->
     <template v-else-if="book">
@@ -201,15 +191,25 @@ onMounted(() => {
                 <BookOpen class="h-16 w-16 mx-auto mb-4" />
                 <p>No cover image available</p>
               </div>
-              
+
               <!-- Availability Badge -->
               <div v-if="availabilityStatus" class="absolute top-4 right-4">
-                <Badge 
-                  :variant="availabilityStatus === 'available' ? 'success' : 
-                           availabilityStatus === 'limited' ? 'secondary' : 'destructive'"
+                <Badge
+                  :variant="
+                    availabilityStatus === 'available'
+                      ? 'success'
+                      : availabilityStatus === 'limited'
+                        ? 'secondary'
+                        : 'destructive'
+                  "
                 >
-                  {{ availabilityStatus === 'available' ? 'Available' : 
-                     availabilityStatus === 'limited' ? 'Limited' : 'Out of Stock' }}
+                  {{
+                    availabilityStatus === 'available'
+                      ? 'Available'
+                      : availabilityStatus === 'limited'
+                        ? 'Limited'
+                        : 'Out of Stock'
+                  }}
                 </Badge>
               </div>
             </div>
@@ -220,11 +220,11 @@ onMounted(() => {
         <div class="lg:col-span-2 space-y-6">
           <div>
             <h1 class="text-3xl font-bold mb-2">{{ book.title }}</h1>
-            
+
             <!-- Authors -->
             <div class="flex items-center gap-2 text-lg text-muted-foreground mb-4">
               <User class="h-5 w-5" />
-              <span>{{ book.authors.map(a => a.name).join(', ') }}</span>
+              <span>{{ book.authors.map((a) => a.name).join(', ') }}</span>
             </div>
 
             <!-- Rating -->
@@ -238,21 +238,20 @@ onMounted(() => {
                 />
               </div>
               <span class="text-sm text-muted-foreground">
-                {{ averageRating.toFixed(1) }} ({{ comments.length }} {{ comments.length === 1 ? 'review' : 'reviews' }})
+                {{ averageRating.toFixed(1) }} ({{ comments.length }}
+                {{ comments.length === 1 ? 'review' : 'reviews' }})
               </span>
             </div>
 
             <!-- Availability -->
             <div class="mb-6">
               <p class="text-lg font-semibold mb-2">{{ availabilityText }}</p>
-              <p class="text-sm text-muted-foreground">
-                Total copies: {{ book.totalQuantity }}
-              </p>
+              <p class="text-sm text-muted-foreground">Total copies: {{ book.totalQuantity }}</p>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex flex-wrap gap-3 mb-6">
-              <Button 
+              <Button
                 @click="handleBorrow"
                 :disabled="book.availableQuantity === 0 || isBorrowing"
                 size="lg"
@@ -260,12 +259,12 @@ onMounted(() => {
                 <BookOpen class="h-4 w-4 mr-2" />
                 {{ isBorrowing ? 'Borrowing...' : 'Borrow Book' }}
               </Button>
-              
+
               <Button variant="outline" @click="handleShare" size="lg">
                 <Share class="h-4 w-4 mr-2" />
                 Share
               </Button>
-              
+
               <Button v-if="isAdmin" variant="outline" @click="handleEdit" size="lg">
                 <Edit class="h-4 w-4 mr-2" />
                 Edit Book
@@ -285,29 +284,31 @@ onMounted(() => {
                   <span class="text-sm font-medium">ISBN:</span>
                   <span class="text-sm">{{ book.isbn }}</span>
                 </div>
-                
+
                 <div class="flex items-center gap-2">
                   <Tag class="h-4 w-4 text-muted-foreground" />
                   <span class="text-sm font-medium">Category:</span>
                   <span class="text-sm">{{ book.indexCategory?.name || 'Uncategorized' }}</span>
                 </div>
-                
+
                 <div class="flex items-center gap-2">
                   <Building class="h-4 w-4 text-muted-foreground" />
                   <span class="text-sm font-medium">Publishers:</span>
-                  <span class="text-sm">{{ book.publishers.map(p => p.name).join(', ') }}</span>
+                  <span class="text-sm">{{ book.publishers.map((p) => p.name).join(', ') }}</span>
                 </div>
               </div>
-              
+
               <div class="space-y-3">
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium">Language:</span>
                   <span class="text-sm">{{ book.language }}</span>
                 </div>
-                
+
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium">Available:</span>
-                  <span class="text-sm">{{ book.availableQuantity }} / {{ book.totalQuantity }}</span>
+                  <span class="text-sm"
+                    >{{ book.availableQuantity }} / {{ book.totalQuantity }}</span
+                  >
                 </div>
               </div>
             </CardContent>
@@ -334,12 +335,10 @@ onMounted(() => {
             <MessageSquare class="h-5 w-5" />
             Reviews & Comments
           </CardTitle>
-          <CardDescription>
-            See what others think about this book
-          </CardDescription>
+          <CardDescription> See what others think about this book </CardDescription>
         </CardHeader>
         <CardContent>
-          <CommentList 
+          <CommentList
             :comments="comments"
             :book-id="bookId"
             :loading="isCommentsLoading"

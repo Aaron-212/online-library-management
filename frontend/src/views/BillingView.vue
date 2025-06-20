@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold">Billing Center</h1>
       <p class="text-muted-foreground">Manage your fees and payments</p>
     </div>
-    
+
     <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-8">
       <div class="text-muted-foreground">Loading billing information...</div>
@@ -36,15 +36,21 @@
                   <td class="p-3">{{ fee.borrowId }}</td>
                   <td class="p-3">${{ fee.amount.toFixed(2) }}</td>
                   <td class="p-3">
-                    <span v-if="fee.paid" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span
+                      v-if="fee.paid"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                    >
                       Paid
                     </span>
-                    <span v-else class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <span
+                      v-else
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                    >
                       Unpaid
                     </span>
                   </td>
                   <td class="p-3">
-                    <button 
+                    <button
                       v-if="!fee.paid"
                       class="px-3 py-1 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors"
                       @click="payFee(fee.id)"
@@ -72,7 +78,9 @@
               <div class="text-sm text-muted-foreground">Unpaid Fees</div>
             </div>
             <div class="text-center">
-              <div class="text-2xl font-bold text-green-600">${{ totalUnpaidAmount.toFixed(2) }}</div>
+              <div class="text-2xl font-bold text-green-600">
+                ${{ totalUnpaidAmount.toFixed(2) }}
+              </div>
               <div class="text-sm text-muted-foreground">Total Unpaid Amount</div>
             </div>
             <div class="text-center">
@@ -87,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { feesService } from '@/lib/api'
 import type { FeeResponseDto } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
@@ -99,17 +107,15 @@ const overdueFees = ref<FeeResponseDto[]>([])
 
 // Computed properties
 const totalUnpaidFees = computed(() => {
-  return overdueFees.value.filter(fee => !fee.paid).length
+  return overdueFees.value.filter((fee) => !fee.paid).length
 })
 
 const totalPaidFees = computed(() => {
-  return overdueFees.value.filter(fee => fee.paid).length
+  return overdueFees.value.filter((fee) => fee.paid).length
 })
 
 const totalUnpaidAmount = computed(() => {
-  return overdueFees.value
-    .filter(fee => !fee.paid)
-    .reduce((sum, fee) => sum + fee.amount, 0)
+  return overdueFees.value.filter((fee) => !fee.paid).reduce((sum, fee) => sum + fee.amount, 0)
 })
 
 // Methods

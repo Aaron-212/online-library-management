@@ -1,9 +1,5 @@
 import { apiClient } from '../client'
-import type { 
-  Book,
-  PagedResponse,
-  MessageResponse 
-} from '../types'
+import type { Book, MessageResponse, PagedResponse } from '../types'
 
 export interface Favorite {
   id: number
@@ -22,11 +18,17 @@ export interface FavoriteCreateDto {
 export class FavoritesService {
   private basePath = '/favorites'
 
-  async getUserFavorites(params?: { page?: number; size?: number }): Promise<PagedResponse<Favorite>> {
+  async getUserFavorites(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Favorite>> {
     return apiClient.get<PagedResponse<Favorite>>(`${this.basePath}/user`, params)
   }
 
-  async getAllFavorites(params?: { page?: number; size?: number }): Promise<PagedResponse<Favorite>> {
+  async getAllFavorites(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Favorite>> {
     return apiClient.get<PagedResponse<Favorite>>(this.basePath, params)
   }
 
@@ -40,7 +42,9 @@ export class FavoritesService {
 
   async checkIsFavorite(bookId: number): Promise<boolean> {
     try {
-      const response = await apiClient.get<{ isFavorite: boolean }>(`${this.basePath}/check/${bookId}`)
+      const response = await apiClient.get<{ isFavorite: boolean }>(
+        `${this.basePath}/check/${bookId}`,
+      )
       return response.isFavorite
     } catch {
       return false

@@ -5,13 +5,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record FeeResponseDto(
-    Long borrowId,
-    Long userId,
-    String username,
-    String bookTitle,
-    BigDecimal fineAmount,
-    Borrow.Status status,
-    LocalDateTime dueDate,
-    LocalDateTime actualReturnDate,
-    String message
-) {} 
+        Long borrowId,
+        Long userId,
+        String username,
+        String bookTitle,
+        BigDecimal fineAmount,
+        Borrow.Status status,
+        LocalDateTime dueDate,
+        LocalDateTime actualReturnDate,
+        String message) {}

@@ -1,10 +1,10 @@
 import { apiClient } from '../client'
-import type { 
-  Notice, 
-  NoticeCreateDto, 
+import type {
+  MessageResponse,
+  Notice,
+  NoticeCreateDto,
   NoticeUpdateDto,
   PagedResponse,
-  MessageResponse 
 } from '../types'
 
 export class NoticesService {

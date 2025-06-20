@@ -9,7 +9,7 @@
       <h1 class="text-2xl font-bold">User Management</h1>
       <p class="text-muted-foreground">Manage library users and their permissions</p>
     </div>
-    
+
     <div class="text-center py-12 text-muted-foreground">
       <h3 class="text-lg font-semibold mb-2">Coming Soon</h3>
       <p>User management functionality will be implemented here.</p>

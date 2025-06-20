@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import type { UserLoginDto, UserRegisterDto } from '@/lib/api'
 import { authService, usersService } from '@/lib/api'
 import type { ApiError } from '@/lib/api/client'
-import type { UserLoginDto, UserRegisterDto, User } from '@/lib/api'
 
 interface AuthUser {
   username: string
@@ -48,7 +48,10 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       const response = await authService.register(registerData)
-      return { success: true, message: response.message || 'Registration successful! Please log in.' }
+      return {
+        success: true,
+        message: response.message || 'Registration successful! Please log in.',
+      }
     } catch (error) {
       console.error('Registration error:', error)
       const apiError = error as ApiError
@@ -80,7 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
       // Handle different response formats from backend
       let token: string
       let message: string
-      
+
       if (typeof response === 'string') {
         // Backend returned plain text token
         token = response
@@ -89,9 +92,10 @@ export const useAuthStore = defineStore('auth', () => {
         // Backend returned JSON object
         if ('token' in response && typeof response.token === 'string') {
           token = response.token
-          message = ('message' in response && typeof response.message === 'string') 
-            ? response.message 
-            : 'Login successful!'
+          message =
+            'message' in response && typeof response.message === 'string'
+              ? response.message
+              : 'Login successful!'
         } else {
           // No valid token found in response object
           throw new Error('No valid token found in server response')
@@ -103,10 +107,10 @@ export const useAuthStore = defineStore('auth', () => {
       // Get the actual user data to retrieve correct username
       // Temporarily set the token for the API call
       localStorage.setItem('auth_token', token)
-      
+
       try {
         const userData = await usersService.getCurrentUser()
-        
+
         user.value = {
           username: userData.username, // Use actual username from user data
           token: token,
@@ -154,7 +158,8 @@ export const useAuthStore = defineStore('auth', () => {
       const apiError = error as ApiError
       return {
         success: false,
-        message: apiError.error || apiError.message || 'Failed to change password. Please try again.',
+        message:
+          apiError.error || apiError.message || 'Failed to change password. Please try again.',
       }
     } finally {
       isLoading.value = false
@@ -199,7 +204,7 @@ export const useAuthStore = defineStore('auth', () => {
           lastUpdateTime: userData.lastUpdateTime,
         }
         isAuthenticated.value = true
-        
+
         // Verify token is still valid
         const isValid = await verifyToken()
         if (!isValid) {
@@ -220,7 +225,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (user.value?.token) {
       return `Bearer ${user.value.token}`
     }
-    
+
     // Fallback to localStorage (useful during login process when user.value is not yet set)
     const token = localStorage.getItem('auth_token')
     return token ? `Bearer ${token}` : null

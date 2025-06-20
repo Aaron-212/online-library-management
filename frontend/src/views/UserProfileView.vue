@@ -424,7 +424,7 @@ onMounted(() => {
             <CardTitle>Recent Borrowing Activity</CardTitle>
             <CardDescription>Your latest book borrowing activity</CardDescription>
           </div>
-          <Button variant="outline" @click="router.push('/borrows')"> View All </Button>
+          <Button variant="outline" @click="router.push('/borrows')"> View All</Button>
         </CardHeader>
         <CardContent>
           <div v-if="recentBorrows.length === 0" class="text-center py-8 text-muted-foreground">

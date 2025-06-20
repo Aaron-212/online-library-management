@@ -20,9 +20,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class BorrowingRuleService {
 
-    private final BorrowingRuleRepository borrowingRuleRepository;
-    private static final Logger logger = LoggerFactory.getLogger(BorrowingRuleService.class);
-
     // Default rule keys
     public static final String MAX_BORROW_BOOKS = "MAX_BORROW_BOOKS";
     public static final String LOAN_PERIOD_DAYS = "LOAN_PERIOD_DAYS";
@@ -31,6 +28,8 @@ public class BorrowingRuleService {
     public static final String MAX_RENEWAL_TIMES = "MAX_RENEWAL_TIMES";
     public static final String ALLOW_RENEWALS = "ALLOW_RENEWALS";
     public static final String ADVANCE_RESERVE_DAYS = "ADVANCE_RESERVE_DAYS";
+    private static final Logger logger = LoggerFactory.getLogger(BorrowingRuleService.class);
+    private final BorrowingRuleRepository borrowingRuleRepository;
 
     public BorrowingRuleService(BorrowingRuleRepository borrowingRuleRepository) {
         this.borrowingRuleRepository = borrowingRuleRepository;

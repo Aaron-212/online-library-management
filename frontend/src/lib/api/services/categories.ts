@@ -21,4 +21,4 @@ export class CategoriesService {
   }
 }
 
-export const categoriesService = new CategoriesService() 
+export const categoriesService = new CategoriesService()

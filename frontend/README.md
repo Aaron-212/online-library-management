@@ -5,35 +5,41 @@ Vue.js frontend application for the Online Library Management System.
 ## Features
 
 ### Dashboard System
+
 The application now features separate dashboards for different user roles:
 
 #### User Dashboard (`/dashboard`)
+
 - **Audience**: Regular library users
 - **Features**:
-  - Personal borrowing statistics
-  - Recent borrowing activity
-  - Available books display
-  - Quick actions for browsing and managing personal account
-  - Personalized recommendations (coming soon)
-  - Library notices and announcements
+    - Personal borrowing statistics
+    - Recent borrowing activity
+    - Available books display
+    - Quick actions for browsing and managing personal account
+    - Personalized recommendations (coming soon)
+    - Library notices and announcements
 
 #### Admin Dashboard (`/admin/dashboard`)
-- **Audience**: Library administrators  
+
+- **Audience**: Library administrators
 - **Features**:
-  - System-wide statistics (total users, books, borrows)
-  - Administrative quick actions
-  - Recent system activity
-  - User management shortcuts
-  - System configuration tools
-  - Notice management
+    - System-wide statistics (total users, books, borrows)
+    - Administrative quick actions
+    - Recent system activity
+    - User management shortcuts
+    - System configuration tools
+    - Notice management
 
 ### Smart Navigation
+
 The application automatically routes users to the appropriate dashboard:
+
 - **Regular users** → User Dashboard (`/dashboard`)
 - **Administrators** → Admin Dashboard (`/admin/dashboard`)
 - **Sidebar navigation** → Dynamically shows appropriate dashboard link based on user role
 
 ### Authentication & Authorization
+
 - Role-based access control (USER vs ADMIN)
 - Protected routes with authentication guards
 - Admin-only routes and features
@@ -81,11 +87,14 @@ src/
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and
+disable Vetur).
 
 ## Type Support for `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for
+type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the
+TypeScript language service aware of `.vue` types.
 
 ## Customize configuration
 

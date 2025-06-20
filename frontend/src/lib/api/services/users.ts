@@ -1,11 +1,5 @@
 import { apiClient } from '../client'
-import type { 
-  User, 
-  UserPublic, 
-  UserUpdateDto, 
-  MessageResponse,
-  PagedResponse
-} from '../types'
+import type { MessageResponse, PagedResponse, User, UserPublic, UserUpdateDto } from '../types'
 
 export class UsersService {
   private basePath = '/users'
@@ -27,7 +21,11 @@ export class UsersService {
   }
 
   // Admin methods
-  async getAllUsers(params?: { page?: number; size?: number; search?: string }): Promise<PagedResponse<UserPublic>> {
+  async getAllUsers(params?: {
+    page?: number
+    size?: number
+    search?: string
+  }): Promise<PagedResponse<UserPublic>> {
     return apiClient.get<PagedResponse<UserPublic>>(`${this.basePath}/all`, params)
   }
 }

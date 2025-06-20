@@ -1,24 +1,33 @@
 import { apiClient } from '../client'
-import type { 
-  Comment, 
-  CommentCreateDto, 
+import type {
+  Comment,
+  CommentCreateDto,
   CommentUpdateDto,
+  MessageResponse,
   PagedResponse,
-  MessageResponse 
 } from '../types'
 
 export class CommentsService {
   private basePath = '/comments'
 
-  async getByBookId(bookId: number, params?: { page?: number; size?: number }): Promise<PagedResponse<Comment>> {
+  async getByBookId(
+    bookId: number,
+    params?: { page?: number; size?: number },
+  ): Promise<PagedResponse<Comment>> {
     return apiClient.get<PagedResponse<Comment>>(`${this.basePath}/book/${bookId}`, params)
   }
 
-  async getByUserId(userId: number, params?: { page?: number; size?: number }): Promise<PagedResponse<Comment>> {
+  async getByUserId(
+    userId: number,
+    params?: { page?: number; size?: number },
+  ): Promise<PagedResponse<Comment>> {
     return apiClient.get<PagedResponse<Comment>>(`${this.basePath}/user/${userId}`, params)
   }
 
-  async getCurrentUserComments(params?: { page?: number; size?: number }): Promise<PagedResponse<Comment>> {
+  async getCurrentUserComments(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Comment>> {
     return apiClient.get<PagedResponse<Comment>>(`${this.basePath}/me`, params)
   }
 

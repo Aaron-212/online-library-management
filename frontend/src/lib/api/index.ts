@@ -19,7 +19,20 @@ import { favoritesService } from './services/favorites'
 import { categoriesService } from './services/categories'
 
 // Export all services
-export { authService, booksService, usersService, borrowService, commentsService, noticesService, feesService, statisticsService, borrowingRulesService, reservationsService, favoritesService, categoriesService }
+export {
+  authService,
+  booksService,
+  usersService,
+  borrowService,
+  commentsService,
+  noticesService,
+  feesService,
+  statisticsService,
+  borrowingRulesService,
+  reservationsService,
+  favoritesService,
+  categoriesService,
+}
 
 // Create a unified API object
 export const api = {

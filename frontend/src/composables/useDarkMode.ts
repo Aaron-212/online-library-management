@@ -34,13 +34,13 @@ export function useDarkMode() {
 
   onMounted(() => {
     const cleanup = initDarkMode()
-    
+
     onUnmounted(() => {
       cleanup()
     })
   })
 
   return {
-    initDarkMode
+    initDarkMode,
   }
-} 
+}

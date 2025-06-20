@@ -1,10 +1,5 @@
 import { apiClient } from '../client'
-import type { 
-  FeeCalculationDto, 
-  FeeResponseDto,
-  PagedResponse,
-  MessageResponse 
-} from '../types'
+import type { FeeCalculationDto, FeeResponseDto, MessageResponse, PagedResponse } from '../types'
 
 export class FeesService {
   private basePath = '/fees'
@@ -13,15 +8,24 @@ export class FeesService {
     return apiClient.get<FeeCalculationDto>(`${this.basePath}/calculate/${borrowId}`)
   }
 
-  async getUserFees(params?: { page?: number; size?: number }): Promise<PagedResponse<FeeResponseDto>> {
+  async getUserFees(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<FeeResponseDto>> {
     return apiClient.get<PagedResponse<FeeResponseDto>>(`${this.basePath}/user`, params)
   }
 
-  async getAllFees(params?: { page?: number; size?: number }): Promise<PagedResponse<FeeResponseDto>> {
+  async getAllFees(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<FeeResponseDto>> {
     return apiClient.get<PagedResponse<FeeResponseDto>>(this.basePath, params)
   }
 
-  async getUnpaidFees(params?: { page?: number; size?: number }): Promise<PagedResponse<FeeResponseDto>> {
+  async getUnpaidFees(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<FeeResponseDto>> {
     return apiClient.get<PagedResponse<FeeResponseDto>>(`${this.basePath}/unpaid`, params)
   }
 

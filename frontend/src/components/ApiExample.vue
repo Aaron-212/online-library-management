@@ -1,23 +1,23 @@
 <template>
   <div class="p-6 space-y-6">
     <h1 class="text-2xl font-bold">API Usage Examples</h1>
-    
+
     <!-- Books Section -->
     <div class="border rounded-lg p-4">
       <h2 class="text-xl font-semibold mb-4">Books</h2>
-      
+
       <div class="space-y-4">
         <!-- Search Books -->
         <div>
           <input
             v-model="searchQuery"
-            placeholder="Search books..."
             class="border rounded px-3 py-2 mr-2"
+            placeholder="Search books..."
           />
           <button
-            @click="handleSearchBooks"
             :disabled="booksApi.isLoading.value"
             class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+            @click="handleSearchBooks"
           >
             {{ booksApi.isLoading.value ? 'Searching...' : 'Search' }}
           </button>
@@ -26,24 +26,22 @@
         <!-- Error Display -->
         <div v-if="booksApi.hasError.value" class="text-red-600 bg-red-100 p-3 rounded">
           {{ booksApi.error.value }}
-          <button @click="booksApi.clearError" class="ml-2 underline">Dismiss</button>
+          <button class="ml-2 underline" @click="booksApi.clearError">Dismiss</button>
         </div>
 
         <!-- Books List -->
         <div v-if="booksApi.books.value.length > 0" class="space-y-2">
-          <div
-            v-for="book in booksApi.books.value"
-            :key="book.id"
-            class="border p-3 rounded"
-          >
+          <div v-for="book in booksApi.books.value" :key="book.id" class="border p-3 rounded">
             <h3 class="font-semibold">{{ book.title }}</h3>
-            <p class="text-sm text-gray-600">{{ book.authors.map((a: any) => a.name).join(', ') }}</p>
+            <p class="text-sm text-gray-600">
+              {{ book.authors.map((a: any) => a.name).join(', ') }}
+            </p>
             <p class="text-sm">Available: {{ book.availableQuantity }}/{{ book.totalQuantity }}</p>
-            
+
             <button
-              @click="handleBorrowBook(book.id)"
               :disabled="borrowApi.isLoading.value || book.availableQuantity === 0"
               class="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
+              @click="handleBorrowBook(book.id)"
             >
               {{ borrowApi.isLoading.value ? 'Processing...' : 'Borrow' }}
             </button>
@@ -55,11 +53,11 @@
           <button
             v-for="page in Math.min(booksApi.totalPages.value, 5)"
             :key="page"
-            @click="handlePageChange(page - 1)"
             :class="[
               'px-3 py-1 rounded',
-              currentPage === page - 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'
+              currentPage === page - 1 ? 'bg-blue-500 text-white' : 'bg-gray-200',
             ]"
+            @click="handlePageChange(page - 1)"
           >
             {{ page }}
           </button>
@@ -70,11 +68,11 @@
     <!-- User Borrows Section -->
     <div class="border rounded-lg p-4">
       <h2 class="text-xl font-semibold mb-4">My Borrows</h2>
-      
+
       <button
-        @click="borrowApi.fetchUserBorrows()"
         :disabled="borrowApi.isLoading.value"
         class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 mb-4"
+        @click="borrowApi.fetchUserBorrows()"
       >
         {{ borrowApi.isLoading.value ? 'Loading...' : 'Refresh Borrows' }}
       </button>
@@ -84,27 +82,23 @@
       </div>
 
       <div v-if="borrowApi.borrows.value.length > 0" class="space-y-2">
-        <div
-          v-for="borrow in borrowApi.borrows.value"
-          :key="borrow.id"
-          class="border p-3 rounded"
-        >
+        <div v-for="borrow in borrowApi.borrows.value" :key="borrow.id" class="border p-3 rounded">
           <h3 class="font-semibold">{{ borrow.bookCopy.book.title }}</h3>
           <p class="text-sm">Due: {{ new Date(borrow.dueDate).toLocaleDateString() }}</p>
-          <p class="text-sm" :class="borrow.isReturned ? 'text-green-600' : 'text-orange-600'">
+          <p :class="borrow.isReturned ? 'text-green-600' : 'text-orange-600'" class="text-sm">
             Status: {{ borrow.isReturned ? 'Returned' : 'Borrowed' }}
           </p>
-          
+
           <div v-if="!borrow.isReturned" class="mt-2 space-x-2">
             <button
-              @click="handleReturnBook(borrow.id)"
               class="bg-red-500 text-white px-3 py-1 rounded text-sm"
+              @click="handleReturnBook(borrow.id)"
             >
               Return
             </button>
             <button
-              @click="handleRenewBook(borrow.id)"
               class="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
+              @click="handleRenewBook(borrow.id)"
             >
               Renew
             </button>
@@ -116,11 +110,11 @@
     <!-- Statistics Section -->
     <div class="border rounded-lg p-4">
       <h2 class="text-xl font-semibold mb-4">Statistics</h2>
-      
+
       <button
-        @click="statsApi.fetchBookStatistics()"
         :disabled="statsApi.isLoading.value"
         class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 mb-4"
+        @click="statsApi.fetchBookStatistics()"
       >
         {{ statsApi.isLoading.value ? 'Loading...' : 'Load Book Stats' }}
       </button>
@@ -143,8 +137,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue'
 import { useBooks, useBorrow, useStatistics } from '@/composables/useApi'
 import { toast } from 'vue-sonner'
 

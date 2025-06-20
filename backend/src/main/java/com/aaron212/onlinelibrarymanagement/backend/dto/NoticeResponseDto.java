@@ -11,5 +11,4 @@ public record NoticeResponseDto(
         LocalDateTime expireTime,
         Integer status,
         LocalDateTime createTime,
-        LocalDateTime updateTime
-) {} 
+        LocalDateTime updateTime) {}

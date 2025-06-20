@@ -75,7 +75,7 @@ const navigationItems = computed(() => [
   {
     title: 'Favorites',
     url: '/favorites',
-    icon: Heart, 
+    icon: Heart,
     requiresAuth: true,
   },
   {

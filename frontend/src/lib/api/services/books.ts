@@ -1,18 +1,22 @@
 import { apiClient } from '../client'
-import type { 
-  Book, 
-  BookCreateDto, 
-  BookUpdateDto, 
+import type {
+  Book,
   BookCopy,
+  BookCreateDto,
   BookSearchParams,
+  BookUpdateDto,
+  MessageResponse,
   PagedResponse,
-  MessageResponse 
 } from '../types'
 
 export class BooksService {
   private basePath = '/books'
 
-  async getAll(params?: { page?: number; size?: number; sort?: string }): Promise<PagedResponse<Book>> {
+  async getAll(params?: {
+    page?: number
+    size?: number
+    sort?: string
+  }): Promise<PagedResponse<Book>> {
     return apiClient.get<PagedResponse<Book>>(this.basePath, params)
   }
 
@@ -28,7 +32,7 @@ export class BooksService {
     const { keyword, ...paginationParams } = params
     return apiClient.get<PagedResponse<Book>>(`${this.basePath}/search`, {
       keyword,
-      ...paginationParams
+      ...paginationParams,
     })
   }
 

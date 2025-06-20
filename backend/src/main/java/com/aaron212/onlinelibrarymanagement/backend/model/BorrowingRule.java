@@ -1,7 +1,6 @@
 package com.aaron212.onlinelibrarymanagement.backend.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -46,13 +45,6 @@ public class BorrowingRule {
     @Column(nullable = false)
     private Timestamp lastUpdateTime;
 
-    public enum ValueType {
-        INTEGER,    // For numbers like max books, loan days
-        DECIMAL,    // For monetary values like fine per day
-        STRING,     // For text values
-        BOOLEAN     // For true/false rules
-    }
-
     // Helper methods to get typed values
     public Integer getIntegerValue() {
         if (valueType == ValueType.INTEGER) {
@@ -77,5 +69,12 @@ public class BorrowingRule {
 
     public String getStringValue() {
         return ruleValue;
+    }
+
+    public enum ValueType {
+        INTEGER,    // For numbers like max books, loan days
+        DECIMAL,    // For monetary values like fine per day
+        STRING,     // For text values
+        BOOLEAN     // For true/false rules
     }
 }

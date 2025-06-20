@@ -1,36 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
-  Megaphone,
-  Plus,
-  Edit,
-  Trash2,
-  Search,
+  Bell,
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Bell
+  Edit,
+  Plus,
+  Search,
+  Trash2,
 } from 'lucide-vue-next'
 import { noticesService } from '@/lib/api'
 import type { Notice, PagedResponse } from '@/lib/api/types'
@@ -56,7 +47,7 @@ const isSubmitting = ref(false)
 // Form data
 const noticeForm = ref({
   title: '',
-  content: ''
+  content: '',
 })
 
 // Computed
@@ -67,11 +58,12 @@ const isAdmin = computed(() => {
 
 const filteredNotices = computed(() => {
   if (!searchKeyword.value) return notices.value
-  
+
   const keyword = searchKeyword.value.toLowerCase()
-  return notices.value.filter(notice =>
-    notice.title.toLowerCase().includes(keyword) ||
-    notice.content.toLowerCase().includes(keyword)
+  return notices.value.filter(
+    (notice) =>
+      notice.title.toLowerCase().includes(keyword) ||
+      notice.content.toLowerCase().includes(keyword),
   )
 })
 
@@ -81,7 +73,7 @@ const loadNotices = async () => {
     isLoading.value = true
     const response: PagedResponse<Notice> = await noticesService.getAll({
       page: currentPage.value,
-      size: pageSize.value
+      size: pageSize.value,
     })
     notices.value = response.content
     totalPages.value = response.totalPages
@@ -101,7 +93,7 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -109,16 +101,16 @@ const getTimeSince = (dateString: string) => {
   const date = new Date(dateString)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
-  
+
   const minutes = Math.floor(diff / (1000 * 60))
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  
+
   if (minutes < 1) return 'Just now'
   if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
   if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
   if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`
-  
+
   return formatDate(dateString)
 }
 
@@ -139,7 +131,7 @@ const openEditDialog = (notice: Notice) => {
   editingNotice.value = notice
   noticeForm.value = {
     title: notice.title,
-    content: notice.content
+    content: notice.content,
   }
   showEditDialog.value = true
 }
@@ -161,9 +153,9 @@ const handleCreateNotice = async () => {
     isSubmitting.value = true
     await noticesService.create({
       title: noticeForm.value.title.trim(),
-      content: noticeForm.value.content.trim()
+      content: noticeForm.value.content.trim(),
     })
-    
+
     toast.success('Notice created successfully!')
     closeDialogs()
     await loadNotices()
@@ -185,9 +177,9 @@ const handleUpdateNotice = async () => {
     isSubmitting.value = true
     await noticesService.update(editingNotice.value.id, {
       title: noticeForm.value.title.trim(),
-      content: noticeForm.value.content.trim()
+      content: noticeForm.value.content.trim(),
     })
-    
+
     toast.success('Notice updated successfully!')
     closeDialogs()
     await loadNotices()
@@ -246,11 +238,7 @@ onMounted(() => {
       <div class="flex items-center gap-4">
         <div class="relative flex-1">
           <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            v-model="searchKeyword"
-            placeholder="Search notices..."
-            class="pl-10"
-          />
+          <Input v-model="searchKeyword" placeholder="Search notices..." class="pl-10" />
         </div>
         <div class="text-sm text-muted-foreground">
           {{ filteredNotices.length }} of {{ totalElements }} notices
@@ -259,18 +247,14 @@ onMounted(() => {
     </Card>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading notices...
-    </div>
+    <div v-if="isLoading" class="text-center py-8">Loading notices...</div>
 
     <!-- Empty State -->
     <Card v-else-if="notices.length === 0">
       <CardContent class="flex flex-col items-center justify-center py-12 text-center">
         <Bell class="h-16 w-16 text-muted-foreground mb-4" />
         <h3 class="text-lg font-semibold mb-2">No Notices Yet</h3>
-        <p class="text-muted-foreground mb-4">
-          There are no notices to display at the moment.
-        </p>
+        <p class="text-muted-foreground mb-4">There are no notices to display at the moment.</p>
         <Button v-if="isAdmin" @click="openAddDialog">
           <Plus class="h-4 w-4 mr-2" />
           Create First Notice
@@ -283,7 +267,7 @@ onMounted(() => {
       <div v-if="filteredNotices.length === 0" class="text-center py-8 text-muted-foreground">
         No notices found matching your search.
       </div>
-      
+
       <div v-else class="space-y-4">
         <Card
           v-for="notice in filteredNotices"
@@ -302,32 +286,26 @@ onMounted(() => {
                 <div class="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar class="h-4 w-4" />
                   <span>{{ getTimeSince(notice.publishDate) }}</span>
-                  <span v-if="notice.lastUpdateTime && notice.lastUpdateTime !== notice.publishDate">
+                  <span
+                    v-if="notice.lastUpdateTime && notice.lastUpdateTime !== notice.publishDate"
+                  >
                     • Updated {{ getTimeSince(notice.lastUpdateTime) }}
                   </span>
                 </div>
               </div>
-              
+
               <!-- Admin Actions -->
               <div v-if="isAdmin" class="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  @click="openEditDialog(notice)"
-                >
+                <Button variant="ghost" size="sm" @click="openEditDialog(notice)">
                   <Edit class="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  @click="handleDeleteNotice(notice.id)"
-                >
+                <Button variant="ghost" size="sm" @click="handleDeleteNotice(notice.id)">
                   <Trash2 class="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </CardHeader>
-          
+
           <CardContent>
             <div class="prose prose-sm max-w-none">
               <div class="whitespace-pre-wrap leading-relaxed">{{ notice.content }}</div>
@@ -338,8 +316,8 @@ onMounted(() => {
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center items-center gap-2">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           :disabled="currentPage === 0"
           @click="handlePageChange(currentPage - 1)"
@@ -347,12 +325,12 @@ onMounted(() => {
           <ChevronLeft class="h-4 w-4" />
           Previous
         </Button>
-        
+
         <span class="text-sm text-muted-foreground px-4">
           Page {{ currentPage + 1 }} of {{ totalPages }}
         </span>
-        
-        <Button 
+
+        <Button
           variant="outline"
           size="sm"
           :disabled="currentPage === totalPages - 1"
@@ -369,11 +347,9 @@ onMounted(() => {
       <DialogContent class="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create New Notice</DialogTitle>
-          <DialogDescription>
-            Create a new announcement for library users.
-          </DialogDescription>
+          <DialogDescription> Create a new announcement for library users. </DialogDescription>
         </DialogHeader>
-        
+
         <form @submit.prevent="handleCreateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="add-title">Title</Label>
@@ -384,7 +360,7 @@ onMounted(() => {
               required
             />
           </div>
-          
+
           <div class="space-y-2">
             <Label for="add-content">Content</Label>
             <textarea
@@ -395,11 +371,9 @@ onMounted(() => {
               required
             />
           </div>
-          
+
           <div class="flex justify-end gap-2">
-            <Button type="button" variant="outline" @click="closeDialogs">
-              Cancel
-            </Button>
+            <Button type="button" variant="outline" @click="closeDialogs"> Cancel </Button>
             <Button type="submit" :disabled="isSubmitting">
               {{ isSubmitting ? 'Creating...' : 'Create Notice' }}
             </Button>
@@ -413,11 +387,9 @@ onMounted(() => {
       <DialogContent class="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Edit Notice</DialogTitle>
-          <DialogDescription>
-            Update the notice information.
-          </DialogDescription>
+          <DialogDescription> Update the notice information. </DialogDescription>
         </DialogHeader>
-        
+
         <form @submit.prevent="handleUpdateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="edit-title">Title</Label>
@@ -428,7 +400,7 @@ onMounted(() => {
               required
             />
           </div>
-          
+
           <div class="space-y-2">
             <Label for="edit-content">Content</Label>
             <textarea
@@ -439,11 +411,9 @@ onMounted(() => {
               required
             />
           </div>
-          
+
           <div class="flex justify-end gap-2">
-            <Button type="button" variant="outline" @click="closeDialogs">
-              Cancel
-            </Button>
+            <Button type="button" variant="outline" @click="closeDialogs"> Cancel </Button>
             <Button type="submit" :disabled="isSubmitting">
               {{ isSubmitting ? 'Updating...' : 'Update Notice' }}
             </Button>

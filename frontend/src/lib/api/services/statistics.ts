@@ -1,9 +1,5 @@
 import { apiClient } from '../client'
-import type { 
-  BookStatisticsDto, 
-  TopBooksRequestDto,
-  Book 
-} from '../types'
+import type { Book, BookStatisticsDto, TopBooksRequestDto } from '../types'
 
 export class StatisticsService {
   private basePath = '/statistics'

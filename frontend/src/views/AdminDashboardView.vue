@@ -1,33 +1,24 @@
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  BookOpen, 
-  Users, 
-  Clock, 
-  TrendingUp, 
+import {
   AlertTriangle,
+  BarChart3,
+  Bell,
+  BookOpen,
+  DollarSign,
+  Eye,
   Plus,
   Settings,
-  Eye,
-  Download,
   UserCheck,
-  DollarSign,
-  Bell,
-  BarChart3
+  Users,
 } from 'lucide-vue-next'
-import { statisticsService, booksService, borrowService, noticesService, usersService } from '@/lib/api'
-import type { BookStatisticsDto, Book, Borrow, Notice, User } from '@/lib/api/types'
+import { booksService, borrowService, noticesService, statisticsService } from '@/lib/api'
+import type { Book, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -45,7 +36,7 @@ const systemStats = ref({
   activeLoans: 0,
   overdueBooks: 0,
   totalRevenue: 0,
-  pendingReturns: 0
+  pendingReturns: 0,
 })
 
 // Computed
@@ -81,7 +72,7 @@ const adminStats = computed(() => [
     icon: BookOpen,
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
-  }
+  },
 ])
 
 const adminActions = [
@@ -90,43 +81,43 @@ const adminActions = [
     description: 'Add books to library',
     icon: Plus,
     action: () => router.push('/books/create'),
-    variant: 'default' as const
+    variant: 'default' as const,
   },
   {
     title: 'Manage Users',
     description: 'User administration',
     icon: UserCheck,
     action: () => router.push('/admin/users'),
-    variant: 'default' as const
+    variant: 'default' as const,
   },
   {
     title: 'Borrowing Rules',
     description: 'Configure borrowing',
     icon: Settings,
     action: () => router.push('/admin/borrowing-rules'),
-    variant: 'outline' as const
+    variant: 'outline' as const,
   },
   {
     title: 'Fee Management',
     description: 'Manage fees & fines',
     icon: DollarSign,
     action: () => router.push('/admin/fees'),
-    variant: 'outline' as const
+    variant: 'outline' as const,
   },
   {
     title: 'System Reports',
     description: 'Generate reports',
     icon: BarChart3,
     action: () => router.push('/admin/reports'),
-    variant: 'outline' as const
+    variant: 'outline' as const,
   },
   {
     title: 'Manage Notices',
     description: 'System announcements',
     icon: Bell,
     action: () => router.push('/notices'),
-    variant: 'outline' as const
-  }
+    variant: 'outline' as const,
+  },
 ]
 
 // Methods
@@ -149,7 +140,7 @@ const loadSystemStats = async () => {
       activeLoans: statistics.value?.activeBorrows || 0,
       overdueBooks: statistics.value?.overdueBorrows || 0,
       totalRevenue: 2450,
-      pendingReturns: 8
+      pendingReturns: 8,
     }
   } catch (error) {
     console.error('Error loading system stats:', error)
@@ -191,7 +182,7 @@ const loadDashboardData = async () => {
       loadStatistics(),
       loadRecentBooks(),
       loadRecentBorrows(),
-      loadRecentNotices()
+      loadRecentNotices(),
     ])
     await loadSystemStats() // Load after statistics to use the data
   } finally {
@@ -203,19 +194,19 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.isReturned) {
     return { variant: 'success' as const, text: 'Returned' }
   }
-  
+
   const dueDate = new Date(borrow.dueDate)
   const now = new Date()
-  
+
   if (dueDate < now) {
     return { variant: 'destructive' as const, text: 'Overdue' }
   }
-  
+
   const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
   if (daysUntilDue <= 3) {
     return { variant: 'secondary' as const, text: 'Due Soon' }
   }
-  
+
   return { variant: 'default' as const, text: 'Active' }
 }
 
@@ -242,20 +233,20 @@ onMounted(() => {
         <h1 class="text-3xl font-bold">Admin Dashboard</h1>
         <p class="text-muted-foreground">System overview and administrative controls</p>
       </div>
-      <Badge variant="secondary" class="text-sm px-3 py-1">
-        Administrator
-      </Badge>
+      <Badge variant="secondary" class="text-sm px-3 py-1"> Administrator </Badge>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">
-      Loading admin dashboard...
-    </div>
+    <div v-if="isLoading" class="text-center py-8">Loading admin dashboard...</div>
 
     <template v-else>
       <!-- Admin Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="card in adminStats" :key="card.title" class="hover:shadow-lg transition-shadow">
+        <Card
+          v-for="card in adminStats"
+          :key="card.title"
+          class="hover:shadow-lg transition-shadow"
+        >
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">{{ card.title }}</CardTitle>
             <div :class="[card.bgColor, 'p-2 rounded-md']">
@@ -322,11 +313,14 @@ onMounted(() => {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ book.title }}</p>
                   <p class="text-xs text-muted-foreground truncate">
-                    {{ book.authors.map(a => a.name).join(', ') }}
+                    {{ book.authors.map((a) => a.name).join(', ') }}
                   </p>
                 </div>
                 <div class="flex flex-col items-end gap-1">
-                  <Badge :variant="book.availableQuantity > 0 ? 'success' : 'destructive'" size="sm">
+                  <Badge
+                    :variant="book.availableQuantity > 0 ? 'success' : 'destructive'"
+                    size="sm"
+                  >
                     {{ book.availableQuantity }} / {{ book.totalQuantity }}
                   </Badge>
                 </div>
@@ -363,10 +357,7 @@ onMounted(() => {
                     User: {{ borrow.user.username }} • Due: {{ formatDate(borrow.dueDate) }}
                   </p>
                 </div>
-                <Badge 
-                  :variant="getBorrowStatusBadge(borrow).variant" 
-                  size="sm"
-                >
+                <Badge :variant="getBorrowStatusBadge(borrow).variant" size="sm">
                   {{ getBorrowStatusBadge(borrow).text }}
                 </Badge>
               </div>
@@ -412,7 +403,11 @@ onMounted(() => {
                       Published: {{ formatDate(notice.publishDate) }}
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" @click="router.push(`/notices/${notice.id}/edit`)">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    @click="router.push(`/notices/${notice.id}/edit`)"
+                  >
                     Edit
                   </Button>
                 </div>

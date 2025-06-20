@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { booksService, authService } from '@/lib/api'
+import { authService, booksService } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -25,21 +25,21 @@ const isFetchingBooks = ref(false)
 const testConnection = async () => {
   isTestingConnection.value = true
   connectionResult.value = { status: 'pending', message: 'Testing connection...' }
-  
+
   try {
     // Test a simple endpoint that doesn't require auth
     const response = await booksService.getAll({ page: 0, size: 5 })
-    
+
     connectionResult.value = {
       status: 'success',
       message: 'API connection successful!',
       details: {
         totalBooks: response.totalElements,
         booksOnPage: response.content.length,
-        baseUrl: import.meta.env.VITE_API_BASE_URL
-      }
+        baseUrl: import.meta.env.VITE_API_BASE_URL,
+      },
     }
-    
+
     toast.success('API connection test passed!')
   } catch (error: any) {
     connectionResult.value = {
@@ -48,10 +48,10 @@ const testConnection = async () => {
       details: {
         error: error.message || 'Unknown error',
         status: error.status,
-        baseUrl: import.meta.env.VITE_API_BASE_URL
-      }
+        baseUrl: import.meta.env.VITE_API_BASE_URL,
+      },
     }
-    
+
     toast.error('API connection test failed')
   } finally {
     isTestingConnection.value = false
@@ -78,7 +78,7 @@ const testAuth = async () => {
     toast.error('Please log in first to test authentication')
     return
   }
-  
+
   try {
     const response = await authService.verifyToken()
     toast.success('Authentication test passed!')
@@ -118,17 +118,24 @@ onMounted(() => {
 
         <div v-if="connectionResult" class="space-y-2">
           <div class="flex items-center gap-2">
-            <Badge 
-              :variant="connectionResult.status === 'success' ? 'default' : 
-                       connectionResult.status === 'error' ? 'destructive' : 'secondary'"
+            <Badge
+              :variant="
+                connectionResult.status === 'success'
+                  ? 'default'
+                  : connectionResult.status === 'error'
+                    ? 'destructive'
+                    : 'secondary'
+              "
             >
               {{ connectionResult.status }}
             </Badge>
             <span>{{ connectionResult.message }}</span>
           </div>
-          
+
           <div v-if="connectionResult.details" class="text-sm text-muted-foreground">
-            <pre class="bg-muted p-2 rounded text-xs overflow-auto">{{ JSON.stringify(connectionResult.details, null, 2) }}</pre>
+            <pre class="bg-muted p-2 rounded text-xs overflow-auto">{{
+              JSON.stringify(connectionResult.details, null, 2)
+            }}</pre>
           </div>
         </div>
       </CardContent>
@@ -152,25 +159,24 @@ onMounted(() => {
         </div>
 
         <div v-else-if="booksData" class="space-y-2">
-          <div class="text-sm">
-            <strong>Total Books:</strong> {{ booksData.totalElements }}
-          </div>
+          <div class="text-sm"><strong>Total Books:</strong> {{ booksData.totalElements }}</div>
           <div class="text-sm">
             <strong>Books on this page:</strong> {{ booksData.content.length }}
           </div>
-          
+
           <div class="space-y-2">
             <h4 class="font-medium">Sample Books:</h4>
             <div class="grid gap-2">
-              <div 
-                v-for="book in booksData.content.slice(0, 5)" 
+              <div
+                v-for="book in booksData.content.slice(0, 5)"
                 :key="book.id"
                 class="p-2 border rounded text-sm"
               >
                 <div class="font-medium">{{ book.title }}</div>
                 <div class="text-muted-foreground">
-                  ISBN: {{ book.isbn }} | 
-                  Available: {{ book.availableQuantity }}/{{ book.totalQuantity }}
+                  ISBN: {{ book.isbn }} | Available: {{ book.availableQuantity }}/{{
+                    book.totalQuantity
+                  }}
                 </div>
                 <div class="text-xs text-muted-foreground">
                   Authors: {{ book.authors?.map((a: any) => a.name).join(', ') || 'N/A' }}
@@ -190,14 +196,10 @@ onMounted(() => {
       </CardHeader>
       <CardContent>
         <div class="space-y-2">
+          <div class="text-sm"><strong>Username:</strong> {{ authStore.user?.username }}</div>
+          <div class="text-sm"><strong>Email:</strong> {{ authStore.user?.email }}</div>
           <div class="text-sm">
-            <strong>Username:</strong> {{ authStore.user?.username }}
-          </div>
-          <div class="text-sm">
-            <strong>Email:</strong> {{ authStore.user?.email }}
-          </div>
-          <div class="text-sm">
-            <strong>Role:</strong> 
+            <strong>Role:</strong>
             <Badge :variant="authStore.user?.role === 'ADMIN' ? 'destructive' : 'default'">
               {{ authStore.user?.role }}
             </Badge>

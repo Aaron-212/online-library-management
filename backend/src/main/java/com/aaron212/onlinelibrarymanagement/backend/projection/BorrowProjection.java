@@ -6,14 +6,24 @@ import java.time.LocalDateTime;
 
 public interface BorrowProjection {
     Long getId();
+
     Long getUserId();
+
     String getUsername();
+
     Long getCopyId();
+
     String getBookTitle();
+
     String getIsbn();
+
     LocalDateTime getBorrowTime();
+
     LocalDateTime getReturnTime();
+
     LocalDateTime getActualReturnTime();
+
     Borrow.Status getStatus();
+
     BigDecimal getFine();
-} 
+}

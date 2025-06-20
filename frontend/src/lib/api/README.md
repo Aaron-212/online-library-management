@@ -1,6 +1,7 @@
 # Frontend API Documentation
 
-This is a comprehensive, type-safe API client for the Online Library Management System frontend. It provides a clean, modular interface to connect with the backend API.
+This is a comprehensive, type-safe API client for the Online Library Management System frontend. It provides a clean,
+modular interface to connect with the backend API.
 
 ## Architecture
 
@@ -44,10 +45,10 @@ import { api } from '@/lib/api'
 const books = await api.books.getAll({ page: 0, size: 10 })
 
 // Search books
-const searchResults = await api.books.search({ 
-  keyword: 'javascript', 
-  page: 0, 
-  size: 20 
+const searchResults = await api.books.search({
+  keyword: 'javascript',
+  page: 0,
+  size: 20
 })
 
 // Borrow a book
@@ -60,30 +61,31 @@ const userBorrows = await api.borrow.getUserBorrows()
 ### Using with Vue Composables
 
 ```vue
+
 <script setup lang="ts">
-import { useBooks, useBorrow } from '@/composables/useApi'
+  import { useBooks, useBorrow } from '@/composables/useApi'
 
-const booksApi = useBooks()
-const borrowApi = useBorrow()
+  const booksApi = useBooks()
+  const borrowApi = useBorrow()
 
-// Reactive data
-const books = booksApi.books
-const isLoading = booksApi.isLoading
-const error = booksApi.error
+  // Reactive data
+  const books = booksApi.books
+  const isLoading = booksApi.isLoading
+  const error = booksApi.error
 
-// Methods
-const searchBooks = (query: string) => {
-  booksApi.searchBooks(query, { page: 0, size: 10 })
-}
-
-const borrowBook = async (bookId: number) => {
-  const result = await borrowApi.borrowBook(bookId)
-  if (result) {
-    // Success handling
-  } else if (borrowApi.error.value) {
-    // Error handling
+  // Methods
+  const searchBooks = (query: string) => {
+    booksApi.searchBooks(query, { page: 0, size: 10 })
   }
-}
+
+  const borrowBook = async (bookId: number) => {
+    const result = await borrowApi.borrowBook(bookId)
+    if (result) {
+      // Success handling
+    } else if (borrowApi.error.value) {
+      // Error handling
+    }
+  }
 </script>
 ```
 
@@ -232,7 +234,7 @@ try {
   const apiError = error as ApiError
   console.error('Status:', apiError.status)
   console.error('Message:', apiError.error)
-  
+
   // Handle specific error codes
   if (apiError.status === 401) {
     // Unauthorized - redirect to login
@@ -247,30 +249,39 @@ try {
 The API system includes Vue composables for reactive state management:
 
 ### useApi()
+
 Base composable for any API call with loading, error, and data state.
 
 ### useBooks()
+
 Specialized composable for book operations with pagination support.
 
 ### useBorrow()
+
 Handles borrowing operations with reactive state.
 
 ### useComments()
+
 Manages comments with CRUD operations.
 
 ### useStatistics()
+
 Provides statistics data with reactive updates.
 
 ## Configuration
 
 ### Base URL
+
 The API base URL is configured in `client.ts`:
+
 ```typescript
 const API_BASE_URL = 'http://localhost:8090/api/v1'
 ```
 
 ### Authentication
+
 Authentication is handled automatically via the auth store. The client will:
+
 - Automatically include JWT tokens in requests
 - Handle token refresh (if implemented)
 - Clear auth state on 401 responses
@@ -335,11 +346,14 @@ await authStore.verifyToken()
 
 ## Examples
 
-See `components/ApiExample.vue` for a comprehensive example showing how to use the API system in a real Vue component with:
+See `components/ApiExample.vue` for a comprehensive example showing how to use the API system in a real Vue component
+with:
+
 - Book searching and pagination
 - Borrowing operations
 - Error handling and user feedback
 - Reactive state management
 - Statistics display
 
-This API system provides a robust, type-safe, and developer-friendly interface for all backend interactions in the Online Library Management System frontend.
+This API system provides a robust, type-safe, and developer-friendly interface for all backend interactions in the
+Online Library Management System frontend.

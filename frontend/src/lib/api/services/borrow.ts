@@ -1,12 +1,12 @@
 import { apiClient } from '../client'
-import type { 
-  Borrow, 
-  BorrowRequestDto, 
+import type {
+  Borrow,
+  BorrowRequestDto,
   BorrowResponseDto,
-  ReserveRequestDto,
-  Reservation,
+  MessageResponse,
   PagedResponse,
-  MessageResponse 
+  Reservation,
+  ReserveRequestDto,
 } from '../types'
 
 export class BorrowService {
@@ -28,13 +28,14 @@ export class BorrowService {
     return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/user`, params)
   }
 
-
-
   async getBorrowById(id: number): Promise<Borrow> {
     return apiClient.get<Borrow>(`${this.basePath}/${id}`)
   }
 
-  async getOverdueBorrows(params?: { page?: number; size?: number }): Promise<PagedResponse<Borrow>> {
+  async getOverdueBorrows(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Borrow>> {
     return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/overdue`, params)
   }
 
@@ -43,7 +44,10 @@ export class BorrowService {
     return apiClient.post<MessageResponse>(`${this.basePath}/reserve`, request)
   }
 
-  async getUserReservations(params?: { page?: number; size?: number }): Promise<PagedResponse<Reservation>> {
+  async getUserReservations(params?: {
+    page?: number
+    size?: number
+  }): Promise<PagedResponse<Reservation>> {
     return apiClient.get<PagedResponse<Reservation>>(`${this.basePath}/reservations/user`, params)
   }
 

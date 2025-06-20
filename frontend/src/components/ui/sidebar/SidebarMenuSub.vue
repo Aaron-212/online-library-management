@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 
@@ -9,13 +9,15 @@ const props = defineProps<{
 
 <template>
   <ul
-    data-slot="sidebar-menu-sub"
+    :class="
+      cn(
+        'border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5',
+        'group-data-[collapsible=icon]:hidden',
+        props.class,
+      )
+    "
     data-sidebar="menu-badge"
-    :class="cn(
-      'border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5',
-      'group-data-[collapsible=icon]:hidden',
-      props.class,
-    )"
+    data-slot="sidebar-menu-sub"
   >
     <slot />
   </ul>
