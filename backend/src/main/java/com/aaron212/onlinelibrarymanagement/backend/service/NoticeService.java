@@ -73,10 +73,36 @@ public class NoticeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<NoticeResponseDto> getNoticeById(Long id) {
-        return noticeRepository.findById(id)
-                .filter(notice -> notice.getPublishTime().isBefore(LocalDateTime.now()) || notice.getPublishTime().isEqual(LocalDateTime.now()))
-                .map(this::mapToResponseDto);
+    public Optional<NoticeResponseDto> getNoticeById(Long id, String username) {
+        Optional<Notice> noticeOpt = noticeRepository.findById(id);
+        
+        if (noticeOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Notice notice = noticeOpt.get();
+        
+        // Check if user is admin (only if username is provided)
+        boolean isAdmin = false;
+        if (username != null) {
+            Optional<User> userOpt = userRepository.findByUsername(username);
+            if (userOpt.isPresent()) {
+                isAdmin = userOpt.get().getRole().equals(User.Role.ADMIN);
+            }
+        }
+        
+        // Admins can access all notices, regular users can only access published notices
+        if (!isAdmin) {
+            LocalDateTime publishTime = notice.getPublishTime();
+            LocalDateTime currentTime = LocalDateTime.now();
+            
+            // Filter out notices that are not yet published or have null publishTime
+            if (publishTime == null || publishTime.isAfter(currentTime)) {
+                return Optional.empty();
+            }
+        }
+        
+        return Optional.of(mapToResponseDto(notice));
     }
 
     @Transactional(readOnly = true)

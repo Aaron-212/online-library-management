@@ -160,11 +160,21 @@ public class NoticeController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<?> getNoticeById(
-            @Parameter(description = "Notice ID", required = true, example = "1") @PathVariable @Positive Long id) {
-        Optional<NoticeResponseDto> notice = noticeService.getNoticeById(id);
-        if (notice.isPresent()) {
-            return ResponseEntity.ok(notice.get());
-        } else {
+            @Parameter(description = "Notice ID", required = true, example = "1") @PathVariable @Positive Long id,
+            Authentication authentication) {
+        try {
+            // Get username if authenticated, otherwise use null (will be treated as non-admin)
+            String username = (authentication != null && authentication.isAuthenticated()) 
+                ? authentication.getName() 
+                : null;
+            
+            Optional<NoticeResponseDto> notice = noticeService.getNoticeById(id, username);
+            if (notice.isPresent()) {
+                return ResponseEntity.ok(notice.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Notice not found"));
+            }
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Notice not found"));
         }
     }
