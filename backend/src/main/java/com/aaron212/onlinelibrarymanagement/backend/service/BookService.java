@@ -1,6 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookSummaryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
 import com.aaron212.onlinelibrarymanagement.backend.exception.DuplicateResourceException;
@@ -14,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -132,6 +135,71 @@ public class BookService {
     public Page<Book> getAllBooksPaged(Pageable pageable) {
         // Use standard findAll for pagination
         return bookRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BookSummaryDto> getAllBooksSummaryPaged(Pageable pageable) {
+        // First, fetch books with authors
+        Page<Book> booksWithAuthors = bookRepository.findAllWithAuthors(pageable);
+        
+        // Extract book IDs
+        List<Long> bookIds = booksWithAuthors.getContent().stream()
+                .map(Book::getId)
+                .toList();
+        
+        // Fetch the same books with publishers
+        List<Book> booksWithPublishers = bookRepository.findBooksWithPublishersByIds(bookIds);
+        
+        // Create a map for quick lookup of publishers by book ID
+        Map<Long, List<String>> publishersMap = booksWithPublishers.stream()
+                .collect(Collectors.toMap(
+                    Book::getId,
+                    book -> book.getPublishers() != null 
+                        ? book.getPublishers().stream()
+                            .map(bp -> bp.getPublisher().getName())
+                            .toList()
+                        : List.of()
+                ));
+        
+        return booksWithAuthors.map(book -> convertToBookSummaryDto(book, publishersMap));
+    }
+
+    private BookSummaryDto convertToBookSummaryDto(Book book, Map<Long, List<String>> publishersMap) {
+        List<String> authorNames = book.getAuthors() != null 
+            ? book.getAuthors().stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getName())
+                .toList()
+            : List.of();
+
+        List<String> publisherNames = publishersMap.getOrDefault(book.getId(), List.of());
+
+        return new BookSummaryDto(
+            book.getId(),
+            book.getTitle(),
+            authorNames,
+            publisherNames
+        );
+    }
+    
+    private BookSummaryDto convertToBookSummaryDto(Book book) {
+        List<String> authorNames = book.getAuthors() != null 
+            ? book.getAuthors().stream()
+                .map(bookAuthor -> bookAuthor.getAuthor().getName())
+                .toList()
+            : List.of();
+
+        List<String> publisherNames = book.getPublishers() != null 
+            ? book.getPublishers().stream()
+                .map(bookPublisher -> bookPublisher.getPublisher().getName())
+                .toList()
+            : List.of();
+
+        return new BookSummaryDto(
+            book.getId(),
+            book.getTitle(),
+            authorNames,
+            publisherNames
+        );
     }
 
     @Transactional(readOnly = true)

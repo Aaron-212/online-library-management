@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
@@ -23,4 +24,15 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     
     @Query("SELECT b FROM Book b WHERE b.indexCategory = :category")
     java.util.List<Book> findByIndexCategory(@Param("category") IndexCategory category);
+    
+    @Query("SELECT DISTINCT b FROM Book b " +
+           "LEFT JOIN FETCH b.authors ba " +
+           "LEFT JOIN FETCH ba.author")
+    Page<Book> findAllWithAuthors(Pageable pageable);
+    
+    @Query("SELECT DISTINCT b FROM Book b " +
+           "LEFT JOIN FETCH b.publishers bp " +
+           "LEFT JOIN FETCH bp.publisher " +
+           "WHERE b.id IN :bookIds")
+    List<Book> findBooksWithPublishersByIds(@Param("bookIds") List<Long> bookIds);
 }

@@ -44,6 +44,13 @@ export interface Book {
   indexCategory: IndexCategory
 }
 
+export interface BookSummaryDto {
+  id: number
+  title: string
+  authors: string[]
+  publishers: string[]
+}
+
 export interface Author {
   id: number
   name: string

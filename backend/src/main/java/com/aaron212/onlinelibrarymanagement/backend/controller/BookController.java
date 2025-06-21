@@ -1,6 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookSummaryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
@@ -85,9 +86,24 @@ public class BookController {
                         content = @Content(schema = @Schema(implementation = Page.class)))
             })
     @GetMapping
-    public ResponseEntity<Page<Book>> getAllBooks(
+    public ResponseEntity<Page<BookSummaryDto>> getAllBooksSummary(
             @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
-        Page<Book> books = bookService.getAllBooksPaged(pageable);
+        Page<BookSummaryDto> books = bookService.getAllBooksSummaryPaged(pageable);
+        return ResponseEntity.ok(books);
+    }
+
+    @Operation(summary = "Get all books summary", description = "Retrieves a paginated list of book summaries with essential information")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book summaries retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = Page.class)))
+            })
+    @GetMapping("/summary")
+    public ResponseEntity<Page<BookSummaryDto>> getAllBooksSummaryEndpoint(
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
+        Page<BookSummaryDto> books = bookService.getAllBooksSummaryPaged(pageable);
         return ResponseEntity.ok(books);
     }
 

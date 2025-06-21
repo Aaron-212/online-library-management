@@ -4,6 +4,7 @@ import type {
   BookCopy,
   BookCreateDto,
   BookSearchParams,
+  BookSummaryDto,
   BookUpdateDto,
   MessageResponse,
   PagedResponse,
@@ -18,6 +19,14 @@ export class BooksService {
     sort?: string
   }): Promise<PagedResponse<Book>> {
     return apiClient.get<PagedResponse<Book>>(this.basePath, params)
+  }
+
+  async getAllSummary(params?: {
+    page?: number
+    size?: number
+    sort?: string
+  }): Promise<PagedResponse<BookSummaryDto>> {
+    return apiClient.get<PagedResponse<BookSummaryDto>>(`${this.basePath}/summary`, params)
   }
 
   async getById(id: number): Promise<Book> {

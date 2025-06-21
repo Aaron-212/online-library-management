@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { booksService } from '@/lib/api'
-import type { Book, BookSearchParams, PagedResponse } from '@/lib/api/types'
+import type { Book, BookSearchParams, BookSummaryDto, PagedResponse } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -30,7 +30,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // Data
-const books = ref<Book[]>([])
+const books = ref<BookSummaryDto[]>([])
 const categories = ref<string[]>([])
 const isLoading = ref(false)
 const currentPage = ref(0)
@@ -88,7 +88,7 @@ const isAdmin = computed(() => {
 const loadBooks = async () => {
   try {
     isLoading.value = true
-    const response: PagedResponse<Book> = await booksService.getAll(searchParams.value)
+    const response: PagedResponse<BookSummaryDto> = await booksService.getAllSummary(searchParams.value)
     books.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
@@ -347,11 +347,7 @@ onMounted(() => {
       >
         <BookCard
           :title="book.title"
-          :author="book.authors.map((a) => a.name).join(', ')"
-          :isbn="book.isbn"
-          :available="book.availableQuantity > 0"
-          :total-copies="book.totalQuantity"
-          :available-copies="book.availableQuantity"
+          :author="book.authors.join(', ')"
         />
       </div>
     </div>
