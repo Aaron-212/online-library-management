@@ -1,0 +1,148 @@
+# Online Library Management System - Cursor Rules
+
+## Project Overview
+This is a full-stack online library management system with a Java Spring Boot backend and Vue.js frontend. The system manages books, users, borrowing, reservations, fees, and administrative functions.
+
+## Project Structure
+- `backend/` - Java Spring Boot application with Maven
+- `frontend/` - Vue.js application with TypeScript, Vite, and modern UI components
+- Root level contains project documentation and configuration
+
+## Technology Stack
+
+### Backend (Java Spring Boot)
+- **Framework**: Spring Boot with Spring Security
+- **Database**: JPA/Hibernate for ORM
+- **Authentication**: JWT-based authentication
+- **Build Tool**: Maven
+- **Testing**: Ignored for now
+
+### Frontend (Vue.js)
+- **Framework**: Vue 3 with Composition API and TypeScript
+- **Build Tool**: Vite
+- **UI Components**: Shadcn-vue components
+- **Icons**: lucide-vue-next (always use this for icons)
+- **Styling**: Tailwind CSS
+- **State Management**: Pinia stores
+- **Routing**: Vue Router
+- **HTTP Client**: Custom API client with type safety
+- **Node Runtime**: Bun
+
+## Coding Guidelines
+
+### General Principles
+1. Write clean, readable, and maintainable code
+2. Follow established patterns and conventions in the codebase
+3. Prioritize type safety and error handling
+4. Write comprehensive tests for new functionality
+5. Document complex business logic
+
+### Backend Guidelines
+1. Follow Spring Boot best practices and conventions
+2. Use proper layering: Controller → Service → Repository
+3. Implement proper exception handling with custom exceptions
+4. Use DTOs for API communication, never expose entities directly
+5. Validate inputs using Bean Validation annotations
+6. Write descriptive commit messages
+7. Use meaningful variable and method names
+8. Follow Java naming conventions (camelCase, PascalCase)
+
+### Frontend Guidelines
+1. Use Vue 3 Composition API exclusively
+2. Prefer TypeScript over JavaScript for type safety
+3. Use single-file components (.vue files)
+4. Follow Vue.js style guide conventions
+5. Use Pinia for state management
+6. Implement proper error handling and loading states
+7. Use lucide-vue-next for all icons
+8. Follow component composition patterns with proper props/events
+9. Use the established UI component library in `components/ui/`
+10. Maintain consistent code formatting with ESLint/Prettier
+
+### Database Guidelines
+1. Use proper indexing for performance
+2. Follow naming conventions for tables and columns
+3. Implement proper foreign key relationships
+4. Use migrations for schema changes
+5. Consider data integrity and constraints
+
+## API Guidelines
+1. Follow RESTful conventions
+2. Use proper HTTP status codes
+3. Implement consistent error response formats
+4. Document endpoints with clear request/response examples
+5. Use proper authentication and authorization
+6. Validate all inputs on the server side
+
+## Component Guidelines
+1. Keep components focused and single-responsibility
+2. Use props for data down, events for data up
+3. Implement proper TypeScript interfaces for props
+4. Use computed properties for derived state
+5. Prefer composition over inheritance
+6. Write reusable components in `components/ui/`
+
+## Code Review Guidelines
+1. Ensure code follows established patterns
+2. Check for proper error handling
+3. Verify type safety in TypeScript
+4. Review for security vulnerabilities
+5. Confirm tests are included for new features
+
+## Development Workflow
+1. Create feature branches from main
+2. Use descriptive commit messages
+3. Submit pull requests for code review
+
+## Common Tasks and Patterns
+
+### Adding a New Entity
+1. Create model class in `backend/src/main/java/.../model/`
+2. Create repository interface extending JpaRepository
+3. Create DTOs for API communication
+4. Implement service layer with business logic
+5. Create controller with proper endpoints
+6. Add frontend service in `lib/api/services/`
+7. Create TypeScript types
+8. Implement UI components
+
+### Adding a New UI Component
+1. Create component in appropriate directory
+2. Export from index.ts if reusable
+3. Add proper TypeScript interfaces
+4. Use existing UI primitives when possible
+5. Follow established styling patterns
+6. Add to Storybook if applicable
+
+## Security Considerations
+1. Never expose sensitive data in API responses
+2. Validate and sanitize all inputs
+3. Use proper authentication for protected routes
+4. Implement CORS properly
+5. Follow OWASP security guidelines
+
+## Performance Guidelines
+1. Optimize database queries and use proper indexing
+2. Implement pagination for large datasets
+3. Use lazy loading where appropriate
+4. Minimize bundle size in frontend
+5. Implement proper caching strategies
+
+## AI Assistant Guidelines
+When helping with this project:
+1. Always consider both frontend and backend implications
+2. Suggest improvements to existing patterns when appropriate
+3. Provide complete, working code examples
+4. Consider security and performance implications
+5. Follow the established architecture and patterns
+6. Use the correct import paths and dependencies
+7. Remember to use lucide-vue-next for all icons
+8. Maintain consistency with existing code style
+9. Provide TypeScript types for new interfaces
+10. Consider error handling and edge cases
+
+## File Naming Conventions
+- Backend: PascalCase for classes, camelCase for methods/variables
+- Frontend: PascalCase for components, camelCase for composables/utilities
+- API endpoints: kebab-case in URLs
+- Database: snake_case for tables and columns 
