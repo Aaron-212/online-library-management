@@ -14,6 +14,24 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Bell,
   Calendar,
   ChevronLeft,
@@ -42,7 +60,9 @@ const pageSize = ref(10)
 // Dialog states
 const showAddDialog = ref(false)
 const showEditDialog = ref(false)
+const showDeleteDialog = ref(false)
 const editingNotice = ref<Notice | null>(null)
+const deletingNoticeId = ref<number | null>(null)
 const isSubmitting = ref(false)
 
 // Form data
@@ -184,7 +204,9 @@ const openEditDialog = (notice: Notice) => {
 const closeDialogs = () => {
   showAddDialog.value = false
   showEditDialog.value = false
+  showDeleteDialog.value = false
   editingNotice.value = null
+  deletingNoticeId.value = null
   noticeForm.value = { 
     title: '', 
     content: '',
@@ -248,14 +270,18 @@ const handleUpdateNotice = async () => {
   }
 }
 
-const handleDeleteNotice = async (noticeId: number) => {
-  if (!confirm('Are you sure you want to delete this notice?')) {
-    return
-  }
+const openDeleteDialog = (noticeId: number) => {
+  deletingNoticeId.value = noticeId
+  showDeleteDialog.value = true
+}
+
+const handleDeleteNotice = async () => {
+  if (!deletingNoticeId.value) return
 
   try {
-    await noticesService.delete(noticeId)
+    await noticesService.delete(deletingNoticeId.value)
     toast.success('Notice deleted successfully!')
+    closeDialogs()
     await loadNotices()
   } catch (error) {
     console.error('Error deleting notice:', error)
@@ -359,7 +385,7 @@ onMounted(() => {
                 <Button variant="ghost" size="sm" @click="openEditDialog(notice)">
                   <Edit class="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" @click="handleDeleteNotice(notice.id)">
+                <Button variant="ghost" size="sm" @click="openDeleteDialog(notice.id)">
                   <Trash2 class="h-4 w-4" />
                 </Button>
               </div>
@@ -455,15 +481,15 @@ onMounted(() => {
 
           <div class="space-y-2">
             <Label for="add-status">Status *</Label>
-            <select
-              id="add-status"
-              v-model.number="noticeForm.status"
-              class="w-full p-3 border rounded-md bg-background"
-              required
-            >
-              <option value="1">Show</option>
-              <option value="2">Pinned</option>
-            </select>
+            <Select v-model="noticeForm.status" required>
+              <SelectTrigger class="w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem :value="1">Show</SelectItem>
+                <SelectItem :value="2">Pinned</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div class="flex justify-end gap-2">
@@ -529,15 +555,15 @@ onMounted(() => {
 
           <div class="space-y-2">
             <Label for="edit-status">Status *</Label>
-            <select
-              id="edit-status"
-              v-model.number="noticeForm.status"
-              class="w-full p-3 border rounded-md bg-background"
-              required
-            >
-              <option value="1">Show</option>
-              <option value="2">Pinned</option>
-            </select>
+            <Select v-model="noticeForm.status" required>
+              <SelectTrigger class="w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem :value="1">Show</SelectItem>
+                <SelectItem :value="2">Pinned</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div class="flex justify-end gap-2">
@@ -549,6 +575,24 @@ onMounted(() => {
         </form>
       </DialogContent>
     </Dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <AlertDialog v-model:open="showDeleteDialog">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Notice</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this notice? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="closeDialogs">Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="handleDeleteNotice" class="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
 
@@ -558,13 +602,13 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-textarea, select {
+textarea {
   background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
   color: hsl(var(--foreground));
 }
 
-textarea:focus, select:focus {
+textarea:focus {
   outline: none;
   border-color: hsl(var(--ring));
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
