@@ -11,7 +11,9 @@ import { useAuthStore } from './stores/auth'
 const app = createApp(App)
 const pinia = createPinia()
 const i18n = createI18n({
-  // something vue-i18n options here ...
+  // Disable legacy API mode to use Composition API
+  legacy: false,
+  // You can add other i18n options here (locale, messages, etc.)
 })
 
 app.use(i18n)
