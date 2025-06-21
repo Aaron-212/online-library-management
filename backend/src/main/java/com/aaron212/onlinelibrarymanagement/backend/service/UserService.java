@@ -75,9 +75,22 @@ public class UserService implements UserDetailsService {
     public User updateUserDetails(String username, UserUpdateDto userModifyDto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        user.setUsername(userModifyDto.username());
-        user.setEmail(userModifyDto.email());
-        // Note: Password should not be updated here unless explicitly provided in the DTO
+
+        // Username uniqueness
+        if (userModifyDto.username()!=null && !userModifyDto.username().equals(user.getUsername()) &&
+                userRepository.existsByUsernameAndIdNot(userModifyDto.username(), user.getId())) {
+            throw new DuplicateResourceException("User", "username", userModifyDto.username());
+        }
+
+        // Email uniqueness
+        if (userModifyDto.email()!=null && !userModifyDto.email().equals(user.getEmail()) &&
+                userRepository.existsByEmailAndIdNot(userModifyDto.email(), user.getId())) {
+            throw new DuplicateResourceException("User", "email", userModifyDto.email());
+        }
+
+        if(userModifyDto.username()!=null) user.setUsername(userModifyDto.username());
+        if(userModifyDto.email()!=null) user.setEmail(userModifyDto.email());
+
         return userRepository.save(user);
     }
 
