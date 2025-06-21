@@ -104,7 +104,7 @@ const filteredBooks = computed(() => {
 const availableCopies = computed(() => {
   if (!selectedBook.value) return []
   return bookCopies.value.filter(
-    (copy) => copy.book.id === selectedBook.value?.id && copy.isAvailable,
+    (copy) => copy.book.id === selectedBook.value?.id && copy.status === 'AVAILABLE',
   )
 })
 

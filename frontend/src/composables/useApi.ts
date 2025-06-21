@@ -119,7 +119,7 @@ export function useBorrow() {
 
     // Get available copies for the book
     const copies = await api.books.getCopies(bookId)
-    const availableCopy = copies.find((copy) => copy.isAvailable)
+    const availableCopy = copies.find((copy) => copy.status === 'AVAILABLE')
 
     if (!availableCopy) {
       throw new Error('No available copies for this book')

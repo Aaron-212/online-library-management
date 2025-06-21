@@ -210,7 +210,7 @@ import BookCopyList from '@/components/BookCopyList.vue'
 import { api } from '@/lib/api'
 import type { BookDto, BookCopy, BookCopyStatus } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
-import { toast } from 'sonner'
+import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const router = useRouter()

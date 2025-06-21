@@ -110,7 +110,7 @@ const handleBorrow = async () => {
 
     // Get available copies for the book
     const copies = await booksService.getCopies(bookId.value)
-    const availableCopy = copies.find((copy) => copy.isAvailable)
+    const availableCopy = copies.find((copy) => copy.status === 'AVAILABLE')
 
     if (!availableCopy) {
       toast.error('No available copies for this book')
