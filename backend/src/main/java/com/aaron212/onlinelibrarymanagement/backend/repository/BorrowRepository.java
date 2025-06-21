@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     List<Borrow> findByBorrowTimeBetween(LocalDateTime start, LocalDateTime end);
@@ -44,4 +45,14 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
     /* Counts borrows by their current status */
     long countByStatus(Borrow.Status status);
+
+    /*
+     * Find an active borrow record by user and copy.
+     */
+    Optional<Borrow> findFirstByUserIdAndCopyIdAndStatus(Long userId, Long copyId, Borrow.Status status);
+
+    /*
+     * Check whether the given user is currently borrowing a specific book.
+     */
+    boolean existsByUserIdAndCopyBookIdAndStatus(Long userId, Long bookId, Borrow.Status status);
 }

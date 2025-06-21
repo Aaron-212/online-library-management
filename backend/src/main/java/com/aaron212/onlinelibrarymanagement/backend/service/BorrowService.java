@@ -65,10 +65,8 @@ public class BorrowService {
         }
 
         // Check if user already borrowed this book
-        List<Borrow> existingBorrows = borrowRepository.findByBookId(copy.getBook().getId());
-        boolean userAlreadyBorrowed = existingBorrows.stream()
-                .anyMatch(b -> b.getUser().getId().equals(userId) && b.getStatus() == Borrow.Status.BORROWED);
-
+        boolean userAlreadyBorrowed = borrowRepository.existsByUserIdAndCopyBookIdAndStatus(
+                userId, copy.getBook().getId(), Borrow.Status.BORROWED);
         if (userAlreadyBorrowed) {
             throw new BusinessLogicException("您已借阅此书，不能重复借阅");
         }
@@ -101,7 +99,7 @@ public class BorrowService {
      * @throws RuntimeException if return fails
      */
     public Borrow returnBook(Long userId, Long copyId) {
-        Borrow borrow = findActiveBorrow(userId, copyId)
+        Borrow borrow = borrowRepository.findFirstByUserIdAndCopyIdAndStatus(userId, copyId, Borrow.Status.BORROWED)
                 .orElseThrow(() -> new ResourceNotFoundException("Active borrow record for user " + userId + " and copy " + copyId));
 
         LocalDateTime now = LocalDateTime.now();
@@ -228,11 +226,7 @@ public class BorrowService {
      * @return Optional borrow record
      */
     private Optional<Borrow> findActiveBorrow(Long userId, Long copyId) {
-        return borrowRepository.findAll().stream()
-                .filter(b -> b.getUser().getId().equals(userId) 
-                        && b.getCopy().getId().equals(copyId)
-                        && b.getStatus() == Borrow.Status.BORROWED)
-                .findFirst();
+        return borrowRepository.findFirstByUserIdAndCopyIdAndStatus(userId, copyId, Borrow.Status.BORROWED);
     }
 
     /**
