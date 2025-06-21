@@ -137,13 +137,29 @@ const isRecent = (dateString: string) => {
   return days <= 7
 }
 
+// Helper function to format date for datetime-local input
+const formatDateForInput = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+// Helper function to convert UTC date string to local datetime format
+const formatUTCDateForInput = (utcDateString: string) => {
+  const date = new Date(utcDateString)
+  return formatDateForInput(date)
+}
+
 const openAddDialog = () => {
   const now = new Date()
   const publishTime = new Date(now.getTime() + 5 * 60000) // Default to 5 minutes from now
   noticeForm.value = { 
     title: '', 
     content: '',
-    publishTime: publishTime.toISOString().slice(0, 16), // Format for datetime-local input
+    publishTime: formatDateForInput(publishTime), // Use local time directly
     expireTime: '',
     status: 1
   }
@@ -152,8 +168,8 @@ const openAddDialog = () => {
 
 const openEditDialog = (notice: Notice) => {
   editingNotice.value = notice
-  const publishTime = new Date(notice.publishTime).toISOString().slice(0, 16)
-  const expireTime = notice.expireTime ? new Date(notice.expireTime).toISOString().slice(0, 16) : ''
+  const publishTime = formatUTCDateForInput(notice.publishTime)
+  const expireTime = notice.expireTime ? formatUTCDateForInput(notice.expireTime) : ''
   
   noticeForm.value = {
     title: notice.title,
