@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   BookOpen,
   Building,
+  Copy,
   Edit,
   MessageSquare,
   Package,
@@ -109,7 +110,7 @@ const handleBorrow = async () => {
 
     // Get available copies for the book
     const copies = await booksService.getCopies(bookId.value)
-    const availableCopy = copies.find((copy) => copy.isAvailable)
+    const availableCopy = copies.find((copy) => copy.status === 'AVAILABLE')
 
     if (!availableCopy) {
       toast.error('No available copies for this book')
@@ -133,6 +134,10 @@ const handleBorrow = async () => {
 
 const handleEdit = () => {
   router.push(`/admin/books/${bookId.value}/edit`)
+}
+
+const handleViewCopies = () => {
+  router.push(`/books/${bookId.value}/copies`)
 }
 
 const handleShare = async () => {
@@ -258,6 +263,11 @@ onMounted(() => {
               >
                 <BookOpen class="h-4 w-4 mr-2" />
                 {{ isBorrowing ? 'Borrowing...' : 'Borrow Book' }}
+              </Button>
+
+              <Button variant="outline" @click="handleViewCopies" size="lg">
+                <Copy class="h-4 w-4 mr-2" />
+                View Copies
               </Button>
 
               <Button variant="outline" @click="handleShare" size="lg">

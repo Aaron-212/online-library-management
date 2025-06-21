@@ -43,6 +43,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: '/books/:id/copies',
+      name: 'book-copies',
+      component: () => import('@/views/BookCopiesView.vue'),
+      props: true,
+    },
+    {
       path: '/books/create',
       name: 'book-create',
       component: () => import('@/views/BookFormView.vue'),

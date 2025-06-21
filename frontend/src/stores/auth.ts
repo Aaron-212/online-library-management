@@ -5,6 +5,7 @@ import { authService, usersService } from '@/lib/api'
 import type { ApiError } from '@/lib/api/client'
 
 interface AuthUser {
+  id: number
   username: string
   token: string
   role: 'USER' | 'ADMIN'
@@ -112,6 +113,7 @@ export const useAuthStore = defineStore('auth', () => {
         const userData = await usersService.getCurrentUser()
 
         user.value = {
+          id: userData.id,
           username: userData.username, // Use actual username from user data
           token: token,
           role: userData.role,
@@ -196,6 +198,7 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         const userData = await usersService.getCurrentUser()
         user.value = {
+          id: userData.id,
           username: userData.username,
           token: token,
           role: userData.role,
