@@ -64,5 +64,14 @@ public class Notice {
         Status(int value) {
             this.value = value;
         }
+
+        public static Status fromValue(int value) {
+            for (Status status : Status.values()) {
+                if (status.getValue() == value) {
+                    return status;
+                }
+            }
+            throw new IllegalArgumentException("Invalid status value: " + value);
+        }
     }
 }

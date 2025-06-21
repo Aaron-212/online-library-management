@@ -31,8 +31,7 @@ public class NoticeService {
         User creatorUser = userRepository.findByUsername(creatorUsername)
                 .orElseThrow(() -> new RuntimeException("Creator user not found"));
 
-        // Validate status
-        Notice.Status status = parseStatus(noticeCreateDto.status());
+        Notice.Status status = Notice.Status.fromValue(noticeCreateDto.status());
 
         Notice notice = new Notice();
         notice.setTitle(noticeCreateDto.title());
@@ -67,42 +66,29 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public Page<NoticeResponseDto> getNoticesByStatus(Integer statusValue, Pageable pageable) {
-        Notice.Status status = parseStatus(statusValue);
+        Notice.Status status = Notice.Status.fromValue(statusValue);
         LocalDateTime currentTime = LocalDateTime.now();
         return noticeRepository.findActiveNoticesByStatus(status, currentTime, pageable).map(this::mapToResponseDto);
     }
 
     @Transactional(readOnly = true)
     public Optional<NoticeResponseDto> getNoticeById(Long id, String username) {
-        Optional<Notice> noticeOpt = noticeRepository.findById(id);
-        
-        if (noticeOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        
-        Notice notice = noticeOpt.get();
-        
-        // Check if user is admin (only if username is provided)
         boolean isAdmin = false;
         if (username != null) {
-            Optional<User> userOpt = userRepository.findByUsername(username);
-            if (userOpt.isPresent()) {
-                isAdmin = userOpt.get().getRole().equals(User.Role.ADMIN);
-            }
+            isAdmin = userRepository.findByUsername(username)
+                    .map(user -> user.getRole() == User.Role.ADMIN)
+                    .orElse(false);
         }
-        
-        // Admins can access all notices, regular users can only access published notices
-        if (!isAdmin) {
-            LocalDateTime publishTime = notice.getPublishTime();
+
+        Optional<Notice> noticeOpt;
+        if (isAdmin) {
+            noticeOpt = noticeRepository.findById(id);
+        } else {
             LocalDateTime currentTime = LocalDateTime.now();
-            
-            // Filter out notices that are not yet published or have null publishTime
-            if (publishTime == null || publishTime.isAfter(currentTime)) {
-                return Optional.empty();
-            }
+            noticeOpt = noticeRepository.findPublishedNoticeById(id, currentTime);
         }
-        
-        return Optional.of(mapToResponseDto(notice));
+
+        return noticeOpt.map(this::mapToResponseDto);
     }
 
     @Transactional(readOnly = true)
@@ -131,8 +117,7 @@ public class NoticeService {
             throw new RuntimeException("You can only update your own notices or you must be an admin");
         }
 
-        // Validate status
-        Notice.Status status = parseStatus(noticeUpdateDto.status());
+        Notice.Status status = Notice.Status.fromValue(noticeUpdateDto.status());
 
         notice.setTitle(noticeUpdateDto.title());
         notice.setContent(noticeUpdateDto.content());
@@ -158,19 +143,6 @@ public class NoticeService {
         }
 
         noticeRepository.delete(notice);
-    }
-
-    private Notice.Status parseStatus(Integer statusValue) {
-        if (statusValue == null) {
-            throw new IllegalArgumentException("Status cannot be null");
-        }
-        
-        for (Notice.Status status : Notice.Status.values()) {
-            if (status.getValue() == statusValue) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Invalid status value: " + statusValue);
     }
 
     private NoticeResponseDto mapToResponseDto(Notice notice) {
