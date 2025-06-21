@@ -91,17 +91,17 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
+      path: '/admin/books/create',
+      name: 'admin-book-create',
+      component: () => import('@/views/BookFormView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
       path: '/admin/books/:id/edit',
       name: 'admin-book-edit',
       component: () => import('@/views/BookFormView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
       props: true,
-    },
-    {
-      path: '/admin/books/create',
-      name: 'admin-book-create',
-      component: () => import('@/views/BookFormView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/admin/users',

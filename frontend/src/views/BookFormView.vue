@@ -63,7 +63,7 @@ const loadBook = async () => {
       description: book.description || '',
       authorNames: book.authors.map(author => author.name),
       publisherNames: book.publishers.map(publisher => publisher.name),
-      categoryName: book.indexCategory.name,
+      categoryName: book.indexCategory?.name || '',
       totalQuantity: book.totalQuantity
     }
   } catch (err: any) {
