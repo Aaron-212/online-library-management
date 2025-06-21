@@ -44,6 +44,14 @@ export interface Book {
   indexCategory: IndexCategory
 }
 
+export interface BookSummaryDto {
+  id: number
+  title: string
+  authors: string[]
+  publishers: string[]
+  coverURL?: string
+}
+
 export interface Author {
   id: number
   name: string
@@ -280,3 +288,5 @@ export interface Reservation {
   expirationDate: string
   isActive: boolean
 }
+
+export type BookDto = Book;

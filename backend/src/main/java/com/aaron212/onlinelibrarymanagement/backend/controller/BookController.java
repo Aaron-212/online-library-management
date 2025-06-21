@@ -1,7 +1,12 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.AuthorDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookSummaryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.IndexCategoryDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.PublisherDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.service.BookService;
@@ -76,18 +81,18 @@ public class BookController {
         }
     }
 
-    @Operation(summary = "Get all books", description = "Retrieves a paginated list of all books")
+    @Operation(summary = "Get all books summary", description = "Retrieves a paginated list of book summaries with essential information")
     @ApiResponses(
             value = {
                 @ApiResponse(
                         responseCode = "200",
-                        description = "Books retrieved successfully",
+                        description = "Book summaries retrieved successfully",
                         content = @Content(schema = @Schema(implementation = Page.class)))
             })
     @GetMapping
-    public ResponseEntity<Page<Book>> getAllBooks(
+    public ResponseEntity<Page<BookSummaryDto>> getAllBooksSummaryEndpoint(
             @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
-        Page<Book> books = bookService.getAllBooksPaged(pageable);
+        Page<BookSummaryDto> books = bookService.getAllBooksSummaryPaged(pageable);
         return ResponseEntity.ok(books);
     }
 
@@ -97,7 +102,7 @@ public class BookController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Book found",
-                        content = @Content(schema = @Schema(implementation = Book.class))),
+                        content = @Content(schema = @Schema(implementation = BookDto.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "Book not found",
@@ -106,9 +111,10 @@ public class BookController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookById(
             @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
-        Optional<Book> book = bookService.getBookById(id);
-        if (book.isPresent()) {
-            return ResponseEntity.ok(book.get());
+        Optional<Book> bookOpt = bookService.getBookById(id);
+        if (bookOpt.isPresent()) {
+            BookDto dto = convertToBookDto(bookOpt.get());
+            return ResponseEntity.ok(dto);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
         }
@@ -120,7 +126,7 @@ public class BookController {
                 @ApiResponse(
                         responseCode = "200",
                         description = "Book found",
-                        content = @Content(schema = @Schema(implementation = Book.class))),
+                        content = @Content(schema = @Schema(implementation = BookDto.class))),
                 @ApiResponse(
                         responseCode = "404",
                         description = "Book not found",
@@ -132,9 +138,10 @@ public class BookController {
                     @PathVariable
                     @NotBlank
                     String isbn) {
-        Optional<Book> book = bookService.findByIsbn(isbn);
-        if (book.isPresent()) {
-            return ResponseEntity.ok(book.get());
+        Optional<Book> bookOpt = bookService.findByIsbn(isbn);
+        if (bookOpt.isPresent()) {
+            BookDto dto = convertToBookDto(bookOpt.get());
+            return ResponseEntity.ok(dto);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
         }
@@ -211,14 +218,15 @@ public class BookController {
                         content = @Content(schema = @Schema(implementation = List.class)))
             })
     @GetMapping("/search")
-    public ResponseEntity<Page<Book>> searchBooks(
+    public ResponseEntity<Page<BookDto>> searchBooks(
             @Parameter(description = "Search keyword", required = true, example = "java programming")
                     @RequestParam
                     @NotBlank
                     String keyword,
             @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
-        Page<Book> books = bookService.searchBooksPaged(keyword, pageable);
-        return ResponseEntity.ok(books);
+        Page<Book> booksPage = bookService.searchBooksPaged(keyword, pageable);
+        Page<BookDto> dtoPage = booksPage.map(this::convertToBookDto);
+        return ResponseEntity.ok(dtoPage);
     }
 
     @Operation(
@@ -262,5 +270,44 @@ public class BookController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
         }
+    }
+
+    private BookDto convertToBookDto(Book book) {
+        // Authors
+        List<AuthorDto> authorDtos = book.getAuthors() != null ?
+                book.getAuthors().stream()
+                        .map(rel -> new AuthorDto(rel.getAuthor().getId(), rel.getAuthor().getName()))
+                        .toList() : List.of();
+
+        // Publishers
+        List<PublisherDto> publisherDtos = book.getPublishers() != null ?
+                book.getPublishers().stream()
+                        .map(rel -> new PublisherDto(rel.getPublisher().getId(), rel.getPublisher().getName()))
+                        .toList() : List.of();
+
+        // Category
+        IndexCategoryDto categoryDto = null;
+        if (book.getIndexCategory() != null) {
+            categoryDto = new IndexCategoryDto(
+                    book.getIndexCategory().getId(),
+                    book.getIndexCategory().getName());
+        }
+
+        int available = bookService.getAvailableCopiesCount(book);
+        int total = bookService.getTotalCopiesCount(book);
+
+        return new BookDto(
+                book.getId(),
+                book.getIsbn(),
+                book.getTitle(),
+                book.getLanguage(),
+                available,
+                total,
+                book.getDescription(),
+                authorDtos,
+                publisherDtos,
+                categoryDto,
+                book.getCoverURL()
+        );
     }
 }

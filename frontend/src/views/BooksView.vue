@@ -21,8 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { booksService } from '@/lib/api'
-import type { Book, BookSearchParams, PagedResponse } from '@/lib/api/types'
+import { booksService, categoriesService } from '@/lib/api'
+import type { Book, BookSearchParams, BookSummaryDto, PagedResponse, IndexCategory } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -30,7 +30,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // Data
-const books = ref<Book[]>([])
+const books = ref<BookSummaryDto[]>([])
 const categories = ref<string[]>([])
 const isLoading = ref(false)
 const currentPage = ref(0)
@@ -88,7 +88,7 @@ const isAdmin = computed(() => {
 const loadBooks = async () => {
   try {
     isLoading.value = true
-    const response: PagedResponse<Book> = await booksService.getAll(searchParams.value)
+    const response: PagedResponse<BookSummaryDto> = await booksService.getAllSummary(searchParams.value)
     books.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
@@ -102,16 +102,8 @@ const loadBooks = async () => {
 
 const loadCategories = async () => {
   try {
-    // This would need to be implemented in the backend to get all categories
-    // For now, we'll extract categories from the books
-    const allBooks = await booksService.getAll({ size: 1000 })
-    const categorySet = new Set<string>()
-    allBooks.content.forEach((book: any) => {
-      if (book.indexCategory?.name) {
-        categorySet.add(book.indexCategory.name)
-      }
-    })
-    categories.value = Array.from(categorySet).sort()
+    const allCategories = await categoriesService.getAll()
+    categories.value = allCategories.map((category: IndexCategory) => category.name).sort()
   } catch (error) {
     console.error('Error loading categories:', error)
   }
@@ -347,11 +339,7 @@ onMounted(() => {
       >
         <BookCard
           :title="book.title"
-          :author="book.authors.map((a) => a.name).join(', ')"
-          :isbn="book.isbn"
-          :available="book.availableQuantity > 0"
-          :total-copies="book.totalQuantity"
-          :available-copies="book.availableQuantity"
+          :author="book.authors.join(', ')"
         />
       </div>
     </div>

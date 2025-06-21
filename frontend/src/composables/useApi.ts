@@ -75,6 +75,10 @@ export function useBooks() {
     return execute(() => api.books.getAll(params))
   }
 
+  const fetchBooksSummary = (params?: { page?: number; size?: number; sort?: string }) => {
+    return execute(() => api.books.getAllSummary(params))
+  }
+
   const searchBooks = (keyword: string, params?: { page?: number; size?: number }) => {
     return execute(() => api.books.search({ keyword, ...params }))
   }
@@ -93,6 +97,7 @@ export function useBooks() {
     clearError,
     reset,
     fetchBooks,
+    fetchBooksSummary,
     searchBooks,
     fetchBookById,
   }
