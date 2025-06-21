@@ -1,6 +1,8 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserCreateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserUpdateDto;
+import com.aaron212.onlinelibrarymanagement.backend.projection.UserAdminProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
@@ -198,17 +200,162 @@ public class UserController {
             @Parameter(description = "Search keyword") @RequestParam(required = false) String search) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<UserPublicProjection> users;
+            Page<UserAdminProjection> users;
             
             if (search != null && !search.trim().isEmpty()) {
-                users = userService.searchUsers(search.trim(), pageable);
+                users = userService.searchUsersForAdmin(search.trim(), pageable);
             } else {
-                users = userService.findAllUsers(pageable);
+                users = userService.findAllUsersForAdmin(pageable);
             }
             
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to retrieve users"));
+        }
+    }
+
+    @Operation(
+            summary = "Update user details (Admin only)",
+            description = "Updates any user's details (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User details updated successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid user data",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUserDetails(
+            @Parameter(description = "User ID", required = true) @PathVariable @Positive Long id,
+            @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        try {
+            userService.updateUserDetailsById(id, userUpdateDto);
+            return ResponseEntity.ok(Map.of("message", "User details updated successfully"));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to update user details"));
+        }
+    }
+
+    @Operation(
+            summary = "Update user role (Admin only)",
+            description = "Updates a user's role (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User role updated successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid role",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/role")
+    public ResponseEntity<?> updateUserRole(
+            @Parameter(description = "User ID", required = true) @PathVariable @Positive Long id,
+            @Parameter(description = "New role", required = true) @RequestParam String role) {
+        try {
+            userService.updateUserRole(id, role);
+            return ResponseEntity.ok(Map.of("message", "User role updated successfully"));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid role: " + role));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to update user role"));
+        }
+    }
+
+    @Operation(
+            summary = "Delete user (Admin only)",
+            description = "Deletes a user (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User deleted successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(
+            @Parameter(description = "User ID", required = true) @PathVariable @Positive Long id,
+            Authentication authentication) {
+        try {
+            String currentUsername = authentication.getName();
+            userService.deleteUser(id, currentUsername);
+            return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to delete user"));
+        }
+    }
+
+    @Operation(
+            summary = "Create new user (Admin only)",
+            description = "Creates a new user (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "201",
+                        description = "User created successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid user data or user already exists",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+        try {
+            userService.createUser(userCreateDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User created successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.repository;
 
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
+import com.aaron212.onlinelibrarymanagement.backend.projection.UserAdminProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<UserPublicProjection> findAllProjectedBy(Pageable pageable);
     
     Page<UserPublicProjection> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+        String username, String email, Pageable pageable);
+    
+    // Admin projections
+    Page<UserAdminProjection> findAllAdminProjectedBy(Pageable pageable);
+    
+    Page<UserAdminProjection> findAdminProjectionByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
         String username, String email, Pageable pageable);
 
     Optional<User> findByUsernameOrEmail(String username, String email);

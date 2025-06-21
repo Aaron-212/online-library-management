@@ -1,5 +1,5 @@
 import { apiClient } from '../client'
-import type { MessageResponse, PagedResponse, User, UserPublic, UserUpdateDto } from '../types'
+import type { MessageResponse, PagedResponse, User, UserPublic, UserAdmin, UserUpdateDto, UserCreateDto } from '../types'
 
 export class UsersService {
   private basePath = '/users'
@@ -25,8 +25,24 @@ export class UsersService {
     page?: number
     size?: number
     search?: string
-  }): Promise<PagedResponse<UserPublic>> {
-    return apiClient.get<PagedResponse<UserPublic>>(`${this.basePath}/all`, params)
+  }): Promise<PagedResponse<UserAdmin>> {
+    return apiClient.get<PagedResponse<UserAdmin>>(`${this.basePath}/all`, params)
+  }
+
+  async createUser(userData: UserCreateDto): Promise<MessageResponse> {
+    return apiClient.post<MessageResponse>(`${this.basePath}/create`, userData)
+  }
+
+  async updateUser(id: number, userData: UserUpdateDto): Promise<MessageResponse> {
+    return apiClient.put<MessageResponse>(`${this.basePath}/${id}`, userData)
+  }
+
+  async updateUserRole(id: number, role: 'USER' | 'ADMIN'): Promise<MessageResponse> {
+    return apiClient.put<MessageResponse>(`${this.basePath}/${id}/role?role=${role}`)
+  }
+
+  async deleteUser(id: number): Promise<MessageResponse> {
+    return apiClient.delete<MessageResponse>(`${this.basePath}/${id}`)
   }
 }
 
