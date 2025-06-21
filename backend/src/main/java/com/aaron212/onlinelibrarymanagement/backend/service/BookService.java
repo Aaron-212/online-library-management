@@ -5,12 +5,8 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
 import com.aaron212.onlinelibrarymanagement.backend.exception.DuplicateResourceException;
 import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException;
-import com.aaron212.onlinelibrarymanagement.backend.model.Book;
-import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
-import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
-import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
-import com.aaron212.onlinelibrarymanagement.backend.repository.BookRepository;
-import com.aaron212.onlinelibrarymanagement.backend.repository.IndexCategoryRepository;
+import com.aaron212.onlinelibrarymanagement.backend.model.*;
+import com.aaron212.onlinelibrarymanagement.backend.repository.*;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -28,16 +25,28 @@ public class BookService {
     private final BookCopyRepository bookCopyRepository;
     private final IndexCategoryRepository indexCategoryRepository;
     private final IndexCategoryService indexCategoryService;
+    private final AuthorRepository authorRepository;
+    private final PublisherRepository publisherRepository;
+    private final BookAuthorRepository bookAuthorRepository;
+    private final BookPublisherRepository bookPublisherRepository;
 
     public BookService(
             BookRepository bookRepository,
             BookCopyRepository bookCopyRepository,
             IndexCategoryRepository indexCategoryRepository,
-            IndexCategoryService indexCategoryService) {
+            IndexCategoryService indexCategoryService,
+            AuthorRepository authorRepository,
+            PublisherRepository publisherRepository,
+            BookAuthorRepository bookAuthorRepository,
+            BookPublisherRepository bookPublisherRepository) {
         this.bookRepository = bookRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.indexCategoryRepository = indexCategoryRepository;
         this.indexCategoryService = indexCategoryService;
+        this.authorRepository = authorRepository;
+        this.publisherRepository = publisherRepository;
+        this.bookAuthorRepository = bookAuthorRepository;
+        this.bookPublisherRepository = bookPublisherRepository;
     }
 
     public void createBook(BookCreateDto bookCreateDto) {
@@ -46,15 +55,77 @@ public class BookService {
             throw new DuplicateResourceException("Book", "ISBN", bookCreateDto.isbn());
         }
 
-        IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookCreateDto.indexCategory());
+        // Find or create category
+        IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookCreateDto.categoryName());
 
+        // Create the book
         Book book = new Book();
         book.setIsbn(bookCreateDto.isbn());
         book.setTitle(bookCreateDto.title());
+        book.setLanguage(bookCreateDto.language());
+        book.setDescription(bookCreateDto.description());
         book.setIndexCategory(category);
-        book.setLocation(bookCreateDto.location());
+        book.setLocation("LIBRARY"); // Default location since frontend doesn't provide it
 
-        bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+
+        // Handle authors
+        if (bookCreateDto.authorNames() != null && !bookCreateDto.authorNames().isEmpty()) {
+            for (String authorName : bookCreateDto.authorNames()) {
+                if (authorName != null && !authorName.trim().isEmpty()) {
+                    Author author = authorRepository.findByName(authorName.trim())
+                            .orElseGet(() -> {
+                                Author newAuthor = new Author();
+                                newAuthor.setName(authorName.trim());
+                                return authorRepository.save(newAuthor);
+                            });
+
+                    // Create book-author relationship if it doesn't exist
+                    if (!bookAuthorRepository.existsByBookAndAuthor(savedBook, author)) {
+                        BookAuthor bookAuthor = new BookAuthor();
+                        bookAuthor.setBook(savedBook);
+                        bookAuthor.setAuthor(author);
+                        bookAuthorRepository.save(bookAuthor);
+                    }
+                }
+            }
+        }
+
+        // Handle publishers
+        if (bookCreateDto.publisherNames() != null && !bookCreateDto.publisherNames().isEmpty()) {
+            for (String publisherName : bookCreateDto.publisherNames()) {
+                if (publisherName != null && !publisherName.trim().isEmpty()) {
+                    Publisher publisher = publisherRepository.findByName(publisherName.trim())
+                            .orElseGet(() -> {
+                                Publisher newPublisher = new Publisher();
+                                newPublisher.setName(publisherName.trim());
+                                return publisherRepository.save(newPublisher);
+                            });
+
+                    // Create book-publisher relationship if it doesn't exist
+                    if (!bookPublisherRepository.existsByBookAndPublisher(savedBook, publisher)) {
+                        BookPublisher bookPublisher = new BookPublisher();
+                        bookPublisher.setBook(savedBook);
+                        bookPublisher.setPublisher(publisher);
+                        bookPublisherRepository.save(bookPublisher);
+                    }
+                }
+            }
+        }
+
+        // Create book copies
+        for (int i = 0; i < bookCreateDto.totalQuantity(); i++) {
+            BookCopy copy = new BookCopy();
+            copy.setBook(savedBook);
+            copy.setBarcode(generateBarcode(savedBook.getIsbn(), i + 1));
+            copy.setStatus(BookCopy.Status.AVAILABLE);
+            bookCopyRepository.save(copy);
+        }
+    }
+
+    private String generateBarcode(String isbn, int copyNumber) {
+        // Generate a unique barcode based on ISBN and copy number
+        return isbn + "-" + String.format("%03d", copyNumber);
     }
 
     @Transactional(readOnly = true)

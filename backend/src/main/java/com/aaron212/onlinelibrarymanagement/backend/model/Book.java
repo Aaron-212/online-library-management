@@ -34,6 +34,12 @@ public class Book {
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Title is required")
     private String title;
+    
+    @Column(length = 50)
+    private String language;
+    
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
