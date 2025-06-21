@@ -22,6 +22,7 @@ import {
   Plus,
   Search,
   Trash2,
+  Clock,
 } from 'lucide-vue-next'
 import { noticesService } from '@/lib/api'
 import type { Notice, PagedResponse } from '@/lib/api/types'
@@ -48,12 +49,14 @@ const isSubmitting = ref(false)
 const noticeForm = ref({
   title: '',
   content: '',
+  publishTime: '',
+  expireTime: '',
+  status: 1,
 })
 
 // Computed
 const isAdmin = computed(() => {
-  // This should be replaced with actual role checking when user roles are available
-  return authStore.isAuthenticated
+  return authStore.isAdmin()
 })
 
 const filteredNotices = computed(() => {
@@ -71,10 +74,22 @@ const filteredNotices = computed(() => {
 const loadNotices = async () => {
   try {
     isLoading.value = true
-    const response: PagedResponse<Notice> = await noticesService.getAll({
-      page: currentPage.value,
-      size: pageSize.value,
-    })
+    let response: PagedResponse<Notice>
+    
+    if (isAdmin.value) {
+      // Admin can see all notices including unpublished ones
+      response = await noticesService.getAllForAdmin({
+        page: currentPage.value,
+        size: pageSize.value,
+      })
+    } else {
+      // Regular users only see published notices
+      response = await noticesService.getAll({
+        page: currentPage.value,
+        size: pageSize.value,
+      })
+    }
+    
     notices.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
@@ -122,16 +137,46 @@ const isRecent = (dateString: string) => {
   return days <= 7
 }
 
+// Helper function to format date for datetime-local input
+const formatDateForInput = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+// Helper function to convert UTC date string to local datetime format
+const formatUTCDateForInput = (utcDateString: string) => {
+  const date = new Date(utcDateString)
+  return formatDateForInput(date)
+}
+
 const openAddDialog = () => {
-  noticeForm.value = { title: '', content: '' }
+  const now = new Date()
+  const publishTime = new Date(now.getTime() + 5 * 60000) // Default to 5 minutes from now
+  noticeForm.value = { 
+    title: '', 
+    content: '',
+    publishTime: formatDateForInput(publishTime), // Use local time directly
+    expireTime: '',
+    status: 1
+  }
   showAddDialog.value = true
 }
 
 const openEditDialog = (notice: Notice) => {
   editingNotice.value = notice
+  const publishTime = formatUTCDateForInput(notice.publishTime)
+  const expireTime = notice.expireTime ? formatUTCDateForInput(notice.expireTime) : ''
+  
   noticeForm.value = {
     title: notice.title,
     content: notice.content,
+    publishTime: publishTime,
+    expireTime: expireTime,
+    status: notice.status,
   }
   showEditDialog.value = true
 }
@@ -140,12 +185,18 @@ const closeDialogs = () => {
   showAddDialog.value = false
   showEditDialog.value = false
   editingNotice.value = null
-  noticeForm.value = { title: '', content: '' }
+  noticeForm.value = { 
+    title: '', 
+    content: '',
+    publishTime: '',
+    expireTime: '',
+    status: 1
+  }
 }
 
 const handleCreateNotice = async () => {
-  if (!noticeForm.value.title.trim() || !noticeForm.value.content.trim()) {
-    toast.error('Please fill in all fields')
+  if (!noticeForm.value.title.trim() || !noticeForm.value.content.trim() || !noticeForm.value.publishTime) {
+    toast.error('Please fill in all required fields')
     return
   }
 
@@ -154,6 +205,9 @@ const handleCreateNotice = async () => {
     await noticesService.create({
       title: noticeForm.value.title.trim(),
       content: noticeForm.value.content.trim(),
+      publishTime: new Date(noticeForm.value.publishTime).toISOString(),
+      expireTime: noticeForm.value.expireTime ? new Date(noticeForm.value.expireTime).toISOString() : undefined,
+      status: noticeForm.value.status,
     })
 
     toast.success('Notice created successfully!')
@@ -168,8 +222,8 @@ const handleCreateNotice = async () => {
 }
 
 const handleUpdateNotice = async () => {
-  if (!editingNotice.value || !noticeForm.value.title.trim() || !noticeForm.value.content.trim()) {
-    toast.error('Please fill in all fields')
+  if (!editingNotice.value || !noticeForm.value.title.trim() || !noticeForm.value.content.trim() || !noticeForm.value.publishTime) {
+    toast.error('Please fill in all required fields')
     return
   }
 
@@ -178,6 +232,9 @@ const handleUpdateNotice = async () => {
     await noticesService.update(editingNotice.value.id, {
       title: noticeForm.value.title.trim(),
       content: noticeForm.value.content.trim(),
+      publishTime: new Date(noticeForm.value.publishTime).toISOString(),
+      expireTime: noticeForm.value.expireTime ? new Date(noticeForm.value.expireTime).toISOString() : undefined,
+      status: noticeForm.value.status,
     })
 
     toast.success('Notice updated successfully!')
@@ -279,18 +336,21 @@ onMounted(() => {
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
                   <CardTitle class="text-lg">{{ notice.title }}</CardTitle>
-                  <Badge v-if="isRecent(notice.publishDate)" variant="secondary" class="text-xs">
+                  <Badge v-if="isRecent(notice.publishTime)" variant="secondary" class="text-xs">
                     New
                   </Badge>
                 </div>
                 <div class="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar class="h-4 w-4" />
-                  <span>{{ getTimeSince(notice.publishDate) }}</span>
+                  <span>{{ getTimeSince(notice.publishTime) }}</span>
                   <span
-                    v-if="notice.lastUpdateTime && notice.lastUpdateTime !== notice.publishDate"
+                    v-if="notice.updateTime && notice.updateTime !== notice.publishTime"
                   >
-                    • Updated {{ getTimeSince(notice.lastUpdateTime) }}
+                    • Updated {{ getTimeSince(notice.updateTime) }}
                   </span>
+                  <Badge v-if="notice.status === 2" variant="outline" class="text-xs ml-2">
+                    Pinned
+                  </Badge>
                 </div>
               </div>
 
@@ -372,6 +432,40 @@ onMounted(() => {
             />
           </div>
 
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="add-publish-time">Publish Time *</Label>
+              <Input
+                id="add-publish-time"
+                v-model="noticeForm.publishTime"
+                type="datetime-local"
+                required
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="add-expire-time">Expire Time (optional)</Label>
+              <Input
+                id="add-expire-time"
+                v-model="noticeForm.expireTime"
+                type="datetime-local"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <Label for="add-status">Status *</Label>
+            <select
+              id="add-status"
+              v-model.number="noticeForm.status"
+              class="w-full p-3 border rounded-md bg-background"
+              required
+            >
+              <option value="1">Show</option>
+              <option value="2">Pinned</option>
+            </select>
+          </div>
+
           <div class="flex justify-end gap-2">
             <Button type="button" variant="outline" @click="closeDialogs"> Cancel </Button>
             <Button type="submit" :disabled="isSubmitting">
@@ -412,6 +506,40 @@ onMounted(() => {
             />
           </div>
 
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="edit-publish-time">Publish Time *</Label>
+              <Input
+                id="edit-publish-time"
+                v-model="noticeForm.publishTime"
+                type="datetime-local"
+                required
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="edit-expire-time">Expire Time (optional)</Label>
+              <Input
+                id="edit-expire-time"
+                v-model="noticeForm.expireTime"
+                type="datetime-local"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <Label for="edit-status">Status *</Label>
+            <select
+              id="edit-status"
+              v-model.number="noticeForm.status"
+              class="w-full p-3 border rounded-md bg-background"
+              required
+            >
+              <option value="1">Show</option>
+              <option value="2">Pinned</option>
+            </select>
+          </div>
+
           <div class="flex justify-end gap-2">
             <Button type="button" variant="outline" @click="closeDialogs"> Cancel </Button>
             <Button type="submit" :disabled="isSubmitting">
@@ -430,13 +558,13 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-textarea {
+textarea, select {
   background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
   color: hsl(var(--foreground));
 }
 
-textarea:focus {
+textarea:focus, select:focus {
   outline: none;
   border-color: hsl(var(--ring));
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);

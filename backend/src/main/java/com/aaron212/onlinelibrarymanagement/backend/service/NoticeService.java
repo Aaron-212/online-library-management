@@ -48,6 +48,14 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public Page<NoticeResponseDto> getAllNotices(Pageable pageable) {
+        // For getAllNotices, we should only return published notices
+        LocalDateTime currentTime = LocalDateTime.now();
+        return noticeRepository.findPublishedNotices(currentTime, pageable).map(this::mapToResponseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NoticeResponseDto> getAllNoticesForAdmin(Pageable pageable) {
+        // For admin, return all notices including unpublished ones
         return noticeRepository.findAll(pageable).map(this::mapToResponseDto);
     }
 
@@ -65,8 +73,36 @@ public class NoticeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<NoticeResponseDto> getNoticeById(Long id) {
-        return noticeRepository.findById(id).map(this::mapToResponseDto);
+    public Optional<NoticeResponseDto> getNoticeById(Long id, String username) {
+        Optional<Notice> noticeOpt = noticeRepository.findById(id);
+        
+        if (noticeOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Notice notice = noticeOpt.get();
+        
+        // Check if user is admin (only if username is provided)
+        boolean isAdmin = false;
+        if (username != null) {
+            Optional<User> userOpt = userRepository.findByUsername(username);
+            if (userOpt.isPresent()) {
+                isAdmin = userOpt.get().getRole().equals(User.Role.ADMIN);
+            }
+        }
+        
+        // Admins can access all notices, regular users can only access published notices
+        if (!isAdmin) {
+            LocalDateTime publishTime = notice.getPublishTime();
+            LocalDateTime currentTime = LocalDateTime.now();
+            
+            // Filter out notices that are not yet published or have null publishTime
+            if (publishTime == null || publishTime.isAfter(currentTime)) {
+                return Optional.empty();
+            }
+        }
+        
+        return Optional.of(mapToResponseDto(notice));
     }
 
     @Transactional(readOnly = true)
@@ -78,7 +114,8 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public Page<NoticeResponseDto> searchNotices(String keyword, Pageable pageable) {
-        return noticeRepository.searchByKeyword(keyword, pageable).map(this::mapToResponseDto);
+        LocalDateTime currentTime = LocalDateTime.now();
+        return noticeRepository.searchByKeyword(keyword, currentTime, pageable).map(this::mapToResponseDto);
     }
 
     public NoticeResponseDto updateNotice(Long id, NoticeUpdateDto noticeUpdateDto, String updaterUsername) {

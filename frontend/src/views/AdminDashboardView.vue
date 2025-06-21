@@ -408,7 +408,7 @@ onMounted(() => {
                       {{ notice.content || 'No content' }}
                     </p>
                     <p class="text-xs text-muted-foreground mt-2">
-                      Published: {{ notice.publishDate ? formatDate(notice.publishDate) : 'N/A' }}
+                      Published: {{ notice.publishTime ? formatDate(notice.publishTime) : 'N/A' }}
                     </p>
                   </div>
                   <Button

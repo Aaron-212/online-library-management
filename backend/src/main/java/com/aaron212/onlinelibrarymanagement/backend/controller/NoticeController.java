@@ -87,6 +87,25 @@ public class NoticeController {
         return ResponseEntity.ok(notices);
     }
 
+    @Operation(
+            summary = "Get all notices for admin",
+            description = "Retrieves a paginated list of all notices including unpublished ones (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Notices retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = Page.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/all")
+    public ResponseEntity<Page<NoticeResponseDto>> getAllNoticesForAdmin(
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
+        Page<NoticeResponseDto> notices = noticeService.getAllNoticesForAdmin(pageable);
+        return ResponseEntity.ok(notices);
+    }
+
     @Operation(summary = "Get active notices", description = "Retrieves a paginated list of active (non-expired) notices")
     @ApiResponses(
             value = {
@@ -141,11 +160,21 @@ public class NoticeController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<?> getNoticeById(
-            @Parameter(description = "Notice ID", required = true, example = "1") @PathVariable @Positive Long id) {
-        Optional<NoticeResponseDto> notice = noticeService.getNoticeById(id);
-        if (notice.isPresent()) {
-            return ResponseEntity.ok(notice.get());
-        } else {
+            @Parameter(description = "Notice ID", required = true, example = "1") @PathVariable @Positive Long id,
+            Authentication authentication) {
+        try {
+            // Get username if authenticated, otherwise use null (will be treated as non-admin)
+            String username = (authentication != null && authentication.isAuthenticated()) 
+                ? authentication.getName() 
+                : null;
+            
+            Optional<NoticeResponseDto> notice = noticeService.getNoticeById(id, username);
+            if (notice.isPresent()) {
+                return ResponseEntity.ok(notice.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Notice not found"));
+            }
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Notice not found"));
         }
     }
