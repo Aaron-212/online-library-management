@@ -40,4 +40,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     
     // Count comments by user and status
     long countByUserAndStatus(User user, Comment.Status status);
+
+    boolean existsByUserIdAndBookId(Long userId, Long bookId);
+
+    @Query("SELECT AVG(c.rating) FROM Comment c WHERE c.book.id = :bookId AND c.status = :status AND c.rating IS NOT NULL")
+    Optional<Double> findAverageRatingByBookIdAndStatus(@Param("bookId") Long bookId, @Param("status") Comment.Status status);
+
+    long countByBookIdAndStatus(Long bookId, Comment.Status status);
 }

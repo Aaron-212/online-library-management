@@ -41,7 +41,7 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("Book not found with id: " + commentCreateDto.bookId()));
 
         // Check if user has already commented on this book
-        if (commentRepository.existsByUserAndBook(user, book)) {
+        if (commentRepository.existsByUserIdAndBookId(user.getId(), book.getId())) {
             throw new RuntimeException("User has already commented on this book");
         }
 
@@ -157,19 +157,13 @@ public class CommentService {
     // Get average rating for a book
     @Transactional(readOnly = true)
     public Optional<Double> getAverageRatingForBook(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
-        
-        return commentRepository.findAverageRatingByBookAndStatus(book, Comment.Status.PUBLISHED);
+        return commentRepository.findAverageRatingByBookIdAndStatus(bookId, Comment.Status.PUBLISHED);
     }
 
     // Get comment count for a book
     @Transactional(readOnly = true)
     public long getCommentCountForBook(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
-        
-        return commentRepository.countByBookAndStatus(book, Comment.Status.PUBLISHED);
+        return commentRepository.countByBookIdAndStatus(bookId, Comment.Status.PUBLISHED);
     }
 
     // Convert Comment entity to DTO
