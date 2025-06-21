@@ -171,29 +171,13 @@ public class BookService {
                 .toList()
             : List.of();
 
-        List<String> publisherNames = publishersMap.getOrDefault(book.getId(), List.of());
-
-        return new BookSummaryDto(
-            book.getId(),
-            book.getTitle(),
-            authorNames,
-            publisherNames,
-            book.getCoverURL()
-        );
-    }
-    
-    private BookSummaryDto convertToBookSummaryDto(Book book) {
-        List<String> authorNames = book.getAuthors() != null 
-            ? book.getAuthors().stream()
-                .map(bookAuthor -> bookAuthor.getAuthor().getName())
-                .toList()
-            : List.of();
-
-        List<String> publisherNames = book.getPublishers() != null 
-            ? book.getPublishers().stream()
-                .map(bookPublisher -> bookPublisher.getPublisher().getName())
-                .toList()
-            : List.of();
+        List<String> publisherNames = publishersMap != null
+            ? publishersMap.getOrDefault(book.getId(), List.of())
+            : book.getPublishers() != null
+                ? book.getPublishers().stream()
+                    .map(bp -> bp.getPublisher().getName())
+                    .toList()
+                : List.of();
 
         return new BookSummaryDto(
             book.getId(),
@@ -269,16 +253,13 @@ public class BookService {
         return bookCopyRepository.findByBook(book);
     }
 
-    @Transactional(readOnly = true)
     public int getAvailableCopiesCount(Book book) {
-        return (int) bookCopyRepository.findByBook(book).stream()
-                .filter(copy -> copy.getStatus() == BookCopy.Status.AVAILABLE)
-                .count();
+        return (int) bookCopyRepository.countByBookAndStatus(book, BookCopy.Status.AVAILABLE);
     }
 
     @Transactional(readOnly = true)
     public int getTotalCopiesCount(Book book) {
-        return bookCopyRepository.findByBook(book).size();
+        return (int) bookCopyRepository.countByBook(book);
     }
 
     public Optional<Book> findByIsbn(@NotBlank String isbn) {

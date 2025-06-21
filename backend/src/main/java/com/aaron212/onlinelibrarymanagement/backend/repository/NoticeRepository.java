@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
     
@@ -30,4 +31,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     Page<Notice> findPublishedNotices(@Param("currentTime") LocalDateTime currentTime, Pageable pageable);
     
     List<Notice> findByExpireTimeBefore(LocalDateTime expireTime);
+
+    @Query("SELECT n FROM Notice n WHERE n.id = :id AND n.publishTime <= :currentTime AND (n.expireTime IS NULL OR n.expireTime > :currentTime)")
+    Optional<Notice> findPublishedNoticeById(@Param("id") Long id, @Param("currentTime") LocalDateTime currentTime);
 } 
