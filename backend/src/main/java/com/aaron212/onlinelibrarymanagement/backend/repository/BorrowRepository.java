@@ -49,7 +49,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     /*
      * Find an active borrow record by user and copy.
      */
-    @Query("SELECT b FROM Borrow b WHERE b.user.id = :userId AND b.copy.id = :copyId AND b.status = :status")
+    @Query("SELECT b FROM Borrow b WHERE b.user.id = :userId AND b.copy.id = :copyId AND b.status = :status ORDER BY b.borrowTime DESC")
     Optional<Borrow> findFirstByUserIdAndCopyIdAndStatus(
             @Param("userId") Long userId,
             @Param("copyId") Long copyId,
