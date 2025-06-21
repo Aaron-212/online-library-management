@@ -7,6 +7,7 @@ export type * from './types'
 // Import services
 import { authService } from './services/auth'
 import { booksService } from './services/books'
+import { bookCopiesService } from './services/book-copies'
 import { usersService } from './services/users'
 import { borrowService } from './services/borrow'
 import { commentsService } from './services/comments'
@@ -22,6 +23,7 @@ import { categoriesService } from './services/categories'
 export {
   authService,
   booksService,
+  bookCopiesService,
   usersService,
   borrowService,
   commentsService,
@@ -38,6 +40,7 @@ export {
 export const api = {
   auth: authService,
   books: booksService,
+  bookCopies: bookCopiesService,
   users: usersService,
   borrow: borrowService,
   comments: commentsService,
@@ -53,6 +56,7 @@ export const api = {
 // Export service classes for advanced usage
 export { AuthService } from './services/auth'
 export { BooksService } from './services/books'
+export { BookCopiesService } from './services/book-copies'
 export { UsersService } from './services/users'
 export { BorrowService } from './services/borrow'
 export { CommentsService } from './services/comments'

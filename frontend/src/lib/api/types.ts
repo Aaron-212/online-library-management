@@ -107,7 +107,31 @@ export interface BookUpdateDto {
 export interface BookCopy {
   id: number
   book: Book
-  isAvailable: boolean
+  barcode: string
+  status: BookCopyStatus
+  purchasePrice?: number
+  purchaseTime?: string
+  lastMaintenance?: string
+  createTime: string
+  updateTime: string
+}
+
+export type BookCopyStatus = 'AVAILABLE' | 'BORROWED' | 'MAINTENANCE' | 'SCRAPPED' | 'DISCARDED'
+
+export interface BookCopyCreateDto {
+  bookId: number
+  barcode: string
+  status: BookCopyStatus
+  purchasePrice?: number
+  purchaseTime?: string
+}
+
+export interface BookCopyUpdateDto {
+  barcode?: string
+  status?: BookCopyStatus
+  purchasePrice?: number
+  purchaseTime?: string
+  lastMaintenance?: string
 }
 
 // Borrow types

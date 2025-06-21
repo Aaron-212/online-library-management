@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   BookOpen,
   Building,
+  Copy,
   Edit,
   MessageSquare,
   Package,
@@ -135,6 +136,10 @@ const handleEdit = () => {
   router.push(`/admin/books/${bookId.value}/edit`)
 }
 
+const handleViewCopies = () => {
+  router.push(`/books/${bookId.value}/copies`)
+}
+
 const handleShare = async () => {
   try {
     await navigator.share({
@@ -258,6 +263,11 @@ onMounted(() => {
               >
                 <BookOpen class="h-4 w-4 mr-2" />
                 {{ isBorrowing ? 'Borrowing...' : 'Borrow Book' }}
+              </Button>
+
+              <Button variant="outline" @click="handleViewCopies" size="lg">
+                <Copy class="h-4 w-4 mr-2" />
+                View Copies
               </Button>
 
               <Button variant="outline" @click="handleShare" size="lg">
