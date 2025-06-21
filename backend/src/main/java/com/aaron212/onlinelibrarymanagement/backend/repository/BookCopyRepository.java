@@ -11,4 +11,8 @@ public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
 
     /* Counts book copies by their current status */
     long countByStatus(BookCopy.Status status);
+
+    long countByBook(Book book);
+
+    long countByBookAndStatus(Book book, BookCopy.Status status);
 }
