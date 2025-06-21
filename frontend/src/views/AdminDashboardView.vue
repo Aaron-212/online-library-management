@@ -254,7 +254,9 @@ onMounted(() => {
             </div>
           </CardHeader>
           <CardContent>
-            <div class="text-2xl font-bold">{{ card.value.toLocaleString() }}</div>
+            <div class="text-2xl font-bold">
+              {{ typeof card.value === 'number' ? card.value.toLocaleString() : (card.value ?? '-') }}
+            </div>
             <p class="text-xs text-muted-foreground">{{ card.description }}</p>
           </CardContent>
         </Card>
@@ -311,9 +313,9 @@ onMounted(() => {
                 @click="router.push(`/books/${book.id}`)"
               >
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium truncate">{{ book.title }}</p>
+                  <p class="text-sm font-medium truncate">{{ book.title || 'Unknown' }}</p>
                   <p class="text-xs text-muted-foreground truncate">
-                    {{ book.authors.map((a) => a.name).join(', ') }}
+                    {{ Array.isArray(book.authors) ? book.authors.map((a) => a.name).join(', ') : 'Unknown author' }}
                   </p>
                 </div>
                 <div class="flex flex-col items-end gap-1">
@@ -352,9 +354,12 @@ onMounted(() => {
                 class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50"
               >
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium truncate">{{ borrow.bookCopy.book.title }}</p>
+                  <p class="text-sm font-medium truncate">
+                    {{ borrow.bookCopy?.book?.title || 'Unknown book' }}
+                  </p>
                   <p class="text-xs text-muted-foreground">
-                    User: {{ borrow.user.username }} • Due: {{ formatDate(borrow.dueDate) }}
+                    User: {{ borrow.user?.username || 'Unknown user' }} •
+                    Due: {{ borrow.dueDate ? formatDate(borrow.dueDate) : 'N/A' }}
                   </p>
                 </div>
                 <Badge :variant="getBorrowStatusBadge(borrow).variant" size="sm">
