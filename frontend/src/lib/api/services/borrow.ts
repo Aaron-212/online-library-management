@@ -35,8 +35,8 @@ export class BorrowService {
   async getOverdueBorrows(params?: {
     page?: number
     size?: number
-  }): Promise<PagedResponse<Borrow>> {
-    return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/overdue`, params)
+  }): Promise<Borrow[]> {
+    return apiClient.get<Borrow[]>(`${this.basePath}/overdue`, params)
   }
 
   // Reservation methods (if implemented)
