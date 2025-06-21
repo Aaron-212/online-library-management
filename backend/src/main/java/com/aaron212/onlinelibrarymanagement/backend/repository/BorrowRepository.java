@@ -49,7 +49,11 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     /*
      * Find an active borrow record by user and copy.
      */
-    Optional<Borrow> findFirstByUserIdAndCopyIdAndStatus(Long userId, Long copyId, Borrow.Status status);
+    @Query("SELECT b FROM Borrow b WHERE b.user.id = :userId AND b.copy.id = :copyId AND b.status = :status")
+    Optional<Borrow> findFirstByUserIdAndCopyIdAndStatus(
+            @Param("userId") Long userId,
+            @Param("copyId") Long copyId,
+            @Param("status") Borrow.Status status);
 
     /*
      * Check whether the given user is currently borrowing a specific book.
