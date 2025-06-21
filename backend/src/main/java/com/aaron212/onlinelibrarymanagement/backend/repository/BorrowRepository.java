@@ -41,4 +41,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
            "b.status as status, b.fine as fine " +
            "FROM Borrow b WHERE b.user.id = :userId ORDER BY b.borrowTime DESC")
     List<BorrowProjection> findBorrowProjectionsByUserId(@Param("userId") Long userId);
+
+    /* Counts borrows by their current status */
+    long countByStatus(Borrow.Status status);
 }
