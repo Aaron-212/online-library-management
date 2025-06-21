@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.aaron212.onlinelibrarymanagement.backend.service.ReservationService;
+
 @Service
 @Transactional
 public class BorrowService {
@@ -30,13 +32,16 @@ public class BorrowService {
     private final BookCopyRepository bookCopyRepository;
     private final UserRepository userRepository;
     private final BorrowingRuleService borrowingRuleService;
+    private final ReservationService reservationService;
 
     public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
-                        UserRepository userRepository, BorrowingRuleService borrowingRuleService) {
+                        UserRepository userRepository, BorrowingRuleService borrowingRuleService,
+                        ReservationService reservationService) {
         this.borrowRepository = borrowRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.userRepository = userRepository;
         this.borrowingRuleService = borrowingRuleService;
+        this.reservationService = reservationService;
     }
 
     /**
@@ -124,8 +129,8 @@ public class BorrowService {
         borrowRepository.save(borrow);
         bookCopyRepository.save(copy);
 
-        // TODO: Handle reservation notifications
-        // This would require a Reservation entity and service
+        // 归还后处理预约队列
+        reservationService.processNextReservation(copy.getBook().getId());
         
         return borrow;
     }

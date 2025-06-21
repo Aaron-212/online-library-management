@@ -55,4 +55,6 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
      * Check whether the given user is currently borrowing a specific book.
      */
     boolean existsByUserIdAndCopyBookIdAndStatus(Long userId, Long bookId, Borrow.Status status);
+
+    boolean existsByUserIdAndStatus(Long userId, Borrow.Status status);
 }
