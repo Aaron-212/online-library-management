@@ -18,43 +18,37 @@ public class FeeService {
 
     private final BorrowRepository borrowRepository;
     private final BookCopyRepository bookCopyRepository;
+    private final BorrowingRuleService borrowingRuleService;
 
-    public FeeService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository) {
+    public FeeService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository,
+                      BorrowingRuleService borrowingRuleService) {
         this.borrowRepository = borrowRepository;
         this.bookCopyRepository = bookCopyRepository;
+        this.borrowingRuleService = borrowingRuleService;
     }
 
     // -------------------- 逾期罚款计算 --------------------
     @Transactional
     public Borrow calculateOverdueFine(Long borrowId) {
-        Optional<Borrow> borrowOpt = borrowRepository.findById(borrowId);
-        if (!borrowOpt.isPresent()) {
-            return null;
-        }
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException("Borrow", "id", borrowId));
 
-        Borrow borrow = borrowOpt.get();
-
-        // 修正：使用 BigDecimal 的 compareTo 方法
-        if (borrow.getActualReturnTime() != null || borrow.getFine().compareTo(BigDecimal.ZERO) > 0) {
+        // 若已经归还或已计算罚款则直接返回
+        if (borrow.getActualReturnTime() != null ||
+                (borrow.getFine() != null && borrow.getFine().compareTo(BigDecimal.ZERO) > 0)) {
             return borrow;
         }
 
-        LocalDateTime dueDate = borrow.getReturnTime();
-        LocalDateTime now = LocalDateTime.now();
-
-        // 计算逾期天数
-        long daysOverdue = ChronoUnit.DAYS.between(dueDate, now);
+        long daysOverdue = ChronoUnit.DAYS.between(borrow.getReturnTime(), LocalDateTime.now());
         if (daysOverdue <= 0) {
             borrow.setStatus(Borrow.Status.BORROWED);
             borrow.setFine(BigDecimal.ZERO);
             return borrowRepository.save(borrow);
         }
 
-        // 罚款规则：每天1元
-        BigDecimal finePerDay = BigDecimal.valueOf(1.0);
-        BigDecimal totalFine = BigDecimal.valueOf(daysOverdue).multiply(finePerDay);
+        BigDecimal finePerDay = borrowingRuleService.getDecimalRule(BorrowingRuleService.FINE_PER_DAY);
+        BigDecimal totalFine = finePerDay.multiply(BigDecimal.valueOf(daysOverdue));
 
-        // 更新借阅记录
         borrow.setFine(totalFine);
         borrow.setStatus(Borrow.Status.OVERDUE);
         return borrowRepository.save(borrow);
@@ -63,31 +57,18 @@ public class FeeService {
     // -------------------- 赔书费用计算 --------------------
     @Transactional
     public Borrow calculateBookCompensation(Long borrowId) {
-        Optional<Borrow> borrowOpt = borrowRepository.findById(borrowId);
-        if (!borrowOpt.isPresent()) {
-            return null;
-        }
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException("Borrow", "id", borrowId));
 
-        Borrow borrow = borrowOpt.get();
+        BookCopy copy = borrow.getCopy();
 
-        // 获取图书副本信息
-        Optional<BookCopy> copyOpt = bookCopyRepository.findById(borrow.getCopy().getId());
-        if (!copyOpt.isPresent()) {
-            return borrow;
-        }
+        BigDecimal compensation = Optional.ofNullable(copy.getPurchasePrice()).orElse(BigDecimal.ZERO);
 
-        BookCopy copy = copyOpt.get();
-
-        // 赔书费用规则：按副本价格的100%计算
-        BigDecimal compensation = copy.getPurchasePrice();
-
-        // 更新借阅记录
         borrow.setFine(compensation);
         borrow.setStatus(Borrow.Status.LOST);
         borrow.setActualReturnTime(LocalDateTime.now());
 
-        // 更新副本状态为已报废
-        copy.setStatus(BookCopy.Status.DISCARDED); // 使用枚举替代硬编码
+        copy.setStatus(BookCopy.Status.DISCARDED);
         bookCopyRepository.save(copy);
 
         return borrowRepository.save(borrow);
