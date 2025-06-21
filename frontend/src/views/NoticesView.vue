@@ -441,7 +441,7 @@ onMounted(() => {
             <Label for="add-status">Status *</Label>
             <select
               id="add-status"
-              v-model="noticeForm.status"
+              v-model.number="noticeForm.status"
               class="w-full p-3 border rounded-md bg-background"
               required
             >
@@ -515,7 +515,7 @@ onMounted(() => {
             <Label for="edit-status">Status *</Label>
             <select
               id="edit-status"
-              v-model="noticeForm.status"
+              v-model.number="noticeForm.status"
               class="w-full p-3 border rounded-md bg-background"
               required
             >
