@@ -34,27 +34,14 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        User user;
-        if (usernameOrEmail.contains("@")) {
-            // If the identifier contains '@', treat it as an email
-            user = userRepository
-                    .findByEmail(usernameOrEmail)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + usernameOrEmail));
-        } else {
-            // Otherwise, treat it as a username
-            user = userRepository
-                    .findByUsername(usernameOrEmail)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + usernameOrEmail));
-        }
-        return (UserDetails) user;
+        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+                .map(user -> (UserDetails) user)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + usernameOrEmail));
     }
 
     public void addUser(UserRegisterDto registerRequest) throws DuplicateResourceException {
-        if (userRepository.existsByUsername(registerRequest.username())) {
-            throw new DuplicateResourceException("User", "username", registerRequest.username());
-        }
-        if (userRepository.existsByEmail(registerRequest.email())) {
-            throw new DuplicateResourceException("User", "email", registerRequest.email());
+        if (userRepository.existsByUsernameOrEmail(registerRequest.username(), registerRequest.email())) {
+            throw new DuplicateResourceException("User", "username/email", registerRequest.username());
         }
 
         User newUser = new User();
