@@ -14,6 +14,15 @@ export interface UserPublic {
   createdTime: string
 }
 
+export interface UserAdmin {
+  id: number
+  username: string
+  email: string
+  role: 'USER' | 'ADMIN'
+  createdTime: string
+  lastUpdateTime: string
+}
+
 export interface UserLoginDto {
   usernameOrEmail: string
   password: string
@@ -28,6 +37,13 @@ export interface UserRegisterDto {
 export interface UserUpdateDto {
   email?: string
   username?: string
+}
+
+export interface UserCreateDto {
+  username: string
+  email: string
+  password: string
+  role?: 'USER' | 'ADMIN'
 }
 
 // Book types
