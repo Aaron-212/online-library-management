@@ -6,6 +6,7 @@ public record BookSummaryDto(
         Long id,
         String title,
         List<String> authors,
-        List<String> publishers
+        List<String> publishers,
+        String coverURL
 ) {
 } 

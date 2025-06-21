@@ -177,7 +177,8 @@ public class BookService {
             book.getId(),
             book.getTitle(),
             authorNames,
-            publisherNames
+            publisherNames,
+            book.getCoverURL()
         );
     }
     
@@ -198,7 +199,8 @@ public class BookService {
             book.getId(),
             book.getTitle(),
             authorNames,
-            publisherNames
+            publisherNames,
+            book.getCoverURL()
         );
     }
 

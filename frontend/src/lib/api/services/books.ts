@@ -1,6 +1,6 @@
 import { apiClient } from '../client'
 import type {
-  Book,
+  BookDto,
   BookCopy,
   BookCreateDto,
   BookSearchParams,
@@ -17,8 +17,8 @@ export class BooksService {
     page?: number
     size?: number
     sort?: string
-  }): Promise<PagedResponse<Book>> {
-    return apiClient.get<PagedResponse<Book>>(this.basePath, params)
+  }): Promise<PagedResponse<BookDto>> {
+    return apiClient.get<PagedResponse<BookDto>>(this.basePath, params)
   }
 
   async getAllSummary(params?: {
@@ -29,17 +29,17 @@ export class BooksService {
     return apiClient.get<PagedResponse<BookSummaryDto>>(`${this.basePath}/summary`, params)
   }
 
-  async getById(id: number): Promise<Book> {
-    return apiClient.get<Book>(`${this.basePath}/${id}`)
+  async getById(id: number): Promise<BookDto> {
+    return apiClient.get<BookDto>(`${this.basePath}/${id}`)
   }
 
-  async getByIsbn(isbn: string): Promise<Book> {
-    return apiClient.get<Book>(`${this.basePath}/isbn/${isbn}`)
+  async getByIsbn(isbn: string): Promise<BookDto> {
+    return apiClient.get<BookDto>(`${this.basePath}/isbn/${isbn}`)
   }
 
-  async search(params: BookSearchParams): Promise<PagedResponse<Book>> {
+  async search(params: BookSearchParams): Promise<PagedResponse<BookDto>> {
     const { keyword, ...paginationParams } = params
-    return apiClient.get<PagedResponse<Book>>(`${this.basePath}/search`, {
+    return apiClient.get<PagedResponse<BookDto>>(`${this.basePath}/search`, {
       keyword,
       ...paginationParams,
     })

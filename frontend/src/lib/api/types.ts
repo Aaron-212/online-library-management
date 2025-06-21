@@ -49,6 +49,7 @@ export interface BookSummaryDto {
   title: string
   authors: string[]
   publishers: string[]
+  coverURL?: string
 }
 
 export interface Author {
@@ -287,3 +288,5 @@ export interface Reservation {
   expirationDate: string
   isActive: boolean
 }
+
+export type BookDto = Book;
