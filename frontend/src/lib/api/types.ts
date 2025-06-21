@@ -151,18 +151,28 @@ export interface Notice {
   id: number
   title: string
   content: string
-  publishDate: string
-  lastUpdateTime?: string
+  creatorUsername: string
+  publishTime: string
+  expireTime?: string
+  status: number
+  createTime: string
+  updateTime: string
 }
 
 export interface NoticeCreateDto {
   title: string
   content: string
+  publishTime: string
+  expireTime?: string
+  status: number
 }
 
 export interface NoticeUpdateDto {
   title?: string
   content?: string
+  publishTime?: string
+  expireTime?: string
+  status?: number
 }
 
 // Fee types

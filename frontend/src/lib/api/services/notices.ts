@@ -14,6 +14,10 @@ export class NoticesService {
     return apiClient.get<PagedResponse<Notice>>(this.basePath, params)
   }
 
+  async getAllForAdmin(params?: { page?: number; size?: number }): Promise<PagedResponse<Notice>> {
+    return apiClient.get<PagedResponse<Notice>>(`${this.basePath}/admin/all`, params)
+  }
+
   async getById(id: number): Promise<Notice> {
     return apiClient.get<Notice>(`${this.basePath}/${id}`)
   }

@@ -17,14 +17,17 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     
     Page<Notice> findByCreatorUser(User creatorUser, Pageable pageable);
     
-    @Query("SELECT n FROM Notice n WHERE n.status = :status AND (n.expireTime IS NULL OR n.expireTime > :currentTime) ORDER BY n.status DESC, n.publishTime DESC")
+    @Query("SELECT n FROM Notice n WHERE n.status = :status AND n.publishTime <= :currentTime AND (n.expireTime IS NULL OR n.expireTime > :currentTime) ORDER BY n.status DESC, n.publishTime DESC")
     Page<Notice> findActiveNoticesByStatus(@Param("status") Notice.Status status, @Param("currentTime") LocalDateTime currentTime, Pageable pageable);
     
-    @Query("SELECT n FROM Notice n WHERE (n.expireTime IS NULL OR n.expireTime > :currentTime) ORDER BY n.status DESC, n.publishTime DESC")
+    @Query("SELECT n FROM Notice n WHERE n.publishTime <= :currentTime AND (n.expireTime IS NULL OR n.expireTime > :currentTime) ORDER BY n.status DESC, n.publishTime DESC")
     Page<Notice> findActiveNotices(@Param("currentTime") LocalDateTime currentTime, Pageable pageable);
     
-    @Query("SELECT n FROM Notice n WHERE n.title LIKE %:keyword% OR n.content LIKE %:keyword%")
-    Page<Notice> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+    @Query("SELECT n FROM Notice n WHERE (n.title LIKE %:keyword% OR n.content LIKE %:keyword%) AND n.publishTime <= :currentTime AND (n.expireTime IS NULL OR n.expireTime > :currentTime)")
+    Page<Notice> searchByKeyword(@Param("keyword") String keyword, @Param("currentTime") LocalDateTime currentTime, Pageable pageable);
+    
+    @Query("SELECT n FROM Notice n WHERE n.publishTime <= :currentTime AND (n.expireTime IS NULL OR n.expireTime > :currentTime)")
+    Page<Notice> findPublishedNotices(@Param("currentTime") LocalDateTime currentTime, Pageable pageable);
     
     List<Notice> findByExpireTimeBefore(LocalDateTime expireTime);
 } 

@@ -87,6 +87,25 @@ public class NoticeController {
         return ResponseEntity.ok(notices);
     }
 
+    @Operation(
+            summary = "Get all notices for admin",
+            description = "Retrieves a paginated list of all notices including unpublished ones (admin only)",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Notices retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = Page.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/all")
+    public ResponseEntity<Page<NoticeResponseDto>> getAllNoticesForAdmin(
+            @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
+        Page<NoticeResponseDto> notices = noticeService.getAllNoticesForAdmin(pageable);
+        return ResponseEntity.ok(notices);
+    }
+
     @Operation(summary = "Get active notices", description = "Retrieves a paginated list of active (non-expired) notices")
     @ApiResponses(
             value = {
