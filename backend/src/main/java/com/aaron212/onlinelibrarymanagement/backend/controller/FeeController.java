@@ -195,7 +195,7 @@ public class FeeController {
                 @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
-    public ResponseEntity<Page<?>> getAllFeesForCurrentUser(
+    public ResponseEntity<?> getAllFeesForCurrentUser(
             Authentication authentication,
             @Parameter(description = "Page number", example = "0") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10") int size) {

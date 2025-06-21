@@ -36,7 +36,7 @@ public class FavoritesController {
                 @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
-    public ResponseEntity<Page<?>> getCurrentUserFavorites(
+    public ResponseEntity<?> getCurrentUserFavorites(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
