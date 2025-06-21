@@ -397,7 +397,7 @@ onMounted(() => {
                   {{ notice.content }}
                 </p>
                 <p class="text-xs text-muted-foreground mt-2">
-                  {{ formatDate(notice.publishDate) }}
+                  {{ formatDate(notice.publishTime) }}
                 </p>
               </div>
             </div>

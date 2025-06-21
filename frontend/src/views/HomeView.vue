@@ -303,7 +303,7 @@ onMounted(() => {
           >
             <CardHeader>
               <CardTitle class="line-clamp-2">{{ notice.title }}</CardTitle>
-              <CardDescription>{{ formatDate(notice.publishDate) }}</CardDescription>
+              <CardDescription>{{ formatDate(notice.publishTime) }}</CardDescription>
             </CardHeader>
             <CardContent>
               <p class="text-sm text-muted-foreground line-clamp-3">{{ notice.content }}</p>
