@@ -240,34 +240,17 @@ onMounted(() => {
           {{ heroSubtitle }}
         </p>
 
-        <!-- Quick Actions -->
-        <div class="flex flex-wrap gap-4">
-          <Button
-            v-for="action in quickActions.filter((a) => a.featured)"
-            :key="action.title"
-            :variant="action.variant"
-            size="lg"
-            class="shadow-lg hover:shadow-xl transition-all"
-            @click="action.action"
-          >
-            <component :is="action.icon" class="h-5 w-5 mr-2" />
-            {{ action.title }}
-          </Button>
-        </div>
-
         <!-- Search Bar -->
         <div class="mt-8 max-w-xl">
-          <div class="relative">
-            <Search
-              class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
-            />
+          <div class="flex items-center gap-2 p-2 border rounded-md bg-background">
+            <Search class="h-5 w-5 text-muted-foreground ml-2" />
             <Input
               v-model="searchKeyword"
               placeholder="Search books, ISBN or author..."
-              class="pl-12 pr-32"
+              class="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               @keyup.enter="handleSearch"
             />
-            <Button class="absolute right-2 top-1/2 -translate-y-1/2" @click="handleSearch">
+            <Button @click="handleSearch">
               Search
             </Button>
           </div>
