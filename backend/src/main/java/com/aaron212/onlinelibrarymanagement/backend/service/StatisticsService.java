@@ -129,7 +129,7 @@ public class StatisticsService {
      * interface so that no changes are required on the UI side.
      */
     public LibraryStatisticsDto getLibraryStatistics() {
-        long totalBooks = bookRepository.count();
+        long totalBooks = bookCopyRepository.count();
 
         long availableBooks = bookCopyRepository.countByStatus(BookCopy.Status.AVAILABLE);
         long borrowedBooks = bookCopyRepository.countByStatus(BookCopy.Status.BORROWED);
