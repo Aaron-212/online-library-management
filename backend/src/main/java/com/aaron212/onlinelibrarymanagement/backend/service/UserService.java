@@ -6,6 +6,7 @@ import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicExcep
 import com.aaron212.onlinelibrarymanagement.backend.exception.DuplicateResourceException;
 import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundException;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
+import com.aaron212.onlinelibrarymanagement.backend.projection.UserAdminProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
