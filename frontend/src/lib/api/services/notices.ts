@@ -19,7 +19,7 @@ export class NoticesService {
   }
 
   async create(noticeData: NoticeCreateDto): Promise<MessageResponse> {
-    return apiClient.post<MessageResponse>(this.basePath, noticeData)
+    return apiClient.post<MessageResponse>(`${this.basePath}/create`, noticeData)
   }
 
   async update(id: number, noticeData: NoticeUpdateDto): Promise<MessageResponse> {
