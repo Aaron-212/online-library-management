@@ -1,6 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookStatisticsDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.LibraryStatisticsDto;
 import com.aaron212.onlinelibrarymanagement.backend.mapper.BookMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.*;
 import com.aaron212.onlinelibrarymanagement.backend.repository.*;
@@ -120,5 +121,29 @@ public class StatisticsService {
         analysis.put("registrationCount", registrationCount);
         analysis.put("activeUserCount", activeUserCount);
         return analysis;
+    }
+
+    /**
+     * Returns high-level aggregated statistics about the library collection and borrowing activity. The
+     * returned object is shaped to match the fields expected by the front-end `BookStatisticsDto` TS
+     * interface so that no changes are required on the UI side.
+     */
+    public LibraryStatisticsDto getLibraryStatistics() {
+        long totalBooks = bookRepository.count();
+
+        long availableBooks = bookCopyRepository.countByStatus(BookCopy.Status.AVAILABLE);
+        long borrowedBooks = bookCopyRepository.countByStatus(BookCopy.Status.BORROWED);
+
+        long totalBorrows = borrowRepository.count();
+        long activeBorrows = borrowRepository.countByStatus(Borrow.Status.BORROWED);
+        long overdueBorrows = borrowRepository.countByStatus(Borrow.Status.OVERDUE);
+
+        return new LibraryStatisticsDto(
+                totalBooks,
+                availableBooks,
+                borrowedBooks,
+                totalBorrows,
+                activeBorrows,
+                overdueBorrows);
     }
 }

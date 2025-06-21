@@ -1,6 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookStatisticsDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.LibraryStatisticsDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.TopBooksRequestDto;
 import com.aaron212.onlinelibrarymanagement.backend.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,6 +54,37 @@ public class StatisticsController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Failed to retrieve top borrowed books"));
+        }
+    }
+
+    @PostMapping("/top-books")
+    public ResponseEntity<?> getTopBooksAlias(@Valid @RequestBody TopBooksRequestDto requestDto) {
+        return getTopBorrowedBooks(requestDto);
+    }
+
+    @Operation(
+            summary = "Get aggregated book statistics",
+            description = "Returns high-level statistics about the book collection and borrowing activity",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Statistics retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = LibraryStatisticsDto.class))),
+                @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+            })
+    @GetMapping("/books")
+    public ResponseEntity<?> getBookStatistics() {
+        try {
+            LibraryStatisticsDto stats = statisticsService.getLibraryStatistics();
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to retrieve book statistics"));
         }
     }
 

@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
     List<BookCopy> findByBook(Book book);
+
+    /* Counts book copies by their current status */
+    long countByStatus(BookCopy.Status status);
 }
