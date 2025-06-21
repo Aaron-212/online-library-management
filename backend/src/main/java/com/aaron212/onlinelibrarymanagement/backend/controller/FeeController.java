@@ -17,6 +17,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -181,5 +184,27 @@ public class FeeController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
         }
+    }
+
+    @Operation(
+            summary = "Get all fees for current user (stub)",
+            description = "Temporary stub endpoint to align with frontend '/fees/user' path. Returns an empty page until full implementation is provided.")
+    @ApiResponses(
+            value = {
+                @ApiResponse(responseCode = "200", description = "Request successful", content = @Content(schema = @Schema(implementation = Page.class))),
+                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @GetMapping("/user")
+    public ResponseEntity<Page<?>> getAllFeesForCurrentUser(
+            Authentication authentication,
+            @Parameter(description = "Page number", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10") int size) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
+        }
+
+        // TODO: Replace with real implementation once service layer supports pagination
+        Page<?> emptyPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+        return ResponseEntity.ok(emptyPage);
     }
 }
