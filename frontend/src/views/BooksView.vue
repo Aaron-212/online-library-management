@@ -21,8 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { booksService } from '@/lib/api'
-import type { Book, BookSearchParams, BookSummaryDto, PagedResponse } from '@/lib/api/types'
+import { booksService, categoriesService } from '@/lib/api'
+import type { Book, BookSearchParams, BookSummaryDto, PagedResponse, IndexCategory } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -102,16 +102,8 @@ const loadBooks = async () => {
 
 const loadCategories = async () => {
   try {
-    // This would need to be implemented in the backend to get all categories
-    // For now, we'll extract categories from the books
-    const allBooks = await booksService.getAll({ size: 1000 })
-    const categorySet = new Set<string>()
-    allBooks.content.forEach((book: any) => {
-      if (book.indexCategory?.name) {
-        categorySet.add(book.indexCategory.name)
-      }
-    })
-    categories.value = Array.from(categorySet).sort()
+    const allCategories = await categoriesService.getAll()
+    categories.value = allCategories.map((category: IndexCategory) => category.name).sort()
   } catch (error) {
     console.error('Error loading categories:', error)
   }

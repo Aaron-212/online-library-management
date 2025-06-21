@@ -26,7 +26,7 @@ export class BooksService {
     size?: number
     sort?: string
   }): Promise<PagedResponse<BookSummaryDto>> {
-    return apiClient.get<PagedResponse<BookSummaryDto>>(`${this.basePath}/summary`, params)
+    return apiClient.get<PagedResponse<BookSummaryDto>>(this.basePath, params)
   }
 
   async getById(id: number): Promise<BookDto> {
