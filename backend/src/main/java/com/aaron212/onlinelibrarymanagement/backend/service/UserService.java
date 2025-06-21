@@ -40,8 +40,14 @@ public class UserService implements UserDetailsService {
     }
 
     public void addUser(UserRegisterDto registerRequest) throws DuplicateResourceException {
-        if (userRepository.existsByUsernameOrEmail(registerRequest.username(), registerRequest.email())) {
-            throw new DuplicateResourceException("User", "username/email", registerRequest.username());
+        // Check username duplication first
+        if (userRepository.existsByUsername(registerRequest.username())) {
+            throw new DuplicateResourceException("User", "username", registerRequest.username());
+        }
+        
+        // Check email duplication
+        if (userRepository.existsByEmail(registerRequest.email())) {
+            throw new DuplicateResourceException("User", "email", registerRequest.email());
         }
 
         User newUser = new User();
