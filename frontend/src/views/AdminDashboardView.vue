@@ -194,23 +194,27 @@ const loadDashboardData = async () => {
 }
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
-  if (borrow.isReturned) {
+  if (borrow.status === 'RETURNED') {
     return { variant: 'success' as const, text: 'Returned' }
   }
 
-  const dueDate = new Date(borrow.dueDate)
-  const now = new Date()
+  if (borrow.status === 'BORROWED') {
+    const dueDate = new Date(borrow.returnTime)
+    const now = new Date()
 
-  if (dueDate < now) {
-    return { variant: 'destructive' as const, text: 'Overdue' }
+    if (dueDate < now) {
+      return { variant: 'destructive' as const, text: 'Overdue' }
+    }
+
+    const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    if (daysUntilDue <= 3) {
+      return { variant: 'secondary' as const, text: 'Due Soon' }
+    }
+
+    return { variant: 'default' as const, text: 'Active' }
   }
 
-  const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  if (daysUntilDue <= 3) {
-    return { variant: 'secondary' as const, text: 'Due Soon' }
-  }
-
-  return { variant: 'default' as const, text: 'Active' }
+  return { variant: 'default' as const, text: borrow.status }
 }
 
 const formatDate = (dateString: string) => {
@@ -353,16 +357,16 @@ onMounted(() => {
             <div v-else class="space-y-3">
               <div
                 v-for="borrow in recentBorrows"
-                :key="borrow.id"
+                :key="borrow.borrowId"
                 class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50"
               >
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">
-                    {{ borrow.bookCopy?.book?.title || 'Unknown book' }}
+                    {{ borrow.bookTitle || 'Unknown book' }}
                   </p>
                   <p class="text-xs text-muted-foreground">
-                    User: {{ borrow.user?.username || 'Unknown user' }} •
-                    Due: {{ borrow.dueDate ? formatDate(borrow.dueDate) : 'N/A' }}
+                    User: {{ borrow.username || 'Unknown user' }} •
+                    Due: {{ borrow.returnTime ? formatDate(borrow.returnTime) : 'N/A' }}
                   </p>
                 </div>
                 <Badge :variant="getBorrowStatusBadge(borrow).variant" size="sm">
