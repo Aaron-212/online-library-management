@@ -4,6 +4,7 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowRequestDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BorrowResponseDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.ReserveRequestDto;
+import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
 import com.aaron212.onlinelibrarymanagement.backend.mapper.BorrowMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.service.BorrowService;
@@ -162,9 +163,17 @@ public class BorrowController {
         }
 
         try {
-            Long userId = userService.findByUsername(authentication.getName())
-                    .orElseThrow(() -> new RuntimeException("User not found"))
-                    .getId();
+            Long userId;
+            try {
+                userId = userService.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new RuntimeException("User not found"))
+                        .getId();
+            } catch (RuntimeException e) {
+                if ("User not found".equals(e.getMessage())) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+                }
+                throw e; // Re-throw if it's a different RuntimeException
+            }
             
             Borrow borrow = borrowService.returnBookById(borrowId, userId);
             String message = borrow.getStatus() == Borrow.Status.OVERDUE 
@@ -172,8 +181,8 @@ public class BorrowController {
                 : "还书成功";
             
             return ResponseEntity.ok(Map.of("message", message));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User or borrow record not found"));
+        } catch (BusinessLogicException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
@@ -252,16 +261,24 @@ public class BorrowController {
         }
 
         try {
-            Long userId = userService.findByUsername(authentication.getName())
-                    .orElseThrow(() -> new RuntimeException("User not found"))
-                    .getId();
+            Long userId;
+            try {
+                userId = userService.findByUsername(authentication.getName())
+                        .orElseThrow(() -> new RuntimeException("User not found"))
+                        .getId();
+            } catch (RuntimeException e) {
+                if ("User not found".equals(e.getMessage())) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+                }
+                throw e; // Re-throw if it's a different RuntimeException
+            }
             
             Borrow borrow = borrowService.renewBookById(borrowId, userId);
             String message = "续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate();
             
             return ResponseEntity.ok(Map.of("message", message));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User or borrow record not found"));
+        } catch (BusinessLogicException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
@@ -622,6 +639,14 @@ public class BorrowController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
+        // Validate pagination parameters
+        if (page < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Page number must be non-negative"));
+        }
+        if (size <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Page size must be positive"));
+        }
+
         try {
             Long userId = userService.findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"))
@@ -654,7 +679,10 @@ public class BorrowController {
             
             return ResponseEntity.ok(pagedBorrows);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+            if ("User not found".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
