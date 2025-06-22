@@ -140,14 +140,17 @@ export interface BookCopyUpdateDto {
 
 // Borrow types
 export interface Borrow {
-  id: number
-  user: UserPublic
-  bookCopy: BookCopy
-  borrowDate: string
-  dueDate: string
-  returnDate?: string
-  isReturned: boolean
-  lateFee?: number
+  borrowId: number
+  userId: number
+  username: string
+  copyId: number
+  bookTitle: string
+  isbn: string
+  borrowTime: string
+  returnTime: string
+  actualReturnTime?: string
+  status: string
+  fine?: number
 }
 
 export interface BorrowRequestDto {
