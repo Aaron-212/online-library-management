@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
   const isAuthenticated = ref(false)
   const isLoading = ref(false)
+  const isInitialized = ref(false)
 
   // Computed properties for role checking
   const isAdmin = () => user.value?.role === 'ADMIN'
@@ -184,6 +185,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = () => {
     user.value = null
     isAuthenticated.value = false
+    isInitialized.value = false
     localStorage.removeItem('auth_token')
     localStorage.removeItem('username')
   }
@@ -220,6 +222,8 @@ export const useAuthStore = defineStore('auth', () => {
         logout()
       }
     }
+    
+    isInitialized.value = true
   }
 
   // Get authorization header for API calls
@@ -238,6 +242,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isAuthenticated,
     isLoading,
+    isInitialized,
     register,
     login,
     logout,
