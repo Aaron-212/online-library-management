@@ -59,6 +59,7 @@
         :copies="copies"
         :loading="loadingCopies"
         :show-actions="true"
+        :user-borrowed-copies="userBorrowedCopies"
         @borrow="handleBorrow"
         @return="handleReturn"
         @maintenance="handleMaintenance"
@@ -221,6 +222,7 @@ const copies = ref<BookCopy[]>([])
 const loadingBook = ref(false)
 const loadingCopies = ref(false)
 const error = ref<string | null>(null)
+const userBorrowedCopies = ref<Set<number>>(new Set())
 
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
@@ -268,7 +270,7 @@ const loadBookAndCopies = async () => {
     loadingBook.value = true
     loadingCopies.value = true
 
-    // Load book details and copies in parallel
+    // Load book details, copies, and user borrowed copies in parallel
     const [bookData, copiesData] = await Promise.all([
       api.books.getById(bookId),
       api.bookCopies.getCopiesByBookId(bookId)
@@ -276,12 +278,30 @@ const loadBookAndCopies = async () => {
 
     book.value = bookData
     copies.value = copiesData
+    
+    // Load user borrowed copies after we have the copies data
+    await loadUserBorrowedCopies()
   } catch (err: any) {
     error.value = err.message || 'Failed to load book details'
     console.error('Error loading book and copies:', err)
   } finally {
     loadingBook.value = false
     loadingCopies.value = false
+  }
+}
+
+const loadUserBorrowedCopies = async () => {
+  try {
+    if (!authStore.user) return
+    
+    const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
+    const borrowedCopyIds = currentBorrowings
+      .filter(borrow => borrow.status === 'BORROWED')
+      .map(borrow => borrow.copyId)
+    
+    userBorrowedCopies.value = new Set(borrowedCopyIds)
+  } catch (error) {
+    console.error('Error loading user borrowed copies:', error)
   }
 }
 
@@ -346,8 +366,27 @@ const handleBorrow = async (copy: BookCopy) => {
 
 const handleReturn = async (copy: BookCopy) => {
   try {
-    // This would need a return endpoint
-    toast.error('Return functionality not yet implemented in backend')
+    // Security: Only allow returning if user is authenticated
+    if (!authStore.user) {
+      toast.error('Please login to return books')
+      return
+    }
+
+    // Find active borrow record for this user and copy
+    const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
+    const activeBorrow = currentBorrowings.find(borrow => 
+      borrow.copyId === copy.id && borrow.status === 'BORROWED'
+    )
+
+    if (!activeBorrow) {
+      toast.error('No active borrow record found for this book copy')
+      return
+    }
+
+    // Use secure return method with borrow ID
+    await api.borrow.returnBookById(activeBorrow.borrowId)
+    toast.success('Book returned successfully')
+    await loadBookAndCopies() // Reload to update status
   } catch (err: any) {
     toast.error(err.message || 'Failed to return book')
   }

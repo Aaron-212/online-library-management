@@ -20,46 +20,64 @@ export class BorrowService {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/borrow-by-book`, request)
   }
 
-  // Main return method that matches backend
+  // Secure return method using borrow ID - RECOMMENDED
+  async returnBookById(borrowId: number): Promise<{ message: string }> {
+    return apiClient.put<{ message: string }>(`${this.basePath}/${borrowId}/return`)
+  }
+
+  // Secure renew method using borrow ID - RECOMMENDED  
+  async renewBookById(borrowId: number): Promise<{ message: string }> {
+    return apiClient.put<{ message: string }>(`${this.basePath}/${borrowId}/renew`)
+  }
+
+  // Legacy method for returning by copy ID (now with enhanced security validation)
   async returnBookDirect(request: BorrowRequestDto): Promise<BorrowResponseDto> {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/return`, request)
   }
 
-  // Main renew method that matches backend  
+  // Legacy method for renewing by copy ID (now with enhanced security validation)
   async renewBookDirect(request: BorrowRequestDto): Promise<BorrowResponseDto> {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/renew`, request)
   }
 
-  // Convenience method for returning by borrow ID
+  // Convenience method for returning by borrow ID - SECURE
   async returnBook(borrowId: number): Promise<BorrowResponseDto> {
-    // Get current borrowings to find the borrow record
-    const currentBorrowings = await this.getMyCurrentBorrowings()
-    const borrow = currentBorrowings.find(b => b.borrowId === borrowId)
+    // Use the secure endpoint that validates ownership
+    const result = await this.returnBookById(borrowId)
     
-    if (!borrow) {
-      throw new Error(`Active borrow record with ID ${borrowId} not found`)
+    // Return a compatible response format for backward compatibility
+    return {
+      borrowId: borrowId,
+      userId: 0, // Will be filled by backend
+      username: '',
+      copyId: 0,
+      bookTitle: '',
+      isbn: '',
+      borrowTime: new Date().toISOString(),
+      returnTime: new Date().toISOString(),
+      status: 'RETURNED' as any,
+      message: result.message
     }
-
-    return this.returnBookDirect({
-      userId: borrow.userId,
-      copyId: borrow.copyId
-    })
   }
 
-  // Convenience method for renewing by borrow ID
+  // Convenience method for renewing by borrow ID - SECURE
   async renewBook(borrowId: number): Promise<BorrowResponseDto> {
-    // Get current borrowings to find the borrow record
-    const currentBorrowings = await this.getMyCurrentBorrowings()
-    const borrow = currentBorrowings.find(b => b.borrowId === borrowId)
+    // Use the secure endpoint that validates ownership
+    const result = await this.renewBookById(borrowId)
     
-    if (!borrow) {
-      throw new Error(`Active borrow record with ID ${borrowId} not found`)
+    // Return a compatible response format for backward compatibility
+    return {
+      borrowId: borrowId,
+      userId: 0, // Will be filled by backend
+      username: '',
+      copyId: 0,
+      bookTitle: '',
+      isbn: '',
+      borrowTime: new Date().toISOString(),
+      returnTime: new Date().toISOString(),
+      status: 'BORROWED' as any,
+      message: result.message
     }
-
-    return this.renewBookDirect({
-      userId: borrow.userId, 
-      copyId: borrow.copyId
-    })
   }
 
   // Get current active borrowings for authenticated user

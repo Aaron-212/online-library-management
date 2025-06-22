@@ -46,7 +46,7 @@
       </Button>
       
       <Button
-        v-if="copy.status === 'BORROWED'"
+        v-if="copy.status === 'BORROWED' && (isUserBorrowed || isAdmin)"
         size="sm"
         variant="outline"
         @click="$emit('return', copy)"
@@ -56,7 +56,7 @@
       </Button>
       
       <Button
-        v-if="copy.status === 'AVAILABLE'"
+        v-if="copy.status === 'AVAILABLE' && isAdmin"
         size="sm"
         variant="outline"
         @click="$emit('maintenance', copy)"
@@ -90,10 +90,12 @@ import { useAuthStore } from '@/stores/auth'
 interface Props {
   copy: BookCopy
   showActions?: boolean
+  isUserBorrowed?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showActions: true
+  showActions: true,
+  isUserBorrowed: false
 })
 
 defineEmits<{

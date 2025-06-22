@@ -77,6 +77,7 @@
         :key="copy.id"
         :copy="copy"
         :show-actions="showActions"
+        :is-user-borrowed="userBorrowedCopies.has(copy.id)"
         @borrow="$emit('borrow', $event)"
         @return="$emit('return', $event)"
         @maintenance="$emit('maintenance', $event)"
@@ -106,11 +107,13 @@ interface Props {
   copies: BookCopy[]
   loading?: boolean
   showActions?: boolean
+  userBorrowedCopies?: Set<number>
 }
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
-  showActions: true
+  showActions: true,
+  userBorrowedCopies: () => new Set()
 })
 
 defineEmits<{
