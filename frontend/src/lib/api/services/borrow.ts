@@ -110,38 +110,16 @@ export class BorrowService {
     return apiClient.get<Borrow[]>(`${this.basePath}/my-history`)
   }
 
-  // Legacy method for backward compatibility - returns current borrowings in paginated format
+  // Get complete borrowing history (including returned books) with pagination
   async getUserBorrows(params?: { page?: number; size?: number }): Promise<PagedResponse<Borrow>> {
-    // For backward compatibility, we'll simulate pagination from the current borrowings
-    const currentBorrowings = await this.getMyCurrentBorrowings()
+    // Call the correct backend endpoint that returns paginated borrowing history
     const page = params?.page ?? 0
-    const size = Math.max(1, params?.size ?? 10) // Prevent division by zero by ensuring size >= 1
-    const startIndex = page * size
-    const endIndex = startIndex + size
-    const content = currentBorrowings.slice(startIndex, endIndex)
+    const size = params?.size ?? 10
     
-    const totalPages = Math.max(1, Math.ceil(currentBorrowings.length / size))
-    // Fix isLast calculation: true when page is at or beyond the last available page
-    const isLast = page >= totalPages - 1
-    
-    return {
-      content,
-      pageable: {
-        page,
-        size,
-        totalElements: currentBorrowings.length,
-        totalPages,
-        first: page === 0,
-        last: isLast
-      },
-      totalElements: currentBorrowings.length,
-      totalPages,
-      first: page === 0,
-      last: isLast,
-      numberOfElements: content.length,
-      size,
-      number: page
-    }
+    return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/user`, {
+      page,
+      size
+    })
   }
 
   async getOverdueBorrows(params?: {
