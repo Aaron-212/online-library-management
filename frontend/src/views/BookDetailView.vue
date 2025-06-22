@@ -119,7 +119,9 @@ const handleBorrow = async () => {
     await loadBook()
   } catch (error) {
     console.error('Error borrowing book:', error)
-    toast.error('Failed to borrow book. Please try again.')
+    // Use the detailed error message from the API if available to give users clearer feedback
+    const errMsg = (error as any)?.message || 'Failed to borrow book'
+    toast.error(errMsg)
   } finally {
     isBorrowing.value = false
   }

@@ -75,7 +75,8 @@ class ApiClient {
 
       try {
         const errorData = await response.json()
-        errorMessage = errorData.error || errorData.message || errorMessage
+        // Prefer the detailed server-provided message if available, otherwise fall back to the generic error field
+        errorMessage = errorData.message || errorData.error || errorMessage
       } catch {
         // If we can't parse JSON, use the response text
         try {

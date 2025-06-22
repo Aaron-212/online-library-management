@@ -90,7 +90,7 @@ public class BorrowService {
         boolean userAlreadyBorrowed = borrowRepository.existsByUserIdAndCopyBookIdAndStatus(
                 userId, copy.getBook().getId(), Borrow.Status.BORROWED);
         if (userAlreadyBorrowed) {
-            throw new BusinessLogicException("您已借阅此书，不能重复借阅");
+            throw new BusinessLogicException("You have already borrowed this book. Please return the current copy before borrowing another.");
         }
 
         // Create borrow record
