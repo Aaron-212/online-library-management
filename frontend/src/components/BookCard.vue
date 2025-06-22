@@ -64,30 +64,27 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
         </div>
         <div v-else class="text-sm text-muted-foreground p-4 text-center">No image available</div>
 
-        <!-- Top right badges/buttons -->
-        <div class="absolute top-2 right-2 flex flex-col gap-2">
-          <!-- Availability Badge -->
-          <div v-if="availabilityStatus">
-            <Badge :variant="availabilityStatus === 'available'
-              ? 'default'
-              : availabilityStatus === 'limited'
-                ? 'secondary'
-                : 'destructive'
-              " class="text-xs">
-              {{
-                availabilityStatus === 'available'
-                  ? 'Available'
-                  : availabilityStatus === 'limited'
-                    ? 'Limited'
-                    : 'Out of Stock'
-              }}
-            </Badge>
-          </div>
+        <!-- Top left favorite button -->
+        <div v-if="showFavoriteButton && bookId" class="absolute top-2 left-2">
+          <FavoriteButton :book-id="bookId" size="sm" variant="outline" @favorite-changed="handleFavoriteChanged" />
+        </div>
 
-          <!-- Favorite Button -->
-          <div v-if="showFavoriteButton && bookId">
-            <FavoriteButton :book-id="bookId" size="sm" variant="outline" @favorite-changed="handleFavoriteChanged" />
-          </div>
+        <!-- Top right availability badge -->
+        <div v-if="availabilityStatus" class="absolute top-2 right-2">
+          <Badge :variant="availabilityStatus === 'available'
+            ? 'default'
+            : availabilityStatus === 'limited'
+              ? 'secondary'
+              : 'destructive'
+            " class="text-xs">
+            {{
+              availabilityStatus === 'available'
+                ? 'Available'
+                : availabilityStatus === 'limited'
+                  ? 'Limited'
+                  : 'Out of Stock'
+            }}
+          </Badge>
         </div>
       </div>
     </CardHeader>
