@@ -24,6 +24,10 @@ const props = defineProps<{
   showFavoriteButton?: boolean
 }>()
 
+const emit = defineEmits<{
+  favoriteChanged: [bookId: number, isFavorite: boolean]
+}>()
+
 const { isLoading, error } = useImage({ src: props.coverImageUrl || '' })
 
 const altText = computed(() => `Cover image for ${props.title}`)
@@ -41,6 +45,12 @@ const availabilityText = computed(() => {
   if (props.availableCopies === 1) return '1 copy available'
   return `${props.availableCopies} copies available`
 })
+
+const handleFavoriteChanged = (isFavorite: boolean) => {
+  if (props.bookId) {
+    emit('favoriteChanged', props.bookId, isFavorite)
+  }
+}
 </script>
 
 <template>
@@ -90,6 +100,7 @@ const availabilityText = computed(() => {
               :book-id="bookId" 
               size="sm"
               variant="ghost"
+              @favorite-changed="handleFavoriteChanged"
             />
           </div>
         </div>

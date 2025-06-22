@@ -159,6 +159,13 @@ const renderStars = (rating: number) => {
   return stars
 }
 
+const handleFavoriteChanged = (isFavorite: boolean) => {
+  // The FavoriteButton component already handles toast notifications
+  // We could add additional logic here if needed, such as updating
+  // analytics or refreshing related data
+  console.log(`Book ${bookId.value} favorite status changed to: ${isFavorite}`)
+}
+
 // Lifecycle
 onMounted(() => {
   loadBook()
@@ -264,6 +271,7 @@ onMounted(() => {
                 show-text
                 variant="outline"
                 size="lg"
+                @favorite-changed="handleFavoriteChanged"
               />
 
               <Button variant="outline" @click="handleViewCopies" size="lg">

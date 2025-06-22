@@ -2,7 +2,7 @@
   <button
     :class="buttonClasses"
     @click="handleClick"
-    :disabled="isLoading"
+    :disabled="isLoading || isInitializing"
     :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
   >
     <Heart
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { Heart } from 'lucide-vue-next'
 import { favoritesService } from '@/lib/api'
 import { toast } from 'vue-sonner'
@@ -42,6 +42,7 @@ const emit = defineEmits<{
 
 const isFavorite = ref(props.initialIsFavorite)
 const isLoading = ref(false)
+const isInitializing = ref(false)
 
 // Watch for prop changes
 watch(() => props.initialIsFavorite, (newValue) => {
@@ -82,7 +83,7 @@ const heartClasses = computed(() => {
 })
 
 const handleClick = async () => {
-  if (isLoading.value) return
+  if (isLoading.value || isInitializing.value) return
   
   try {
     isLoading.value = true
@@ -111,12 +112,24 @@ const handleClick = async () => {
 // Method to check favorite status from server
 const checkFavoriteStatus = async () => {
   try {
+    isInitializing.value = true
     const status = await favoritesService.checkIsFavorite(props.bookId)
     isFavorite.value = status
   } catch (error) {
     console.error('Failed to check favorite status:', error)
+    // Don't show error toast for this as it's not a user-initiated action
+  } finally {
+    isInitializing.value = false
   }
 }
+
+// Automatically check favorite status when component mounts
+onMounted(() => {
+  // Only check if not explicitly provided via props
+  if (props.initialIsFavorite === false) {
+    checkFavoriteStatus()
+  }
+})
 
 // Expose methods for parent components
 defineExpose({

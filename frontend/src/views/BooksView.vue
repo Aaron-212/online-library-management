@@ -209,6 +209,12 @@ const handleCreateBook = async () => {
   }
 }
 
+const handleFavoriteChanged = (bookId: number, isFavorite: boolean) => {
+  // Provide user feedback without needing to reload the entire books list
+  // The FavoriteButton component already shows toast notifications
+  console.log(`Book ${bookId} favorite status changed to: ${isFavorite}`)
+}
+
 // Watch for search parameter changes
 watch([selectedCategory, selectedLanguage], () => {
   currentPage.value = 0
@@ -365,6 +371,7 @@ onMounted(() => {
           :total-copies="book.totalQuantity"
           :book-id="book.id"
           :show-favorite-button="authStore.isAuthenticated"
+          @favorite-changed="handleFavoriteChanged"
         />
       </div>
     </div>
