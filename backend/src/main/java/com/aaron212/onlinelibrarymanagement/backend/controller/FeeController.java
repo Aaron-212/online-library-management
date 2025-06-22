@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,9 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/fees")
@@ -67,8 +66,8 @@ public class FeeController {
         try {
             Borrow result = feeService.calculateOverdueFine(requestDto.borrowId());
             if (result != null) {
-                FeeResponseDto responseDto = FeeMapper.INSTANCE.toFeeResponseDto(result, 
-                    "逾期罚款计算成功，罚金：" + result.getFine() + "元");
+                FeeResponseDto responseDto =
+                        FeeMapper.INSTANCE.toFeeResponseDto(result, "逾期罚款计算成功，罚金：" + result.getFine() + "元");
                 return ResponseEntity.ok(responseDto);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Borrow record not found"));
@@ -104,8 +103,8 @@ public class FeeController {
         try {
             Borrow result = feeService.calculateBookCompensation(requestDto.borrowId());
             if (result != null) {
-                FeeResponseDto responseDto = FeeMapper.INSTANCE.toFeeResponseDto(result, 
-                    "图书赔偿费用计算成功，赔偿金：" + result.getFine() + "元");
+                FeeResponseDto responseDto =
+                        FeeMapper.INSTANCE.toFeeResponseDto(result, "图书赔偿费用计算成功，赔偿金：" + result.getFine() + "元");
                 return ResponseEntity.ok(responseDto);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Borrow record not found"));
@@ -188,11 +187,18 @@ public class FeeController {
 
     @Operation(
             summary = "Get all fees for current user (stub)",
-            description = "Temporary stub endpoint to align with frontend '/fees/user' path. Returns an empty page until full implementation is provided.")
+            description =
+                    "Temporary stub endpoint to align with frontend '/fees/user' path. Returns an empty page until full implementation is provided.")
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Request successful", content = @Content(schema = @Schema(implementation = Page.class))),
-                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Request successful",
+                        content = @Content(schema = @Schema(implementation = Page.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
     public ResponseEntity<?> getAllFeesForCurrentUser(

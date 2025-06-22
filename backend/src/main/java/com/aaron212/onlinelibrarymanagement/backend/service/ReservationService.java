@@ -8,11 +8,10 @@ import com.aaron212.onlinelibrarymanagement.backend.model.Borrow;
 import com.aaron212.onlinelibrarymanagement.backend.model.Reservation;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -24,11 +23,12 @@ public class ReservationService {
     private final BorrowRepository borrowRepository;
     private final UserRepository userRepository;
 
-    public ReservationService(ReservationRepository reservationRepository,
-                              BookRepository bookRepository,
-                              BookCopyRepository bookCopyRepository,
-                              BorrowRepository borrowRepository,
-                              UserRepository userRepository) {
+    public ReservationService(
+            ReservationRepository reservationRepository,
+            BookRepository bookRepository,
+            BookCopyRepository bookCopyRepository,
+            BorrowRepository borrowRepository,
+            UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
         this.bookRepository = bookRepository;
         this.bookCopyRepository = bookCopyRepository;
@@ -40,10 +40,10 @@ public class ReservationService {
      * Reserve a book for user when all copies are currently borrowed.
      */
     public Reservation createReservation(Long userId, Long bookId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+        User user =
+                userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        Book book =
+                bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
 
         // Step 1: if book has available copies -> ask to borrow instead
         long availableCopies = bookCopyRepository.countByBookAndStatus(book, BookCopy.Status.AVAILABLE);
@@ -71,7 +71,8 @@ public class ReservationService {
     }
 
     public void cancelReservation(Long userId, Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository
+                .findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
 
         if (!reservation.getUser().getId().equals(userId)) {
@@ -91,7 +92,8 @@ public class ReservationService {
      * When a borrowed copy is returned, call this to notify next user in queue.
      */
     public void processNextReservation(Long bookId) {
-        reservationRepository.findFirstByBookIdAndStatusOrderByReservationTimeAsc(bookId, Reservation.Status.WAITING)
+        reservationRepository
+                .findFirstByBookIdAndStatusOrderByReservationTimeAsc(bookId, Reservation.Status.WAITING)
                 .ifPresent(reservation -> {
                     reservation.setStatus(Reservation.Status.EXPIRED); // Here we could set NOTIFIED instead; simplified
                     reservation.setNoticeTime(LocalDateTime.now());

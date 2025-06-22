@@ -22,7 +22,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { booksService, categoriesService } from '@/lib/api'
-import type { Book, BookSearchParams, BookSummaryDto, PagedResponse, IndexCategory, BookDto } from '@/lib/api/types'
+import type {
+  Book,
+  BookSearchParams,
+  BookSummaryDto,
+  PagedResponse,
+  IndexCategory,
+  BookDto,
+} from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -108,7 +115,9 @@ const loadBooks = async () => {
       totalElements.value = searchResp.totalElements
     } else {
       // Default to all books summary when no keyword is specified
-      const summaryResp: PagedResponse<BookSummaryDto> = await booksService.getAllSummary(searchParams.value)
+      const summaryResp: PagedResponse<BookSummaryDto> = await booksService.getAllSummary(
+        searchParams.value,
+      )
       books.value = summaryResp.content as BookSummaryDto[]
       totalPages.value = summaryResp.totalPages
       totalElements.value = summaryResp.totalElements

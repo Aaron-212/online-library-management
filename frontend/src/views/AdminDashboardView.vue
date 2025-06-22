@@ -262,7 +262,9 @@ onMounted(() => {
           </CardHeader>
           <CardContent>
             <div class="text-2xl font-bold">
-              {{ typeof card.value === 'number' ? card.value.toLocaleString() : (card.value ?? '-') }}
+              {{
+                typeof card.value === 'number' ? card.value.toLocaleString() : (card.value ?? '-')
+              }}
             </div>
             <p class="text-xs text-muted-foreground">{{ card.description }}</p>
           </CardContent>
@@ -309,7 +311,10 @@ onMounted(() => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div v-if="!recentBooks || recentBooks.length === 0" class="text-center py-4 text-muted-foreground">
+            <div
+              v-if="!recentBooks || recentBooks.length === 0"
+              class="text-center py-4 text-muted-foreground"
+            >
               No recent books found
             </div>
             <div v-else class="space-y-3">
@@ -322,7 +327,11 @@ onMounted(() => {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ book.title || 'Unknown' }}</p>
                   <p class="text-xs text-muted-foreground truncate">
-                    {{ Array.isArray(book.authors) ? book.authors.map((a) => a?.name || 'Unknown').join(', ') : 'Unknown author' }}
+                    {{
+                      Array.isArray(book.authors)
+                        ? book.authors.map((a) => a?.name || 'Unknown').join(', ')
+                        : 'Unknown author'
+                    }}
                   </p>
                 </div>
                 <div class="flex flex-col items-end gap-1">
@@ -351,7 +360,10 @@ onMounted(() => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div v-if="!recentBorrows || recentBorrows.length === 0" class="text-center py-4 text-muted-foreground">
+            <div
+              v-if="!recentBorrows || recentBorrows.length === 0"
+              class="text-center py-4 text-muted-foreground"
+            >
               No overdue borrowings
             </div>
             <div v-else class="space-y-3">
@@ -365,8 +377,8 @@ onMounted(() => {
                     {{ borrow.bookTitle || 'Unknown book' }}
                   </p>
                   <p class="text-xs text-muted-foreground">
-                    User: {{ borrow.username || 'Unknown user' }} •
-                    Due: {{ borrow.returnTime ? formatDate(borrow.returnTime) : 'N/A' }}
+                    User: {{ borrow.username || 'Unknown user' }} • Due:
+                    {{ borrow.returnTime ? formatDate(borrow.returnTime) : 'N/A' }}
                   </p>
                 </div>
                 <Badge :variant="getBorrowStatusBadge(borrow).variant" size="sm">
@@ -396,7 +408,10 @@ onMounted(() => {
             </div>
           </CardHeader>
           <CardContent>
-            <div v-if="!recentNotices || recentNotices.length === 0" class="text-center py-4 text-muted-foreground">
+            <div
+              v-if="!recentNotices || recentNotices.length === 0"
+              class="text-center py-4 text-muted-foreground"
+            >
               No recent notices
             </div>
             <div v-else class="space-y-4">

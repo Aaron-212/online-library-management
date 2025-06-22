@@ -2,12 +2,11 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.model.IndexCategory;
 import com.aaron212.onlinelibrarymanagement.backend.service.IndexCategoryService;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -48,8 +47,7 @@ public class IndexCategoryController {
     @GetMapping("/{indexCode}")
     public ResponseEntity<IndexCategory> getCategoryByIndexCode(@PathVariable String indexCode) {
         Optional<IndexCategory> category = indexCategoryService.findByIndexCode(indexCode);
-        return category.map(ResponseEntity::ok)
-                      .orElse(ResponseEntity.notFound().build());
+        return category.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     /**

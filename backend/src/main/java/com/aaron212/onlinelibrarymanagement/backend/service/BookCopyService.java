@@ -10,12 +10,11 @@ import com.aaron212.onlinelibrarymanagement.backend.model.Book;
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -31,7 +30,8 @@ public class BookCopyService {
 
     public BookCopyDto createBookCopy(BookCopyCreateDto createDto) {
         // Verify book exists
-        Book book = bookRepository.findById(createDto.bookId())
+        Book book = bookRepository
+                .findById(createDto.bookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book", "id", createDto.bookId()));
 
         // Check if barcode already exists
@@ -52,23 +52,23 @@ public class BookCopyService {
 
     @Transactional(readOnly = true)
     public BookCopyDto getBookCopyById(Long id) {
-        BookCopy copy = bookCopyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
+        BookCopy copy =
+                bookCopyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
         return convertToDto(copy);
     }
 
     @Transactional(readOnly = true)
     public List<BookCopyDto> getCopiesByBookId(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+        Book book =
+                bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
 
         List<BookCopy> copies = bookCopyRepository.findByBook(book);
         return copies.stream().map(this::convertToDto).toList();
     }
 
     public BookCopyDto updateBookCopy(Long id, BookCopyUpdateDto updateDto) {
-        BookCopy copy = bookCopyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
+        BookCopy copy =
+                bookCopyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
 
         // Check if trying to update barcode and it conflicts with existing one
         if (updateDto.barcode() != null && !updateDto.barcode().equals(copy.getBarcode())) {
@@ -100,16 +100,17 @@ public class BookCopyService {
     }
 
     public BookCopyDto updateBookCopyStatus(Long id, BookCopy.Status status) {
-        BookCopy copy = bookCopyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
+        BookCopy copy =
+                bookCopyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
 
         // Validate status transition
         if (copy.getStatus() == BookCopy.Status.BORROWED && status == BookCopy.Status.AVAILABLE) {
-            throw new BusinessLogicException("Cannot change status from BORROWED to AVAILABLE directly. Use return functionality instead.");
+            throw new BusinessLogicException(
+                    "Cannot change status from BORROWED to AVAILABLE directly. Use return functionality instead.");
         }
 
         copy.setStatus(status);
-        
+
         // Set maintenance time if changing to maintenance
         if (status == BookCopy.Status.MAINTENANCE) {
             copy.setLastMaintenance(LocalDateTime.now());
@@ -120,8 +121,8 @@ public class BookCopyService {
     }
 
     public void deleteBookCopy(Long id) {
-        BookCopy copy = bookCopyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
+        BookCopy copy =
+                bookCopyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", id));
 
         // Check if copy is currently borrowed
         if (copy.getStatus() == BookCopy.Status.BORROWED) {
@@ -139,8 +140,8 @@ public class BookCopyService {
 
     @Transactional(readOnly = true)
     public Optional<BookCopy> findAvailableCopyForBook(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+        Book book =
+                bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
 
         return bookCopyRepository.findFirstByBookAndStatus(book, BookCopy.Status.AVAILABLE);
     }
@@ -157,7 +158,6 @@ public class BookCopyService {
                 copy.getPurchaseTime(),
                 copy.getLastMaintenance(),
                 copy.getCreateTime(),
-                copy.getUpdateTime()
-        );
+                copy.getUpdateTime());
     }
 }

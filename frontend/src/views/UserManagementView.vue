@@ -5,24 +5,48 @@ import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Edit, 
-  Loader2, 
-  Plus, 
-  Search, 
-  Shield, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Loader2,
+  Plus,
+  Search,
+  Shield,
   ShieldCheck,
-  Trash2, 
-  User, 
-  Users 
+  Trash2,
+  User,
+  Users,
 } from 'lucide-vue-next'
 import { usersService } from '@/lib/api'
 import type { UserPublic, UserAdmin, UserCreateDto, UserUpdateDto } from '@/lib/api/types'
@@ -55,13 +79,13 @@ const createForm = ref<UserCreateDto>({
   username: '',
   email: '',
   password: '',
-  role: 'USER'
+  role: 'USER',
 })
 
 // Edit form
 const editForm = ref<UserUpdateDto>({
   username: '',
-  email: ''
+  email: '',
 })
 
 // Role form
@@ -72,9 +96,11 @@ const hasNextPage = computed(() => currentPage.value < totalPages.value - 1)
 const hasPrevPage = computed(() => currentPage.value > 0)
 
 const isFormValid = computed(() => {
-  return createForm.value.username.trim() && 
-         createForm.value.email.trim() && 
-         createForm.value.password.trim()
+  return (
+    createForm.value.username.trim() &&
+    createForm.value.email.trim() &&
+    createForm.value.password.trim()
+  )
 })
 
 const isEditFormValid = computed(() => {
@@ -88,9 +114,9 @@ const loadUsers = async () => {
     const response = await usersService.getAllUsers({
       page: currentPage.value,
       size: pageSize.value,
-      search: searchQuery.value || undefined
+      search: searchQuery.value || undefined,
     })
-    
+
     users.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
@@ -126,7 +152,7 @@ const openCreateDialog = () => {
     username: '',
     email: '',
     password: '',
-    role: 'USER'
+    role: 'USER',
   }
   isCreateDialogOpen.value = true
 }
@@ -135,7 +161,7 @@ const openEditDialog = (user: UserAdmin) => {
   selectedUser.value = user
   editForm.value = {
     username: user.username,
-    email: user.email || ''
+    email: user.email || '',
   }
   isEditDialogOpen.value = true
 }
@@ -244,7 +270,7 @@ watch(searchQuery, () => {
   const timeoutId = setTimeout(() => {
     handleSearch()
   }, 500)
-  
+
   return () => clearTimeout(timeoutId)
 })
 
@@ -274,8 +300,10 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="relative">
-              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input 
+              <Search
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
                 v-model="searchQuery"
                 placeholder="Search users by username or email..."
                 class="pl-10 w-64"
@@ -319,12 +347,18 @@ onMounted(() => {
           <div v-else-if="users.length === 0" class="p-8 text-center text-muted-foreground">
             <Users class="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p class="text-lg font-medium mb-2">No users found</p>
-            <p>{{ searchQuery ? 'Try adjusting your search terms' : 'Get started by creating your first user' }}</p>
+            <p>
+              {{
+                searchQuery
+                  ? 'Try adjusting your search terms'
+                  : 'Get started by creating your first user'
+              }}
+            </p>
           </div>
 
           <div v-else>
-            <div 
-              v-for="user in users" 
+            <div
+              v-for="user in users"
               :key="user.id"
               class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center"
             >
@@ -339,28 +373,28 @@ onMounted(() => {
                 </div>
               </div>
 
-                             <!-- Email -->
-               <div class="text-sm">
-                 {{ user.email || 'Not provided' }}
-               </div>
+              <!-- Email -->
+              <div class="text-sm">
+                {{ user.email || 'Not provided' }}
+              </div>
 
-               <!-- Role -->
-               <div>
-                 <Badge :variant="getRoleBadge(user.role || 'USER').variant" class="gap-1">
-                   <component :is="getRoleBadge(user.role || 'USER').icon" class="h-3 w-3" />
-                   {{ user.role || 'USER' }}
-                 </Badge>
-               </div>
+              <!-- Role -->
+              <div>
+                <Badge :variant="getRoleBadge(user.role || 'USER').variant" class="gap-1">
+                  <component :is="getRoleBadge(user.role || 'USER').icon" class="h-3 w-3" />
+                  {{ user.role || 'USER' }}
+                </Badge>
+              </div>
 
-               <!-- Created Date -->
-               <div class="text-sm text-muted-foreground">
-                 {{ formatDate(user.createdTime) }}
-               </div>
+              <!-- Created Date -->
+              <div class="text-sm text-muted-foreground">
+                {{ formatDate(user.createdTime) }}
+              </div>
 
-               <!-- Last Updated -->
-               <div class="text-sm text-muted-foreground">
-                 {{ formatDate(user.lastUpdateTime || user.createdTime) }}
-               </div>
+              <!-- Last Updated -->
+              <div class="text-sm text-muted-foreground">
+                {{ formatDate(user.lastUpdateTime || user.createdTime) }}
+              </div>
 
               <!-- Actions -->
               <div class="flex items-center justify-end gap-2">
@@ -381,8 +415,8 @@ onMounted(() => {
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex items-center justify-between p-4 border-t">
           <div class="text-sm text-muted-foreground">
-            Showing {{ currentPage * pageSize + 1 }} to {{ Math.min((currentPage + 1) * pageSize, totalElements) }} 
-            of {{ totalElements }} users
+            Showing {{ currentPage * pageSize + 1 }} to
+            {{ Math.min((currentPage + 1) * pageSize, totalElements) }} of {{ totalElements }} users
           </div>
           <div class="flex items-center gap-2">
             <Button variant="outline" size="sm" @click="prevPage" :disabled="!hasPrevPage">
@@ -406,9 +440,7 @@ onMounted(() => {
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription>
-            Add a new user to the library management system.
-          </DialogDescription>
+          <DialogDescription> Add a new user to the library management system. </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
@@ -472,11 +504,7 @@ onMounted(() => {
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
             <Label for="edit-username">Username</Label>
-            <Input
-              id="edit-username"
-              v-model="editForm.username"
-              placeholder="Enter username"
-            />
+            <Input id="edit-username" v-model="editForm.username" placeholder="Enter username" />
           </div>
           <div class="grid gap-2">
             <Label for="edit-email">Email</Label>
@@ -503,9 +531,7 @@ onMounted(() => {
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Update User Role</DialogTitle>
-          <DialogDescription>
-            Change the role for {{ selectedUser?.username }}.
-          </DialogDescription>
+          <DialogDescription> Change the role for {{ selectedUser?.username }}. </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
@@ -537,7 +563,8 @@ onMounted(() => {
         <AlertDialogHeader>
           <AlertDialogTitle>Delete User</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete {{ selectedUser?.username }}? This action cannot be undone and will remove all user data.
+            Are you sure you want to delete {{ selectedUser?.username }}? This action cannot be
+            undone and will remove all user data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

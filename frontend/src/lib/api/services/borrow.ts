@@ -16,7 +16,10 @@ export class BorrowService {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/borrow`, request)
   }
 
-  async borrowBookByBookId(request: { userId: number; bookId: number }): Promise<BorrowResponseDto> {
+  async borrowBookByBookId(request: {
+    userId: number
+    bookId: number
+  }): Promise<BorrowResponseDto> {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/borrow-by-book`, request)
   }
 
@@ -25,7 +28,7 @@ export class BorrowService {
     return apiClient.put<{ message: string }>(`${this.basePath}/${borrowId}/return`)
   }
 
-  // Secure renew method using borrow ID - RECOMMENDED  
+  // Secure renew method using borrow ID - RECOMMENDED
   async renewBookById(borrowId: number): Promise<{ message: string }> {
     return apiClient.put<{ message: string }>(`${this.basePath}/${borrowId}/renew`)
   }
@@ -44,15 +47,15 @@ export class BorrowService {
   async returnBook(borrowId: number): Promise<BorrowResponseDto> {
     // Get current borrowings to find the record we're returning
     const currentBorrowings = await this.getMyCurrentBorrowings()
-    const borrowRecord = currentBorrowings.find(b => b.borrowId === borrowId)
-    
+    const borrowRecord = currentBorrowings.find((b) => b.borrowId === borrowId)
+
     if (!borrowRecord) {
       throw new Error(`未找到借阅记录 ID: ${borrowId}`)
     }
-    
+
     // Use the secure endpoint that validates ownership
     const result = await this.returnBookById(borrowId)
-    
+
     // Return a compatible response format with real data for backward compatibility
     return {
       borrowId: borrowRecord.borrowId,
@@ -64,7 +67,7 @@ export class BorrowService {
       borrowTime: borrowRecord.borrowTime,
       returnTime: new Date().toISOString(), // Current timestamp as return time
       status: 'RETURNED' as any,
-      message: result.message
+      message: result.message,
     }
   }
 
@@ -72,19 +75,19 @@ export class BorrowService {
   async renewBook(borrowId: number): Promise<BorrowResponseDto> {
     // Get current borrowings to find the record we're renewing
     const currentBorrowings = await this.getMyCurrentBorrowings()
-    const borrowRecord = currentBorrowings.find(b => b.borrowId === borrowId)
-    
+    const borrowRecord = currentBorrowings.find((b) => b.borrowId === borrowId)
+
     if (!borrowRecord) {
       throw new Error(`未找到借阅记录 ID: ${borrowId}`)
     }
-    
+
     // Use the secure endpoint that validates ownership
     const result = await this.renewBookById(borrowId)
-    
+
     // Get updated borrowings after renewal to get the new due date
     const updatedBorrowings = await this.getMyCurrentBorrowings()
-    const updatedBorrowRecord = updatedBorrowings.find(b => b.borrowId === borrowId)
-    
+    const updatedBorrowRecord = updatedBorrowings.find((b) => b.borrowId === borrowId)
+
     // Return a compatible response format with real data for backward compatibility
     return {
       borrowId: borrowRecord.borrowId,
@@ -96,7 +99,7 @@ export class BorrowService {
       borrowTime: borrowRecord.borrowTime,
       returnTime: updatedBorrowRecord?.returnTime || borrowRecord.returnTime, // Use updated due date if available
       status: 'BORROWED' as any,
-      message: result.message
+      message: result.message,
     }
   }
 
@@ -115,17 +118,14 @@ export class BorrowService {
     // Call the correct backend endpoint that returns paginated borrowing history
     const page = params?.page ?? 0
     const size = params?.size ?? 10
-    
+
     return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/user`, {
       page,
-      size
+      size,
     })
   }
 
-  async getOverdueBorrows(params?: {
-    page?: number
-    size?: number
-  }): Promise<Borrow[]> {
+  async getOverdueBorrows(params?: { page?: number; size?: number }): Promise<Borrow[]> {
     return apiClient.get<Borrow[]>(`${this.basePath}/overdue`, params)
   }
 

@@ -12,5 +12,4 @@ public record LibraryStatisticsDto(
         Long borrowedBooks,
         Long totalBorrows,
         Long activeBorrows,
-        Long overdueBorrows) {
-}
+        Long overdueBorrows) {}

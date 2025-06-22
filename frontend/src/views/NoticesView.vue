@@ -181,7 +181,7 @@ const openAddDialog = () => {
     content: '',
     publishTime: formatDateForInput(publishTime), // Use local time directly
     expireTime: '',
-    status: 1
+    status: 1,
   }
   showAddDialog.value = true
 }
@@ -212,12 +212,16 @@ const closeDialogs = () => {
     content: '',
     publishTime: '',
     expireTime: '',
-    status: 1
+    status: 1,
   }
 }
 
 const handleCreateNotice = async () => {
-  if (!noticeForm.value.title.trim() || !noticeForm.value.content.trim() || !noticeForm.value.publishTime) {
+  if (
+    !noticeForm.value.title.trim() ||
+    !noticeForm.value.content.trim() ||
+    !noticeForm.value.publishTime
+  ) {
     toast.error('Please fill in all required fields')
     return
   }
@@ -228,7 +232,9 @@ const handleCreateNotice = async () => {
       title: noticeForm.value.title.trim(),
       content: noticeForm.value.content.trim(),
       publishTime: new Date(noticeForm.value.publishTime).toISOString(),
-      expireTime: noticeForm.value.expireTime ? new Date(noticeForm.value.expireTime).toISOString() : undefined,
+      expireTime: noticeForm.value.expireTime
+        ? new Date(noticeForm.value.expireTime).toISOString()
+        : undefined,
       status: noticeForm.value.status,
     })
 
@@ -244,7 +250,12 @@ const handleCreateNotice = async () => {
 }
 
 const handleUpdateNotice = async () => {
-  if (!editingNotice.value || !noticeForm.value.title.trim() || !noticeForm.value.content.trim() || !noticeForm.value.publishTime) {
+  if (
+    !editingNotice.value ||
+    !noticeForm.value.title.trim() ||
+    !noticeForm.value.content.trim() ||
+    !noticeForm.value.publishTime
+  ) {
     toast.error('Please fill in all required fields')
     return
   }
@@ -255,7 +266,9 @@ const handleUpdateNotice = async () => {
       title: noticeForm.value.title.trim(),
       content: noticeForm.value.content.trim(),
       publishTime: new Date(noticeForm.value.publishTime).toISOString(),
-      expireTime: noticeForm.value.expireTime ? new Date(noticeForm.value.expireTime).toISOString() : undefined,
+      expireTime: noticeForm.value.expireTime
+        ? new Date(noticeForm.value.expireTime).toISOString()
+        : undefined,
       status: noticeForm.value.status,
     })
 
@@ -352,7 +365,11 @@ onMounted(() => {
       </div>
 
       <div v-else class="space-y-4">
-        <Card v-for="notice in filteredNotices" :key="notice.id" class="hover:shadow-md transition-shadow">
+        <Card
+          v-for="notice in filteredNotices"
+          :key="notice.id"
+          class="hover:shadow-md transition-shadow"
+        >
           <CardHeader class="pb-3">
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -396,7 +413,12 @@ onMounted(() => {
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center items-center gap-2">
-        <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="currentPage === 0"
+          @click="handlePageChange(currentPage - 1)"
+        >
           <ChevronLeft class="h-4 w-4" />
           Previous
         </Button>
@@ -405,8 +427,12 @@ onMounted(() => {
           Page {{ currentPage + 1 }} of {{ totalPages }}
         </span>
 
-        <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
-          @click="handlePageChange(currentPage + 1)">
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="currentPage === totalPages - 1"
+          @click="handlePageChange(currentPage + 1)"
+        >
           Next
           <ChevronRight class="h-4 w-4" />
         </Button>
@@ -424,19 +450,34 @@ onMounted(() => {
         <form @submit.prevent="handleCreateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="add-title">Title</Label>
-            <Input id="add-title" v-model="noticeForm.title" placeholder="Enter notice title..." required />
+            <Input
+              id="add-title"
+              v-model="noticeForm.title"
+              placeholder="Enter notice title..."
+              required
+            />
           </div>
 
           <div class="space-y-2">
             <Label for="add-content">Content</Label>
-            <textarea id="add-content" v-model="noticeForm.content" placeholder="Enter notice content..."
-              class="w-full min-h-[200px] p-3 border rounded-md resize-none" required />
+            <textarea
+              id="add-content"
+              v-model="noticeForm.content"
+              placeholder="Enter notice content..."
+              class="w-full min-h-[200px] p-3 border rounded-md resize-none"
+              required
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="add-publish-time">Publish Time *</Label>
-              <Input id="add-publish-time" v-model="noticeForm.publishTime" type="datetime-local" required />
+              <Input
+                id="add-publish-time"
+                v-model="noticeForm.publishTime"
+                type="datetime-local"
+                required
+              />
             </div>
 
             <div class="space-y-2">
@@ -479,19 +520,34 @@ onMounted(() => {
         <form @submit.prevent="handleUpdateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="edit-title">Title</Label>
-            <Input id="edit-title" v-model="noticeForm.title" placeholder="Enter notice title..." required />
+            <Input
+              id="edit-title"
+              v-model="noticeForm.title"
+              placeholder="Enter notice title..."
+              required
+            />
           </div>
 
           <div class="space-y-2">
             <Label for="edit-content">Content</Label>
-            <textarea id="edit-content" v-model="noticeForm.content" placeholder="Enter notice content..."
-              class="w-full min-h-[200px] p-3 border rounded-md resize-none" required />
+            <textarea
+              id="edit-content"
+              v-model="noticeForm.content"
+              placeholder="Enter notice content..."
+              class="w-full min-h-[200px] p-3 border rounded-md resize-none"
+              required
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="edit-publish-time">Publish Time *</Label>
-              <Input id="edit-publish-time" v-model="noticeForm.publishTime" type="datetime-local" required />
+              <Input
+                id="edit-publish-time"
+                v-model="noticeForm.publishTime"
+                type="datetime-local"
+                required
+              />
             </div>
 
             <div class="space-y-2">
@@ -534,7 +590,10 @@ onMounted(() => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel @click="closeDialogs">Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="handleDeleteNotice" class="bg-destructive text-white hover:bg-destructive/90">
+          <AlertDialogAction
+            @click="handleDeleteNotice"
+            class="bg-destructive text-white hover:bg-destructive/90"
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -2,13 +2,12 @@ package com.aaron212.onlinelibrarymanagement.backend.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "book")
@@ -34,10 +33,10 @@ public class Book {
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Title is required")
     private String title;
-    
+
     @Column(length = 50)
     private String language;
-    
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

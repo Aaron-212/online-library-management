@@ -11,14 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/favorites")
@@ -36,10 +35,14 @@ public class FavoritesController {
             description = "Returns a paginated list of the current user's favorite books")
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Favorites retrieved successfully", 
-                    content = @Content(schema = @Schema(implementation = Page.class))),
-                @ApiResponse(responseCode = "401", description = "User not authenticated", 
-                    content = @Content(schema = @Schema(implementation = Map.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Favorites retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = Page.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUserFavorites(
@@ -55,21 +58,20 @@ public class FavoritesController {
         return ResponseEntity.ok(favorites);
     }
 
-    @Operation(
-            summary = "Add a book to favorites",
-            description = "Adds a book to the current user's favorites")
+    @Operation(summary = "Add a book to favorites", description = "Adds a book to the current user's favorites")
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Favorite added successfully", 
-                    content = @Content(schema = @Schema(implementation = FavoriteResponseDto.class))),
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Favorite added successfully",
+                        content = @Content(schema = @Schema(implementation = FavoriteResponseDto.class))),
                 @ApiResponse(responseCode = "400", description = "Invalid request or book already favorited"),
                 @ApiResponse(responseCode = "401", description = "User not authenticated"),
                 @ApiResponse(responseCode = "404", description = "Book not found")
             })
     @PostMapping
     public ResponseEntity<?> addFavorite(
-            Authentication authentication, 
-            @Valid @RequestBody FavoriteCreateDto createDto) {
+            Authentication authentication, @Valid @RequestBody FavoriteCreateDto createDto) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
@@ -78,9 +80,7 @@ public class FavoritesController {
         return ResponseEntity.ok(favorite);
     }
 
-    @Operation(
-            summary = "Remove favorite by ID",
-            description = "Removes a favorite book by its favorite ID")
+    @Operation(summary = "Remove favorite by ID", description = "Removes a favorite book by its favorite ID")
     @ApiResponses(
             value = {
                 @ApiResponse(responseCode = "200", description = "Favorite removed successfully"),
@@ -90,8 +90,7 @@ public class FavoritesController {
             })
     @DeleteMapping("/{favoriteId}")
     public ResponseEntity<Map<String, String>> removeFavorite(
-            Authentication authentication, 
-            @PathVariable Long favoriteId) {
+            Authentication authentication, @PathVariable Long favoriteId) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
@@ -100,9 +99,7 @@ public class FavoritesController {
         return ResponseEntity.ok(Map.of("message", "Favorite removed successfully"));
     }
 
-    @Operation(
-            summary = "Remove favorite by book ID",
-            description = "Removes a book from favorites by book ID")
+    @Operation(summary = "Remove favorite by book ID", description = "Removes a book from favorites by book ID")
     @ApiResponses(
             value = {
                 @ApiResponse(responseCode = "200", description = "Favorite removed successfully"),
@@ -111,8 +108,7 @@ public class FavoritesController {
             })
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Map<String, String>> removeFavoriteByBook(
-            Authentication authentication, 
-            @PathVariable Long bookId) {
+            Authentication authentication, @PathVariable Long bookId) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
@@ -130,9 +126,7 @@ public class FavoritesController {
                 @ApiResponse(responseCode = "401", description = "User not authenticated")
             })
     @GetMapping("/check/{bookId}")
-    public ResponseEntity<?> isFavorite(
-            Authentication authentication, 
-            @PathVariable Long bookId) {
+    public ResponseEntity<?> isFavorite(Authentication authentication, @PathVariable Long bookId) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
@@ -141,9 +135,7 @@ public class FavoritesController {
         return ResponseEntity.ok(Map.of("isFavorite", isFavorite));
     }
 
-    @Operation(
-            summary = "Get user's favorites count",
-            description = "Returns the total count of user's favorite books")
+    @Operation(summary = "Get user's favorites count", description = "Returns the total count of user's favorite books")
     @ApiResponses(
             value = {
                 @ApiResponse(responseCode = "200", description = "Count retrieved successfully"),

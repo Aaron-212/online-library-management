@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +27,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -201,13 +200,13 @@ public class UserController {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<UserAdminProjection> users;
-            
+
             if (search != null && !search.trim().isEmpty()) {
                 users = userService.searchUsersForAdmin(search.trim(), pageable);
             } else {
                 users = userService.findAllUsersForAdmin(pageable);
             }
-            
+
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to retrieve users"));

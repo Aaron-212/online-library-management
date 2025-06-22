@@ -1,16 +1,18 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
 import com.aaron212.onlinelibrarymanagement.backend.dto.AuthorDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookCopyDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookCreateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookSummaryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.IndexCategoryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.PublisherDto;
-import com.aaron212.onlinelibrarymanagement.backend.dto.BookCopyDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
-import com.aaron212.onlinelibrarymanagement.backend.service.BookService;
 import com.aaron212.onlinelibrarymanagement.backend.service.BookCopyService;
+import com.aaron212.onlinelibrarymanagement.backend.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,6 +24,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +35,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -84,7 +83,9 @@ public class BookController {
         }
     }
 
-    @Operation(summary = "Get all books summary", description = "Retrieves a paginated list of book summaries with essential information")
+    @Operation(
+            summary = "Get all books summary",
+            description = "Retrieves a paginated list of book summaries with essential information")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -277,23 +278,26 @@ public class BookController {
 
     private BookDto convertToBookDto(Book book) {
         // Authors
-        List<AuthorDto> authorDtos = book.getAuthors() != null ?
-                book.getAuthors().stream()
-                        .map(rel -> new AuthorDto(rel.getAuthor().getId(), rel.getAuthor().getName()))
-                        .toList() : List.of();
+        List<AuthorDto> authorDtos = book.getAuthors() != null
+                ? book.getAuthors().stream()
+                        .map(rel -> new AuthorDto(
+                                rel.getAuthor().getId(), rel.getAuthor().getName()))
+                        .toList()
+                : List.of();
 
         // Publishers
-        List<PublisherDto> publisherDtos = book.getPublishers() != null ?
-                book.getPublishers().stream()
-                        .map(rel -> new PublisherDto(rel.getPublisher().getId(), rel.getPublisher().getName()))
-                        .toList() : List.of();
+        List<PublisherDto> publisherDtos = book.getPublishers() != null
+                ? book.getPublishers().stream()
+                        .map(rel -> new PublisherDto(
+                                rel.getPublisher().getId(), rel.getPublisher().getName()))
+                        .toList()
+                : List.of();
 
         // Category
         IndexCategoryDto categoryDto = null;
         if (book.getIndexCategory() != null) {
             categoryDto = new IndexCategoryDto(
-                    book.getIndexCategory().getId(),
-                    book.getIndexCategory().getName());
+                    book.getIndexCategory().getId(), book.getIndexCategory().getName());
         }
 
         int available = bookService.getAvailableCopiesCount(book);
@@ -310,7 +314,6 @@ public class BookController {
                 authorDtos,
                 publisherDtos,
                 categoryDto,
-                book.getCoverURL()
-        );
+                book.getCoverURL());
     }
 }

@@ -33,7 +33,9 @@
     <!-- Loading book details -->
     <div v-if="loadingBook" class="flex justify-center py-8">
       <div class="text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"
+        ></div>
         <p class="text-gray-600">Loading book details...</p>
       </div>
     </div>
@@ -51,9 +53,16 @@
 
     <!-- Book copies list -->
     <div v-else-if="book">
-      <BookCopyList :copies="copies" :loading="loadingCopies" :show-actions="true"
-        :user-borrowed-copies="userBorrowedCopies" @borrow="handleBorrow" @return="handleReturn"
-        @maintenance="handleMaintenance" @edit="handleEdit" />
+      <BookCopyList
+        :copies="copies"
+        :loading="loadingCopies"
+        :show-actions="true"
+        :user-borrowed-copies="userBorrowedCopies"
+        @borrow="handleBorrow"
+        @return="handleReturn"
+        @maintenance="handleMaintenance"
+        @edit="handleEdit"
+      />
     </div>
 
     <!-- Create Copy Dialog -->
@@ -61,9 +70,7 @@
       <DialogContent class="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add New Copy</DialogTitle>
-          <DialogDescription>
-            Create a new copy of "{{ book?.title }}"
-          </DialogDescription>
+          <DialogDescription> Create a new copy of "{{ book?.title }}" </DialogDescription>
         </DialogHeader>
 
         <div class="space-y-4">
@@ -87,18 +94,19 @@
 
           <div>
             <Label for="purchasePrice">Purchase Price (Optional)</Label>
-            <Input id="purchasePrice" v-model.number="newCopy.purchasePrice" type="number" step="0.01"
-              placeholder="0.00" />
+            <Input
+              id="purchasePrice"
+              v-model.number="newCopy.purchasePrice"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+            />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" @click="showCreateDialog = false">
-            Cancel
-          </Button>
-          <Button @click="createCopy" :disabled="!newCopy.barcode">
-            Create Copy
-          </Button>
+          <Button variant="outline" @click="showCreateDialog = false"> Cancel </Button>
+          <Button @click="createCopy" :disabled="!newCopy.barcode"> Create Copy </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -108,9 +116,7 @@
       <DialogContent class="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Copy</DialogTitle>
-          <DialogDescription>
-            Update copy details
-          </DialogDescription>
+          <DialogDescription> Update copy details </DialogDescription>
         </DialogHeader>
 
         <div v-if="editingCopy" class="space-y-4">
@@ -137,18 +143,19 @@
 
           <div>
             <Label for="edit-purchasePrice">Purchase Price</Label>
-            <Input id="edit-purchasePrice" v-model.number="editForm.purchasePrice" type="number" step="0.01"
-              placeholder="0.00" />
+            <Input
+              id="edit-purchasePrice"
+              v-model.number="editForm.purchasePrice"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+            />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" @click="showEditDialog = false">
-            Cancel
-          </Button>
-          <Button @click="updateCopy" :disabled="!editForm.barcode">
-            Update Copy
-          </Button>
+          <Button variant="outline" @click="showEditDialog = false"> Cancel </Button>
+          <Button @click="updateCopy" :disabled="!editForm.barcode"> Update Copy </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -205,14 +212,14 @@ const isAdmin = computed(() => authStore.user?.role === 'ADMIN')
 const newCopy = reactive({
   barcode: '',
   status: 'AVAILABLE' as BookCopyStatus,
-  purchasePrice: undefined as number | undefined
+  purchasePrice: undefined as number | undefined,
 })
 
 // Edit copy form
 const editForm = reactive({
   barcode: '',
   status: 'AVAILABLE' as BookCopyStatus,
-  purchasePrice: undefined as number | undefined
+  purchasePrice: undefined as number | undefined,
 })
 
 const resetNewCopyForm = () => {
@@ -244,7 +251,7 @@ const loadBookAndCopies = async () => {
     // Load book details, copies, and user borrowed copies in parallel
     const [bookData, copiesData] = await Promise.all([
       api.books.getById(bookId),
-      api.bookCopies.getCopiesByBookId(bookId)
+      api.bookCopies.getCopiesByBookId(bookId),
     ])
 
     book.value = bookData
@@ -267,8 +274,8 @@ const loadUserBorrowedCopies = async () => {
 
     const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
     const borrowedCopyIds = currentBorrowings
-      .filter(borrow => borrow.status === 'BORROWED' || borrow.status === 'OVERDUE')
-      .map(borrow => borrow.copyId)
+      .filter((borrow) => borrow.status === 'BORROWED' || borrow.status === 'OVERDUE')
+      .map((borrow) => borrow.copyId)
 
     userBorrowedCopies.value = new Set(borrowedCopyIds)
   } catch (error) {
@@ -285,7 +292,7 @@ const createCopy = async () => {
       barcode: newCopy.barcode,
       status: newCopy.status,
       purchasePrice: newCopy.purchasePrice,
-      purchaseTime: new Date().toISOString()
+      purchaseTime: new Date().toISOString(),
     })
 
     toast.success('Copy created successfully')
@@ -304,7 +311,7 @@ const updateCopy = async () => {
     await api.bookCopies.updateCopy(editingCopy.value.id, {
       barcode: editForm.barcode,
       status: editForm.status,
-      purchasePrice: editForm.purchasePrice
+      purchasePrice: editForm.purchasePrice,
     })
 
     toast.success('Copy updated successfully')
@@ -325,7 +332,7 @@ const handleBorrow = async (copy: BookCopy) => {
 
     await api.borrow.borrowBook({
       userId: authStore.user.id,
-      copyId: copy.id
+      copyId: copy.id,
     })
 
     toast.success('Book borrowed successfully')
@@ -345,8 +352,9 @@ const handleReturn = async (copy: BookCopy) => {
 
     // Find active borrow record for this user and copy
     const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
-    const activeBorrow = currentBorrowings.find(borrow =>
-      borrow.copyId === copy.id && (borrow.status === 'BORROWED' || borrow.status === 'OVERDUE')
+    const activeBorrow = currentBorrowings.find(
+      (borrow) =>
+        borrow.copyId === copy.id && (borrow.status === 'BORROWED' || borrow.status === 'OVERDUE'),
     )
 
     if (!activeBorrow) {

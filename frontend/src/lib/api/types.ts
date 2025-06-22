@@ -372,4 +372,4 @@ export interface FavoriteCreateDto {
   bookId: number
 }
 
-export type BookDto = Book;
+export type BookDto = Book

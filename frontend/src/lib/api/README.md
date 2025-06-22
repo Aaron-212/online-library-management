@@ -48,7 +48,7 @@ const books = await api.books.getAll({ page: 0, size: 10 })
 const searchResults = await api.books.search({
   keyword: 'javascript',
   page: 0,
-  size: 20
+  size: 20,
 })
 
 // Borrow a book
@@ -61,31 +61,30 @@ const userBorrows = await api.borrow.getUserBorrows()
 ### Using with Vue Composables
 
 ```vue
-
 <script setup lang="ts">
-  import { useBooks, useBorrow } from '@/composables/useApi'
+import { useBooks, useBorrow } from '@/composables/useApi'
 
-  const booksApi = useBooks()
-  const borrowApi = useBorrow()
+const booksApi = useBooks()
+const borrowApi = useBorrow()
 
-  // Reactive data
-  const books = booksApi.books
-  const isLoading = booksApi.isLoading
-  const error = booksApi.error
+// Reactive data
+const books = booksApi.books
+const isLoading = booksApi.isLoading
+const error = booksApi.error
 
-  // Methods
-  const searchBooks = (query: string) => {
-    booksApi.searchBooks(query, { page: 0, size: 10 })
+// Methods
+const searchBooks = (query: string) => {
+  booksApi.searchBooks(query, { page: 0, size: 10 })
+}
+
+const borrowBook = async (bookId: number) => {
+  const result = await borrowApi.borrowBook(bookId)
+  if (result) {
+    // Success handling
+  } else if (borrowApi.error.value) {
+    // Error handling
   }
-
-  const borrowBook = async (bookId: number) => {
-    const result = await borrowApi.borrowBook(bookId)
-    if (result) {
-      // Success handling
-    } else if (borrowApi.error.value) {
-      // Error handling
-    }
-  }
+}
 </script>
 ```
 
@@ -99,14 +98,14 @@ import { authService } from '@/lib/api'
 // Login
 const response = await authService.login({
   usernameOrEmail: 'user@example.com',
-  password: 'hashedPassword'
+  password: 'hashedPassword',
 })
 
 // Register
 await authService.register({
   username: 'newuser',
   email: 'user@example.com',
-  password: 'hashedPassword'
+  password: 'hashedPassword',
 })
 
 // Change password
@@ -131,7 +130,7 @@ const book = await booksService.getById(123)
 const results = await booksService.search({
   keyword: 'programming',
   page: 0,
-  size: 10
+  size: 10,
 })
 
 // Create book (admin only)
@@ -142,12 +141,12 @@ await booksService.create({
   authorNames: ['Author Name'],
   publisherNames: ['Publisher'],
   categoryName: 'Programming',
-  totalQuantity: 5
+  totalQuantity: 5,
 })
 
 // Update book
 await booksService.update(123, {
-  title: 'Updated Title'
+  title: 'Updated Title',
 })
 
 // Check if book exists by ISBN
@@ -190,13 +189,13 @@ const comments = await commentsService.getByBookId(123, { page: 0, size: 10 })
 await commentsService.create({
   bookId: 123,
   content: 'Great book!',
-  rating: 5
+  rating: 5,
 })
 
 // Update a comment
 await commentsService.update(456, {
   content: 'Updated review',
-  rating: 4
+  rating: 4,
 })
 
 // Delete a comment
@@ -216,7 +215,7 @@ const bookStats = await statisticsService.getBookStatistics()
 const topBooks = await statisticsService.getTopBooks({
   limit: 10,
   startDate: '2024-01-01',
-  endDate: '2024-12-31'
+  endDate: '2024-12-31',
 })
 
 // Get user statistics

@@ -16,6 +16,4 @@ public record BookDto(
         List<AuthorDto> authors,
         List<PublisherDto> publishers,
         IndexCategoryDto indexCategory,
-        String coverURL
-) {
-} 
+        String coverURL) {}

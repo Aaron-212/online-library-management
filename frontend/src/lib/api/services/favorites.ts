@@ -1,10 +1,10 @@
 import { apiClient } from '../client'
-import type { 
-  FavoriteDto, 
-  FavoriteResponseDto, 
-  FavoriteCreateDto, 
-  MessageResponse, 
-  PagedResponse 
+import type {
+  FavoriteDto,
+  FavoriteResponseDto,
+  FavoriteCreateDto,
+  MessageResponse,
+  PagedResponse,
 } from '../types'
 
 export class FavoritesService {

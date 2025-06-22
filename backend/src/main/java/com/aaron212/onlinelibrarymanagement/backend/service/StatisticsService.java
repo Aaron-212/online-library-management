@@ -5,14 +5,13 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.LibraryStatisticsDto;
 import com.aaron212.onlinelibrarymanagement.backend.mapper.BookMapper;
 import com.aaron212.onlinelibrarymanagement.backend.model.*;
 import com.aaron212.onlinelibrarymanagement.backend.repository.*;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class StatisticsService {
@@ -139,11 +138,6 @@ public class StatisticsService {
         long overdueBorrows = borrowRepository.countByStatus(Borrow.Status.OVERDUE);
 
         return new LibraryStatisticsDto(
-                totalBooks,
-                availableBooks,
-                borrowedBooks,
-                totalBorrows,
-                activeBorrows,
-                overdueBorrows);
+                totalBooks, availableBooks, borrowedBooks, totalBorrows, activeBorrows, overdueBorrows);
     }
 }

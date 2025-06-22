@@ -5,10 +5,7 @@
     :disabled="isLoading || isInitializing"
     :title="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
   >
-    <Heart
-      :class="heartClasses"
-      :fill="isFavorite ? 'currentColor' : 'none'"
-    />
+    <Heart :class="heartClasses" :fill="isFavorite ? 'currentColor' : 'none'" />
     <span v-if="showText" class="ml-1 text-sm">
       {{ isFavorite ? 'Favorited' : 'Add to favorites' }}
     </span>
@@ -33,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
   initialIsFavorite: false,
   showText: false,
   variant: 'ghost',
-  size: 'md'
+  size: 'md',
 })
 
 const emit = defineEmits<{
@@ -45,25 +42,29 @@ const isLoading = ref(false)
 const isInitializing = ref(false)
 
 // Watch for prop changes
-watch(() => props.initialIsFavorite, (newValue) => {
-  isFavorite.value = newValue
-})
+watch(
+  () => props.initialIsFavorite,
+  (newValue) => {
+    isFavorite.value = newValue
+  },
+)
 
 const buttonClasses = computed(() => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'
-  
+  const baseClasses =
+    'inline-flex items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'
+
   const sizeClasses = {
     sm: 'h-8 px-2',
     md: 'h-9 px-3',
-    lg: 'h-10 px-4'
+    lg: 'h-10 px-4',
   }
-  
+
   const variantClasses = {
     default: 'bg-primary text-primary-foreground hover:bg-primary/90',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
-    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
   }
-  
+
   return `${baseClasses} ${sizeClasses[props.size]} ${variantClasses[props.variant]}`
 })
 
@@ -72,22 +73,22 @@ const heartClasses = computed(() => {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
-    lg: 'h-6 w-6'
+    lg: 'h-6 w-6',
   }
-  
-  const colorClasses = isFavorite.value 
-    ? 'text-red-500' 
+
+  const colorClasses = isFavorite.value
+    ? 'text-red-500'
     : 'text-muted-foreground hover:text-red-500'
-  
+
   return `${baseClasses} ${sizeClasses[props.size]} ${colorClasses}`
 })
 
 const handleClick = async () => {
   if (isLoading.value || isInitializing.value) return
-  
+
   try {
     isLoading.value = true
-    
+
     if (isFavorite.value) {
       // Remove from favorites
       await favoritesService.removeFavoriteByBook(props.bookId)
@@ -99,7 +100,7 @@ const handleClick = async () => {
       isFavorite.value = true
       toast.success('Added to favorites')
     }
-    
+
     emit('favoriteChanged', isFavorite.value)
   } catch (error) {
     console.error('Failed to toggle favorite:', error)
@@ -134,6 +135,6 @@ onMounted(() => {
 // Expose methods for parent components
 defineExpose({
   checkFavoriteStatus,
-  isFavorite: computed(() => isFavorite.value)
+  isFavorite: computed(() => isFavorite.value),
 })
 </script>

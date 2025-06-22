@@ -1,5 +1,13 @@
 import { apiClient } from '../client'
-import type { MessageResponse, PagedResponse, User, UserPublic, UserAdmin, UserUpdateDto, UserCreateDto } from '../types'
+import type {
+  MessageResponse,
+  PagedResponse,
+  User,
+  UserPublic,
+  UserAdmin,
+  UserUpdateDto,
+  UserCreateDto,
+} from '../types'
 
 export class UsersService {
   private basePath = '/users'

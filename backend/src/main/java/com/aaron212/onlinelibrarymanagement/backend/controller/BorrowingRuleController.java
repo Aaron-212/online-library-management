@@ -13,14 +13,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/borrowing-rules")
@@ -33,9 +32,7 @@ public class BorrowingRuleController {
         this.borrowingRuleService = borrowingRuleService;
     }
 
-    @Operation(
-            summary = "Get all borrowing rules",
-            description = "Retrieves all borrowing rules in the system")
+    @Operation(summary = "Get all borrowing rules", description = "Retrieves all borrowing rules in the system")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -49,9 +46,7 @@ public class BorrowingRuleController {
         return ResponseEntity.ok(rules);
     }
 
-    @Operation(
-            summary = "Get borrowing rule by key",
-            description = "Retrieves a specific borrowing rule by its key")
+    @Operation(summary = "Get borrowing rule by key", description = "Retrieves a specific borrowing rule by its key")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -65,10 +60,8 @@ public class BorrowingRuleController {
             })
     @GetMapping("/{ruleKey}")
     public ResponseEntity<?> getRuleByKey(
-            @Parameter(description = "Rule key", required = true, example = "MAX_BORROW_BOOKS")
-            @PathVariable
-            @NotBlank
-            String ruleKey) {
+            @Parameter(description = "Rule key", required = true, example = "MAX_BORROW_BOOKS") @PathVariable @NotBlank
+                    String ruleKey) {
         Optional<BorrowingRuleDto> rule = borrowingRuleService.getRuleByKey(ruleKey);
         if (rule.isPresent()) {
             return ResponseEntity.ok(rule.get());
@@ -80,7 +73,8 @@ public class BorrowingRuleController {
 
     @Operation(
             summary = "Update borrowing rule",
-            description = "Updates an existing borrowing rule with the provided details. Only administrators can update rules.",
+            description =
+                    "Updates an existing borrowing rule with the provided details. Only administrators can update rules.",
             security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
@@ -104,17 +98,14 @@ public class BorrowingRuleController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{ruleKey}")
     public ResponseEntity<?> updateRule(
-            @Parameter(description = "Rule key", required = true, example = "MAX_BORROW_BOOKS")
-            @PathVariable
-            @NotBlank
-            String ruleKey,
+            @Parameter(description = "Rule key", required = true, example = "MAX_BORROW_BOOKS") @PathVariable @NotBlank
+                    String ruleKey,
             @Valid @RequestBody BorrowingRuleUpdateDto updateDto) {
         try {
             BorrowingRuleDto updatedRule = borrowingRuleService.updateRule(ruleKey, updateDto);
             return ResponseEntity.ok(updatedRule);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Borrowing rule not found: " + ruleKey));
@@ -141,8 +132,8 @@ public class BorrowingRuleController {
                     "finePerDay", borrowingRuleService.getDecimalRule(BorrowingRuleService.FINE_PER_DAY),
                     "maxRenewalTimes", borrowingRuleService.getIntegerRule(BorrowingRuleService.MAX_RENEWAL_TIMES),
                     "allowRenewals", borrowingRuleService.getBooleanRule(BorrowingRuleService.ALLOW_RENEWALS),
-                    "advanceReserveDays", borrowingRuleService.getIntegerRule(BorrowingRuleService.ADVANCE_RESERVE_DAYS)
-            );
+                    "advanceReserveDays",
+                            borrowingRuleService.getIntegerRule(BorrowingRuleService.ADVANCE_RESERVE_DAYS));
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

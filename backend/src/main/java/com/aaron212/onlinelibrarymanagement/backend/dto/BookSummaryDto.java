@@ -9,6 +9,4 @@ public record BookSummaryDto(
         List<String> publishers,
         String coverURL,
         int availableQuantity,
-        int totalQuantity
-) {
-} 
+        int totalQuantity) {}
