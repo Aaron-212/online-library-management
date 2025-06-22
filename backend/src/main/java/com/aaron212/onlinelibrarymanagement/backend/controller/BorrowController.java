@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -27,9 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/borrow")
@@ -70,23 +69,22 @@ public class BorrowController {
             Long bookId = request.get("bookId");
             if (userId == null || bookId == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "User ID and Book ID are required"));
+                        .body(Map.of("error", "User ID and Book ID are required"));
             }
-            
+
             Borrow borrow = borrowService.borrowBookByBookId(userId, bookId);
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                "借书成功，应还日期：" + borrow.getReturnTime().toLocalDate()
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    "借书成功，应还日期：" + borrow.getReturnTime().toLocalDate());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -118,17 +116,16 @@ public class BorrowController {
             Borrow borrow = borrowService.borrowBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                "借书成功，应还日期：" + borrow.getReturnTime().toLocalDate()
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    "借书成功，应还日期：" + borrow.getReturnTime().toLocalDate());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -165,7 +162,8 @@ public class BorrowController {
         try {
             Long userId;
             try {
-                userId = userService.findByUsername(authentication.getName())
+                userId = userService
+                        .findByUsername(authentication.getName())
                         .orElseThrow(() -> new RuntimeException("User not found"))
                         .getId();
             } catch (RuntimeException e) {
@@ -174,12 +172,11 @@ public class BorrowController {
                 }
                 throw e; // Re-throw if it's a different RuntimeException
             }
-            
+
             Borrow borrow = borrowService.returnBookById(borrowId, userId);
-            String message = borrow.getStatus() == Borrow.Status.OVERDUE 
-                ? "还书成功（已逾期，罚金：" + borrow.getFine() + "元）" 
-                : "还书成功";
-            
+            String message =
+                    borrow.getStatus() == Borrow.Status.OVERDUE ? "还书成功（已逾期，罚金：" + borrow.getFine() + "元）" : "还书成功";
+
             return ResponseEntity.ok(Map.of("message", message));
         } catch (BusinessLogicException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -208,39 +205,39 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/return")
-    public ResponseEntity<?> returnBook(@Valid @RequestBody BorrowRequestDto requestDto, Authentication authentication) {
+    public ResponseEntity<?> returnBook(
+            @Valid @RequestBody BorrowRequestDto requestDto, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
         try {
             // Get the authenticated user's ID
-            Long authenticatedUserId = userService.findByUsername(authentication.getName())
+            Long authenticatedUserId = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"))
                     .getId();
-            
+
             // Security check: Ensure the request is for the authenticated user's borrowing
             if (!authenticatedUserId.equals(requestDto.userId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "无权限操作其他用户的借阅记录"));
             }
-            
+
             Borrow borrow = borrowService.returnBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
-            String message = borrow.getStatus() == Borrow.Status.OVERDUE 
-                ? "还书成功（已逾期，罚金：" + borrow.getFine() + "元）" 
-                : "还书成功";
+            String message =
+                    borrow.getStatus() == Borrow.Status.OVERDUE ? "还书成功（已逾期，罚金：" + borrow.getFine() + "元）" : "还书成功";
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                message
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    message);
             return ResponseEntity.ok(responseDto);
         } catch (RuntimeException e) {
             if ("User not found".equals(e.getMessage())) {
@@ -282,7 +279,8 @@ public class BorrowController {
         try {
             Long userId;
             try {
-                userId = userService.findByUsername(authentication.getName())
+                userId = userService
+                        .findByUsername(authentication.getName())
                         .orElseThrow(() -> new RuntimeException("User not found"))
                         .getId();
             } catch (RuntimeException e) {
@@ -291,10 +289,10 @@ public class BorrowController {
                 }
                 throw e; // Re-throw if it's a different RuntimeException
             }
-            
+
             Borrow borrow = borrowService.renewBookById(borrowId, userId);
             String message = "续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate();
-            
+
             return ResponseEntity.ok(Map.of("message", message));
         } catch (BusinessLogicException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -330,29 +328,29 @@ public class BorrowController {
 
         try {
             // Get the authenticated user's ID
-            Long authenticatedUserId = userService.findByUsername(authentication.getName())
+            Long authenticatedUserId = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"))
                     .getId();
-            
+
             // Security check: Ensure the request is for the authenticated user's borrowing
             if (!authenticatedUserId.equals(requestDto.userId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "无权限操作其他用户的借阅记录"));
             }
-            
+
             Borrow borrow = borrowService.renewBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                "续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate()
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    "续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate());
             return ResponseEntity.ok(responseDto);
         } catch (RuntimeException e) {
             if ("User not found".equals(e.getMessage())) {
@@ -418,9 +416,8 @@ public class BorrowController {
             @Parameter(description = "User ID", required = true, example = "1") @PathVariable @Positive Long userId) {
         try {
             List<Borrow> history = borrowService.getBorrowHistory(userId);
-            List<BorrowDto> historyDto = history.stream()
-                    .map(BorrowMapper.INSTANCE::toBorrowDto)
-                    .toList();
+            List<BorrowDto> historyDto =
+                    history.stream().map(BorrowMapper.INSTANCE::toBorrowDto).toList();
             return ResponseEntity.ok(historyDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -453,13 +450,13 @@ public class BorrowController {
         }
 
         try {
-            Long userId = userService.findByUsername(authentication.getName())
+            Long userId = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"))
                     .getId();
             List<Borrow> history = borrowService.getBorrowHistory(userId);
-            List<BorrowDto> historyDto = history.stream()
-                    .map(BorrowMapper.INSTANCE::toBorrowDto)
-                    .toList();
+            List<BorrowDto> historyDto =
+                    history.stream().map(BorrowMapper.INSTANCE::toBorrowDto).toList();
             return ResponseEntity.ok(historyDto);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
@@ -528,7 +525,8 @@ public class BorrowController {
         }
 
         try {
-            Long userId = userService.findByUsername(authentication.getName())
+            Long userId = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"))
                     .getId();
             List<Borrow> currentBorrowings = borrowService.getCurrentBorrowings(userId);
@@ -606,17 +604,16 @@ public class BorrowController {
             Borrow borrow = borrowService.borrowBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                "管理员代为借书成功，应还日期：" + borrow.getReturnTime().toLocalDate()
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    "管理员代为借书成功，应还日期：" + borrow.getReturnTime().toLocalDate());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -652,21 +649,20 @@ public class BorrowController {
         try {
             Borrow borrow = borrowService.returnBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
-            String message = borrow.getStatus() == Borrow.Status.OVERDUE 
-                ? "管理员代为还书成功（已逾期，罚金：" + borrow.getFine() + "元）" 
-                : "管理员代为还书成功";
+            String message = borrow.getStatus() == Borrow.Status.OVERDUE
+                    ? "管理员代为还书成功（已逾期，罚金：" + borrow.getFine() + "元）"
+                    : "管理员代为还书成功";
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                message
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    message);
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -703,17 +699,16 @@ public class BorrowController {
             Borrow borrow = borrowService.renewBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
-                responseDto.borrowId(),
-                responseDto.userId(),
-                responseDto.username(),
-                responseDto.copyId(),
-                responseDto.bookTitle(),
-                responseDto.isbn(),
-                responseDto.borrowTime(),
-                responseDto.returnTime(),
-                responseDto.status(),
-                "管理员代为续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate()
-            );
+                    responseDto.borrowId(),
+                    responseDto.userId(),
+                    responseDto.username(),
+                    responseDto.copyId(),
+                    responseDto.bookTitle(),
+                    responseDto.isbn(),
+                    responseDto.borrowTime(),
+                    responseDto.returnTime(),
+                    responseDto.status(),
+                    "管理员代为续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate());
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -761,9 +756,18 @@ public class BorrowController {
             security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Borrowing history retrieved successfully", content = @Content(schema = @Schema(implementation = Page.class))),
-                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class))),
-                @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = Map.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Borrowing history retrieved successfully",
+                        content = @Content(schema = @Schema(implementation = Page.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUserBorrowingsPaged(
@@ -776,31 +780,32 @@ public class BorrowController {
 
         // Validate pagination parameters
         if (page < 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Page number must be non-negative"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Page number must be non-negative"));
         }
         if (size <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Page size must be positive"));
         }
 
         try {
-            Long userId = userService.findByUsername(authentication.getName())
+            Long userId = userService
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"))
                     .getId();
-            
+
             // Get all borrowing history for the user
             List<Borrow> allBorrows = borrowService.getBorrowHistory(userId);
-            
+
             // Convert to DTOs
-            List<BorrowDto> borrowDtos = allBorrows.stream()
-                    .map(BorrowMapper.INSTANCE::toBorrowDto)
-                    .toList();
-            
+            List<BorrowDto> borrowDtos =
+                    allBorrows.stream().map(BorrowMapper.INSTANCE::toBorrowDto).toList();
+
             // Manual pagination
             int totalElements = borrowDtos.size();
             int totalPages = (int) Math.ceil((double) totalElements / size);
             int startIndex = page * size;
             int endIndex = Math.min(startIndex + size, totalElements);
-            
+
             // Handle edge case where page is beyond available data
             List<BorrowDto> pageContent;
             if (startIndex >= totalElements) {
@@ -808,10 +813,10 @@ public class BorrowController {
             } else {
                 pageContent = borrowDtos.subList(startIndex, endIndex);
             }
-            
+
             // Create a Page object
             Page<BorrowDto> pagedBorrows = new PageImpl<>(pageContent, PageRequest.of(page, size), totalElements);
-            
+
             return ResponseEntity.ok(pagedBorrows);
         } catch (RuntimeException e) {
             if ("User not found".equals(e.getMessage())) {

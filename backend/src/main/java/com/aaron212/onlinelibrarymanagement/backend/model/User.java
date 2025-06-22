@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -14,11 +18,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @Entity
 @Table(name = "users")

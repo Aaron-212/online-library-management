@@ -9,14 +9,13 @@ import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.CommentRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -26,7 +25,8 @@ public class CommentService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository, BookRepository bookRepository, UserRepository userRepository) {
+    public CommentService(
+            CommentRepository commentRepository, BookRepository bookRepository, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
@@ -34,10 +34,12 @@ public class CommentService {
 
     // Create a new comment
     public CommentDto createComment(CommentCreateDto commentCreateDto, String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository
+                .findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
-        
-        Book book = bookRepository.findById(commentCreateDto.bookId())
+
+        Book book = bookRepository
+                .findById(commentCreateDto.bookId())
                 .orElseThrow(() -> new RuntimeException("Book not found with id: " + commentCreateDto.bookId()));
 
         // Check if user has already commented on this book
@@ -65,35 +67,39 @@ public class CommentService {
     // Get all published comments for a book with pagination
     @Transactional(readOnly = true)
     public Page<CommentDto> getPublishedCommentsByBook(Long bookId, Pageable pageable) {
-        Book book = bookRepository.findById(bookId)
+        Book book = bookRepository
+                .findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
-        
-        return commentRepository.findByBookAndStatus(book, Comment.Status.PUBLISHED, pageable)
+
+        return commentRepository
+                .findByBookAndStatus(book, Comment.Status.PUBLISHED, pageable)
                 .map(this::convertToDto);
     }
 
     // Get comments by user with pagination
     @Transactional(readOnly = true)
     public Page<CommentDto> getCommentsByUser(String username, Pageable pageable) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository
+                .findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
-        
-        return commentRepository.findByUserAndStatus(user, Comment.Status.PUBLISHED, pageable)
+
+        return commentRepository
+                .findByUserAndStatus(user, Comment.Status.PUBLISHED, pageable)
                 .map(this::convertToDto);
     }
 
     // Get pending comments for moderation (admin only)
     @Transactional(readOnly = true)
     public List<CommentDto> getPendingComments() {
-        return commentRepository.findByStatusOrderByCreateTimeAsc(Comment.Status.PENDING)
-                .stream()
+        return commentRepository.findByStatusOrderByCreateTimeAsc(Comment.Status.PENDING).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     // Update comment (only by the author and only if pending)
     public CommentDto updateComment(Long id, CommentUpdateDto commentUpdateDto, String username) {
-        Comment comment = commentRepository.findById(id)
+        Comment comment = commentRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
 
         // Check if user is the author of the comment
@@ -115,7 +121,8 @@ public class CommentService {
 
     // Delete comment (by author or admin)
     public void deleteComment(Long id, String username, User.Role userRole) {
-        Comment comment = commentRepository.findById(id)
+        Comment comment = commentRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
 
         // Check if user is authorized to delete (author or admin)
@@ -129,7 +136,8 @@ public class CommentService {
 
     // Approve comment (admin only)
     public CommentDto approveComment(Long id) {
-        Comment comment = commentRepository.findById(id)
+        Comment comment = commentRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
 
         if (comment.getStatus() != Comment.Status.PENDING) {
@@ -143,7 +151,8 @@ public class CommentService {
 
     // Reject comment (admin only)
     public void rejectComment(Long id) {
-        Comment comment = commentRepository.findById(id)
+        Comment comment = commentRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
 
         if (comment.getStatus() != Comment.Status.PENDING) {
@@ -177,7 +186,6 @@ public class CommentService {
                 comment.getContent(),
                 comment.getRating(),
                 comment.getCreateTime(),
-                comment.getStatus()
-        );
+                comment.getStatus());
     }
 }

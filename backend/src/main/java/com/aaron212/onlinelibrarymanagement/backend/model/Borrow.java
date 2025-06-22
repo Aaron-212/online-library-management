@@ -2,15 +2,14 @@ package com.aaron212.onlinelibrarymanagement.backend.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "borrow")

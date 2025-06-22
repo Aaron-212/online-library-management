@@ -5,9 +5,14 @@ import java.sql.Timestamp;
 
 public interface UserAdminProjection {
     Long getId();
+
     String getUsername();
+
     String getEmail();
+
     User.Role getRole();
+
     Timestamp getCreatedTime();
+
     Timestamp getLastUpdateTime();
 }

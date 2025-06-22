@@ -3,13 +3,12 @@ package com.aaron212.onlinelibrarymanagement.backend.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 @Entity
 @Table(name = "borrowing_rules")
@@ -72,9 +71,9 @@ public class BorrowingRule {
     }
 
     public enum ValueType {
-        INTEGER,    // For numbers like max books, loan days
-        DECIMAL,    // For monetary values like fine per day
-        STRING,     // For text values
-        BOOLEAN     // For true/false rules
+        INTEGER, // For numbers like max books, loan days
+        DECIMAL, // For monetary values like fine per day
+        STRING, // For text values
+        BOOLEAN // For true/false rules
     }
 }

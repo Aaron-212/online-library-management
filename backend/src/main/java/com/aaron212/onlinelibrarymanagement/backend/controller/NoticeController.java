@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import java.util.Map;
+import java.util.Optional;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,9 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/notices")
@@ -59,7 +58,8 @@ public class NoticeController {
             })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createNotice(@Valid @RequestBody NoticeCreateDto noticeCreateDto, Authentication authentication) {
+    public ResponseEntity<?> createNotice(
+            @Valid @RequestBody NoticeCreateDto noticeCreateDto, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
@@ -68,7 +68,8 @@ public class NoticeController {
             NoticeResponseDto createdNotice = noticeService.createNotice(noticeCreateDto, authentication.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdNotice);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to create notice: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Failed to create notice: " + e.getMessage()));
         }
     }
 
@@ -106,7 +107,9 @@ public class NoticeController {
         return ResponseEntity.ok(notices);
     }
 
-    @Operation(summary = "Get active notices", description = "Retrieves a paginated list of active (non-expired) notices")
+    @Operation(
+            summary = "Get active notices",
+            description = "Retrieves a paginated list of active (non-expired) notices")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -121,7 +124,9 @@ public class NoticeController {
         return ResponseEntity.ok(notices);
     }
 
-    @Operation(summary = "Get notices by status", description = "Retrieves active notices filtered by status (1=SHOW, 2=PINNED)")
+    @Operation(
+            summary = "Get notices by status",
+            description = "Retrieves active notices filtered by status (1=SHOW, 2=PINNED)")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -135,8 +140,10 @@ public class NoticeController {
             })
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getNoticesByStatus(
-            @Parameter(description = "Notice status (1=SHOW, 2=PINNED)", required = true, example = "1") 
-            @PathVariable @Positive Integer status,
+            @Parameter(description = "Notice status (1=SHOW, 2=PINNED)", required = true, example = "1")
+                    @PathVariable
+                    @Positive
+                    Integer status,
             @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         try {
             Page<NoticeResponseDto> notices = noticeService.getNoticesByStatus(status, pageable);
@@ -164,10 +171,9 @@ public class NoticeController {
             Authentication authentication) {
         try {
             // Get username if authenticated, otherwise use null (will be treated as non-admin)
-            String username = (authentication != null && authentication.isAuthenticated()) 
-                ? authentication.getName() 
-                : null;
-            
+            String username =
+                    (authentication != null && authentication.isAuthenticated()) ? authentication.getName() : null;
+
             Optional<NoticeResponseDto> notice = noticeService.getNoticeById(id, username);
             if (notice.isPresent()) {
                 return ResponseEntity.ok(notice.get());
@@ -196,8 +202,8 @@ public class NoticeController {
             })
     @GetMapping("/creator/{username}")
     public ResponseEntity<?> getNoticesByCreator(
-            @Parameter(description = "Creator username", required = true, example = "admin") 
-            @PathVariable @NotBlank String username,
+            @Parameter(description = "Creator username", required = true, example = "admin") @PathVariable @NotBlank
+                    String username,
             @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         try {
             Page<NoticeResponseDto> notices = noticeService.getNoticesByCreator(username, pageable);
@@ -218,7 +224,9 @@ public class NoticeController {
     @GetMapping("/search")
     public ResponseEntity<Page<NoticeResponseDto>> searchNotices(
             @Parameter(description = "Search keyword", required = true, example = "library hours")
-            @RequestParam @NotBlank String keyword,
+                    @RequestParam
+                    @NotBlank
+                    String keyword,
             @Parameter(description = "Pagination parameters") @ParameterObject Pageable pageable) {
         Page<NoticeResponseDto> notices = noticeService.searchNotices(keyword, pageable);
         return ResponseEntity.ok(notices);
@@ -256,7 +264,7 @@ public class NoticeController {
             @Parameter(description = "Notice ID", required = true, example = "1") @PathVariable @Positive Long id,
             @Valid @RequestBody NoticeUpdateDto noticeUpdateDto,
             Authentication authentication) {
-        
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
@@ -267,10 +275,12 @@ public class NoticeController {
         } catch (RuntimeException e) {
             if (e.getMessage().contains("not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-            } else if (e.getMessage().contains("only update your own") || e.getMessage().contains("must be an admin")) {
+            } else if (e.getMessage().contains("only update your own")
+                    || e.getMessage().contains("must be an admin")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to update notice: " + e.getMessage()));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Failed to update notice: " + e.getMessage()));
             }
         }
     }
@@ -299,7 +309,7 @@ public class NoticeController {
     public ResponseEntity<?> deleteNotice(
             @Parameter(description = "Notice ID", required = true, example = "1") @PathVariable @Positive Long id,
             Authentication authentication) {
-        
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
@@ -310,11 +320,12 @@ public class NoticeController {
         } catch (RuntimeException e) {
             if (e.getMessage().contains("not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-            } else if (e.getMessage().contains("only delete your own") || e.getMessage().contains("must be an admin")) {
+            } else if (e.getMessage().contains("only delete your own")
+                    || e.getMessage().contains("must be an admin")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Failed to delete notice"));
             }
         }
     }
-} 
+}

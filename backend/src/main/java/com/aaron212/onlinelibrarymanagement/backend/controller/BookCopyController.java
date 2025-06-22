@@ -15,13 +15,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/book-copies")
@@ -82,8 +81,7 @@ public class BookCopyController {
             })
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookCopyById(
-            @Parameter(description = "Book copy ID", required = true, example = "1") 
-            @PathVariable @Positive Long id) {
+            @Parameter(description = "Book copy ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
             BookCopyDto copy = bookCopyService.getBookCopyById(id);
             return ResponseEntity.ok(copy);
@@ -118,8 +116,7 @@ public class BookCopyController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBookCopy(
-            @Parameter(description = "Book copy ID", required = true, example = "1") 
-            @PathVariable @Positive Long id,
+            @Parameter(description = "Book copy ID", required = true, example = "1") @PathVariable @Positive Long id,
             @Valid @RequestBody BookCopyUpdateDto updateDto) {
         try {
             BookCopyDto updated = bookCopyService.updateBookCopy(id, updateDto);
@@ -151,8 +148,7 @@ public class BookCopyController {
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateBookCopyStatus(
-            @Parameter(description = "Book copy ID", required = true, example = "1") 
-            @PathVariable @Positive Long id,
+            @Parameter(description = "Book copy ID", required = true, example = "1") @PathVariable @Positive Long id,
             @RequestBody Map<String, String> statusUpdate) {
         try {
             String statusStr = statusUpdate.get("status");
@@ -185,8 +181,7 @@ public class BookCopyController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBookCopy(
-            @Parameter(description = "Book copy ID", required = true, example = "1") 
-            @PathVariable @Positive Long id) {
+            @Parameter(description = "Book copy ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
             bookCopyService.deleteBookCopy(id);
             return ResponseEntity.noContent().build();
@@ -195,7 +190,9 @@ public class BookCopyController {
         }
     }
 
-    @Operation(summary = "Get all available book copies", description = "Retrieves all book copies that are available for borrowing")
+    @Operation(
+            summary = "Get all available book copies",
+            description = "Retrieves all book copies that are available for borrowing")
     @ApiResponses(
             value = {
                 @ApiResponse(

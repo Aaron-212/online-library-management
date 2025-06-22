@@ -4,12 +4,11 @@ import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserAdminProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -32,20 +31,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<UserPublicProjection> findPublicById(Long id);
 
     Page<UserPublicProjection> findAllProjectedBy(Pageable pageable);
-    
+
     Page<UserPublicProjection> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-        String username, String email, Pageable pageable);
-    
+            String username, String email, Pageable pageable);
+
     // Admin projections
     Page<UserAdminProjection> findAllAdminProjectedBy(Pageable pageable);
-    
+
     Page<UserAdminProjection> findAdminProjectionByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-        String username, String email, Pageable pageable);
+            String username, String email, Pageable pageable);
 
     Optional<User> findByUsernameOrEmail(String username, String email);
 
     boolean existsByUsernameOrEmail(String username, String email);
 
     boolean existsByUsernameAndIdNot(String username, Long id);
+
     boolean existsByEmailAndIdNot(String email, Long id);
 }

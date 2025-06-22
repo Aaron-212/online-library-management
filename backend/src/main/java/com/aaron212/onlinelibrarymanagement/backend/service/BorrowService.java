@@ -8,6 +8,10 @@ import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BookCopyRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -15,13 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import com.aaron212.onlinelibrarymanagement.backend.service.ReservationService;
 
 @Service
 @Transactional
@@ -35,9 +32,13 @@ public class BorrowService {
     private final ReservationService reservationService;
     private final BookCopyService bookCopyService;
 
-    public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
-                        UserRepository userRepository, BorrowingRuleService borrowingRuleService,
-                        ReservationService reservationService, BookCopyService bookCopyService) {
+    public BorrowService(
+            BorrowRepository borrowRepository,
+            BookCopyRepository bookCopyRepository,
+            UserRepository userRepository,
+            BorrowingRuleService borrowingRuleService,
+            ReservationService reservationService,
+            BookCopyService bookCopyService) {
         this.borrowRepository = borrowRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.userRepository = userRepository;
@@ -69,10 +70,11 @@ public class BorrowService {
      * @throws RuntimeException if borrowing fails
      */
     public Borrow borrowBook(Long userId, Long copyId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        User user =
+                userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        BookCopy copy = bookCopyRepository.findById(copyId)
+        BookCopy copy = bookCopyRepository
+                .findById(copyId)
                 .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", copyId));
 
         if (copy.getStatus() != BookCopy.Status.AVAILABLE) {
@@ -90,7 +92,8 @@ public class BorrowService {
         boolean userAlreadyBorrowed = borrowRepository.existsByUserIdAndCopyBookIdAndStatus(
                 userId, copy.getBook().getId(), Borrow.Status.BORROWED);
         if (userAlreadyBorrowed) {
-            throw new BusinessLogicException("You have already borrowed this book. Please return the current copy before borrowing another.");
+            throw new BusinessLogicException(
+                    "You have already borrowed this book. Please return the current copy before borrowing another.");
         }
 
         // Create borrow record
@@ -98,7 +101,7 @@ public class BorrowService {
         borrow.setUser(user);
         borrow.setCopy(copy);
         borrow.setBorrowTime(LocalDateTime.now());
-        
+
         // Use configurable loan period
         Integer loanPeriodDays = borrowingRuleService.getIntegerRule(BorrowingRuleService.LOAN_PERIOD_DAYS);
         borrow.setReturnTime(LocalDateTime.now().plusDays(loanPeriodDays));
@@ -121,7 +124,8 @@ public class BorrowService {
      * @throws RuntimeException if return fails
      */
     public Borrow returnBookById(Long borrowId, Long userId) {
-        Borrow borrow = borrowRepository.findById(borrowId)
+        Borrow borrow = borrowRepository
+                .findById(borrowId)
                 .orElseThrow(() -> new ResourceNotFoundException("Borrow", "id", borrowId));
 
         // Verify that the borrow record belongs to the user
@@ -145,8 +149,10 @@ public class BorrowService {
      * @throws RuntimeException if return fails
      */
     public Borrow returnBook(Long userId, Long copyId) {
-        Borrow borrow = borrowRepository.findFirstByUserIdAndCopyIdAndStatus(userId, copyId, Borrow.Status.BORROWED)
-                .orElseThrow(() -> new ResourceNotFoundException("Active borrow record for user " + userId + " and copy " + copyId));
+        Borrow borrow = borrowRepository
+                .findFirstByUserIdAndCopyIdAndStatus(userId, copyId, Borrow.Status.BORROWED)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Active borrow record for user " + userId + " and copy " + copyId));
 
         LocalDateTime now = LocalDateTime.now();
         boolean overdue = now.isAfter(borrow.getReturnTime());
@@ -157,7 +163,8 @@ public class BorrowService {
 
         // Calculate fine if overdue
         if (overdue) {
-            long overdueDays = java.time.Duration.between(borrow.getReturnTime(), now).toDays();
+            long overdueDays =
+                    java.time.Duration.between(borrow.getReturnTime(), now).toDays();
             BigDecimal finePerDay = borrowingRuleService.getDecimalRule(BorrowingRuleService.FINE_PER_DAY);
             BigDecimal fine = finePerDay.multiply(BigDecimal.valueOf(overdueDays));
             borrow.setFine(fine);
@@ -172,7 +179,7 @@ public class BorrowService {
 
         // 归还后处理预约队列
         reservationService.processNextReservation(copy.getBook().getId());
-        
+
         return borrow;
     }
 
@@ -184,7 +191,8 @@ public class BorrowService {
      * @throws RuntimeException if renewal fails
      */
     public Borrow renewBookById(Long borrowId, Long userId) {
-        Borrow borrow = borrowRepository.findById(borrowId)
+        Borrow borrow = borrowRepository
+                .findById(borrowId)
                 .orElseThrow(() -> new ResourceNotFoundException("Borrow", "id", borrowId));
 
         // Verify that the borrow record belongs to the user
@@ -215,8 +223,9 @@ public class BorrowService {
         }
 
         Borrow borrow = findActiveBorrow(userId, copyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Active borrow record for user " + userId + " and copy " + copyId));
-        
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Active borrow record for user " + userId + " and copy " + copyId));
+
         // Check if book is overdue
         if (LocalDateTime.now().isAfter(borrow.getReturnTime())) {
             throw new BusinessLogicException("图书已逾期，无法续借");
@@ -237,7 +246,7 @@ public class BorrowService {
         // Extend return time by renewal period
         Integer renewalPeriodDays = borrowingRuleService.getIntegerRule(BorrowingRuleService.RENEWAL_PERIOD_DAYS);
         borrow.setReturnTime(borrow.getReturnTime().plusDays(renewalPeriodDays));
-        
+
         return borrowRepository.save(borrow);
     }
 

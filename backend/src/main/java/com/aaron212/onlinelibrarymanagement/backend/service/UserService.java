@@ -1,5 +1,6 @@
 package com.aaron212.onlinelibrarymanagement.backend.service;
 
+import com.aaron212.onlinelibrarymanagement.backend.dto.UserCreateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserRegisterDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.exception.BusinessLogicException;
@@ -10,6 +11,9 @@ import com.aaron212.onlinelibrarymanagement.backend.projection.UserAdminProjecti
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserFullProjection;
 import com.aaron212.onlinelibrarymanagement.backend.projection.UserPublicProjection;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +22,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import com.aaron212.onlinelibrarymanagement.backend.dto.UserCreateDto;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -37,7 +35,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        return userRepository
+                .findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .map(user -> (UserDetails) user)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + usernameOrEmail));
     }
@@ -47,7 +46,7 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByUsername(registerRequest.username())) {
             throw new DuplicateResourceException("User", "username", registerRequest.username());
         }
-        
+
         // Check email duplication
         if (userRepository.existsByEmail(registerRequest.email())) {
             throw new DuplicateResourceException("User", "email", registerRequest.email());
@@ -82,29 +81,34 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUserDetails(String username, UserUpdateDto userModifyDto) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository
+                .findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
         // Username uniqueness
-        if (userModifyDto.username()!=null && !userModifyDto.username().equals(user.getUsername()) &&
-                userRepository.existsByUsernameAndIdNot(userModifyDto.username(), user.getId())) {
+        if (userModifyDto.username() != null
+                && !userModifyDto.username().equals(user.getUsername())
+                && userRepository.existsByUsernameAndIdNot(userModifyDto.username(), user.getId())) {
             throw new DuplicateResourceException("User", "username", userModifyDto.username());
         }
 
         // Email uniqueness
-        if (userModifyDto.email()!=null && !userModifyDto.email().equals(user.getEmail()) &&
-                userRepository.existsByEmailAndIdNot(userModifyDto.email(), user.getId())) {
+        if (userModifyDto.email() != null
+                && !userModifyDto.email().equals(user.getEmail())
+                && userRepository.existsByEmailAndIdNot(userModifyDto.email(), user.getId())) {
             throw new DuplicateResourceException("User", "email", userModifyDto.email());
         }
 
-        if(userModifyDto.username()!=null) user.setUsername(userModifyDto.username());
-        if(userModifyDto.email()!=null) user.setEmail(userModifyDto.email());
+        if (userModifyDto.username() != null) user.setUsername(userModifyDto.username());
+        if (userModifyDto.email() != null) user.setEmail(userModifyDto.email());
 
         return userRepository.save(user);
     }
 
     public void changePassword(String name, String oldPassword, String newPassword) {
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new ResourceNotFoundException("User", "username", name));
+        User user = userRepository
+                .findByUsername(name)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", name));
 
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
             throw new BusinessLogicException("Old password is incorrect");
@@ -137,23 +141,27 @@ public class UserService implements UserDetailsService {
     }
 
     public Page<UserAdminProjection> searchUsersForAdmin(String search, Pageable pageable) {
-        return userRepository.findAdminProjectionByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search, pageable);
+        return userRepository.findAdminProjectionByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                search, search, pageable);
     }
 
     // Admin methods
     public User updateUserDetailsById(Long id, UserUpdateDto userModifyDto) {
-        User user = userRepository.findById(id)
+        User user = userRepository
+                .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
 
         // Username uniqueness
-        if (userModifyDto.username() != null && !userModifyDto.username().equals(user.getUsername()) &&
-                userRepository.existsByUsernameAndIdNot(userModifyDto.username(), user.getId())) {
+        if (userModifyDto.username() != null
+                && !userModifyDto.username().equals(user.getUsername())
+                && userRepository.existsByUsernameAndIdNot(userModifyDto.username(), user.getId())) {
             throw new DuplicateResourceException("User", "username", userModifyDto.username());
         }
 
         // Email uniqueness
-        if (userModifyDto.email() != null && !userModifyDto.email().equals(user.getEmail()) &&
-                userRepository.existsByEmailAndIdNot(userModifyDto.email(), user.getId())) {
+        if (userModifyDto.email() != null
+                && !userModifyDto.email().equals(user.getEmail())
+                && userRepository.existsByEmailAndIdNot(userModifyDto.email(), user.getId())) {
             throw new DuplicateResourceException("User", "email", userModifyDto.email());
         }
 
@@ -164,7 +172,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUserRole(Long id, String roleString) {
-        User user = userRepository.findById(id)
+        User user = userRepository
+                .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
 
         try {
@@ -177,7 +186,8 @@ public class UserService implements UserDetailsService {
     }
 
     public void deleteUser(Long id, String currentUsername) {
-        User user = userRepository.findById(id)
+        User user = userRepository
+                .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
 
         // Prevent self-deletion
@@ -206,11 +216,13 @@ public class UserService implements UserDetailsService {
 
         // Set role, default to USER if not specified
         try {
-            User.Role role = userCreateDto.role() != null ? 
-                User.Role.valueOf(userCreateDto.role().toUpperCase()) : User.Role.USER;
+            User.Role role = userCreateDto.role() != null
+                    ? User.Role.valueOf(userCreateDto.role().toUpperCase())
+                    : User.Role.USER;
             newUser.setRole(role);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid role: " + userCreateDto.role() + ". Valid roles are: USER, ADMIN");
+            throw new IllegalArgumentException(
+                    "Invalid role: " + userCreateDto.role() + ". Valid roles are: USER, ADMIN");
         }
 
         return userRepository.save(newUser);

@@ -6,15 +6,14 @@ import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundEx
 import com.aaron212.onlinelibrarymanagement.backend.model.BorrowingRule;
 import com.aaron212.onlinelibrarymanagement.backend.repository.BorrowingRuleRepository;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -38,33 +37,29 @@ public class BorrowingRuleService {
     @PostConstruct
     public void initializeDefaultRules() {
         logger.info("Initializing default borrowing rules...");
-        
-        createDefaultRuleIfNotExists(MAX_BORROW_BOOKS, "最大可借阅图书数量", 
-                "单个用户同时可借阅的最大图书数量", "5", BorrowingRule.ValueType.INTEGER);
-        
-        createDefaultRuleIfNotExists(LOAN_PERIOD_DAYS, "借阅期限（天）", 
-                "图书的标准借阅期限", "30", BorrowingRule.ValueType.INTEGER);
-        
-        createDefaultRuleIfNotExists(RENEWAL_PERIOD_DAYS, "续借期限（天）", 
-                "图书续借时增加的天数", "15", BorrowingRule.ValueType.INTEGER);
-        
-        createDefaultRuleIfNotExists(FINE_PER_DAY, "每日逾期罚金（元）", 
-                "图书逾期时每天的罚金", "0.50", BorrowingRule.ValueType.DECIMAL);
-        
-        createDefaultRuleIfNotExists(MAX_RENEWAL_TIMES, "最大续借次数", 
-                "单本图书最大可续借次数", "2", BorrowingRule.ValueType.INTEGER);
-        
-        createDefaultRuleIfNotExists(ALLOW_RENEWALS, "允许续借", 
-                "是否允许用户续借图书", "true", BorrowingRule.ValueType.BOOLEAN);
-        
-        createDefaultRuleIfNotExists(ADVANCE_RESERVE_DAYS, "预约提前天数", 
-                "用户可以提前多少天预约即将到期归还的图书", "3", BorrowingRule.ValueType.INTEGER);
-        
+
+        createDefaultRuleIfNotExists(
+                MAX_BORROW_BOOKS, "最大可借阅图书数量", "单个用户同时可借阅的最大图书数量", "5", BorrowingRule.ValueType.INTEGER);
+
+        createDefaultRuleIfNotExists(LOAN_PERIOD_DAYS, "借阅期限（天）", "图书的标准借阅期限", "30", BorrowingRule.ValueType.INTEGER);
+
+        createDefaultRuleIfNotExists(
+                RENEWAL_PERIOD_DAYS, "续借期限（天）", "图书续借时增加的天数", "15", BorrowingRule.ValueType.INTEGER);
+
+        createDefaultRuleIfNotExists(FINE_PER_DAY, "每日逾期罚金（元）", "图书逾期时每天的罚金", "0.50", BorrowingRule.ValueType.DECIMAL);
+
+        createDefaultRuleIfNotExists(MAX_RENEWAL_TIMES, "最大续借次数", "单本图书最大可续借次数", "2", BorrowingRule.ValueType.INTEGER);
+
+        createDefaultRuleIfNotExists(ALLOW_RENEWALS, "允许续借", "是否允许用户续借图书", "true", BorrowingRule.ValueType.BOOLEAN);
+
+        createDefaultRuleIfNotExists(
+                ADVANCE_RESERVE_DAYS, "预约提前天数", "用户可以提前多少天预约即将到期归还的图书", "3", BorrowingRule.ValueType.INTEGER);
+
         logger.info("Default borrowing rules initialization completed");
     }
 
-    private void createDefaultRuleIfNotExists(String ruleKey, String ruleName, String description, 
-                                            String ruleValue, BorrowingRule.ValueType valueType) {
+    private void createDefaultRuleIfNotExists(
+            String ruleKey, String ruleName, String description, String ruleValue, BorrowingRule.ValueType valueType) {
         if (!borrowingRuleRepository.existsByRuleKey(ruleKey)) {
             BorrowingRule rule = new BorrowingRule();
             rule.setRuleKey(ruleKey);
@@ -81,8 +76,7 @@ public class BorrowingRuleService {
      * Get all borrowing rules
      */
     public List<BorrowingRuleDto> getAllRules() {
-        return borrowingRuleRepository.findAll()
-                .stream()
+        return borrowingRuleRepository.findAll().stream()
                 .map(BorrowingRuleDto::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -91,15 +85,15 @@ public class BorrowingRuleService {
      * Get a specific rule by key
      */
     public Optional<BorrowingRuleDto> getRuleByKey(String ruleKey) {
-        return borrowingRuleRepository.findByRuleKey(ruleKey)
-                .map(BorrowingRuleDto::fromEntity);
+        return borrowingRuleRepository.findByRuleKey(ruleKey).map(BorrowingRuleDto::fromEntity);
     }
 
     /**
      * Update a rule by key
      */
     public BorrowingRuleDto updateRule(String ruleKey, BorrowingRuleUpdateDto updateDto) {
-        BorrowingRule rule = borrowingRuleRepository.findByRuleKey(ruleKey)
+        BorrowingRule rule = borrowingRuleRepository
+                .findByRuleKey(ruleKey)
                 .orElseThrow(() -> new ResourceNotFoundException("BorrowingRule", "ruleKey", ruleKey));
 
         // Validate the rule value based on type
@@ -112,7 +106,7 @@ public class BorrowingRuleService {
 
         BorrowingRule savedRule = borrowingRuleRepository.save(rule);
         logger.info("Updated borrowing rule: {} = {}", ruleKey, updateDto.ruleValue());
-        
+
         return BorrowingRuleDto.fromEntity(savedRule);
     }
 
@@ -120,25 +114,29 @@ public class BorrowingRuleService {
      * Get rule value helpers for service usage
      */
     public Integer getIntegerRule(String ruleKey) {
-        return borrowingRuleRepository.findByRuleKey(ruleKey)
+        return borrowingRuleRepository
+                .findByRuleKey(ruleKey)
                 .map(BorrowingRule::getIntegerValue)
                 .orElseThrow(() -> new ResourceNotFoundException("BorrowingRule", "ruleKey", ruleKey));
     }
 
     public BigDecimal getDecimalRule(String ruleKey) {
-        return borrowingRuleRepository.findByRuleKey(ruleKey)
+        return borrowingRuleRepository
+                .findByRuleKey(ruleKey)
                 .map(BorrowingRule::getDecimalValue)
                 .orElseThrow(() -> new ResourceNotFoundException("BorrowingRule", "ruleKey", ruleKey));
     }
 
     public Boolean getBooleanRule(String ruleKey) {
-        return borrowingRuleRepository.findByRuleKey(ruleKey)
+        return borrowingRuleRepository
+                .findByRuleKey(ruleKey)
                 .map(BorrowingRule::getBooleanValue)
                 .orElseThrow(() -> new ResourceNotFoundException("BorrowingRule", "ruleKey", ruleKey));
     }
 
     public String getStringRule(String ruleKey) {
-        return borrowingRuleRepository.findByRuleKey(ruleKey)
+        return borrowingRuleRepository
+                .findByRuleKey(ruleKey)
                 .map(BorrowingRule::getStringValue)
                 .orElseThrow(() -> new ResourceNotFoundException("BorrowingRule", "ruleKey", ruleKey));
     }

@@ -1,20 +1,18 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import com.aaron212.onlinelibrarymanagement.backend.model.Reservation;
+import com.aaron212.onlinelibrarymanagement.backend.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-
-import com.aaron212.onlinelibrarymanagement.backend.service.ReservationService;
-import com.aaron212.onlinelibrarymanagement.backend.model.Reservation;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -32,12 +30,17 @@ public class ReservationsController {
             description = "Returns a list of current waiting reservations for the authenticated user.")
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Request successful", content = @Content(schema = @Schema(implementation = List.class))),
-                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Request successful",
+                        content = @Content(schema = @Schema(implementation = List.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
-    public ResponseEntity<?> getCurrentUserReservations(
-            Authentication authentication) {
+    public ResponseEntity<?> getCurrentUserReservations(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
@@ -52,13 +55,18 @@ public class ReservationsController {
             description = "Cancels a waiting reservation belonging to the authenticated user.")
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Reservation cancelled", content = @Content(schema = @Schema(implementation = Map.class))),
-                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Reservation cancelled",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Map<String, String>> cancelReservation(
-            Authentication authentication,
-            @PathVariable Long reservationId) {
+            Authentication authentication, @PathVariable Long reservationId) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
@@ -73,15 +81,15 @@ public class ReservationsController {
 
     @Operation(summary = "Create reservation", description = "Reserve a book by bookId")
     @PostMapping("/{bookId}")
-    public ResponseEntity<?> createReservation(Authentication authentication, @PathVariable Long bookId){
-        if(authentication == null || !authentication.isAuthenticated()){
-            return ResponseEntity.status(401).body(Map.of("error","User not authenticated"));
+    public ResponseEntity<?> createReservation(Authentication authentication, @PathVariable Long bookId) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "User not authenticated"));
         }
         Long userId = ((com.aaron212.onlinelibrarymanagement.backend.model.User) authentication.getPrincipal()).getId();
-        try{
+        try {
             Reservation reservation = reservationService.createReservation(userId, bookId);
             return ResponseEntity.ok(reservation);
-        }catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

@@ -9,16 +9,14 @@ import com.aaron212.onlinelibrarymanagement.backend.exception.ResourceNotFoundEx
 import com.aaron212.onlinelibrarymanagement.backend.model.*;
 import com.aaron212.onlinelibrarymanagement.backend.repository.*;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -69,9 +67,11 @@ public class BookService {
         book.setDescription(bookCreateDto.description());
         book.setCoverURL(bookCreateDto.coverURL());
         book.setIndexCategory(category);
-        book.setLocation(bookCreateDto.location() != null && !bookCreateDto.location().trim().isEmpty() 
-            ? bookCreateDto.location().trim() 
-            : "LIBRARY"); // Default location if not provided
+        book.setLocation(
+                bookCreateDto.location() != null
+                                && !bookCreateDto.location().trim().isEmpty()
+                        ? bookCreateDto.location().trim()
+                        : "LIBRARY"); // Default location if not provided
 
         Book savedBook = bookRepository.save(book);
 
@@ -79,7 +79,8 @@ public class BookService {
         if (bookCreateDto.authorNames() != null && !bookCreateDto.authorNames().isEmpty()) {
             for (String authorName : bookCreateDto.authorNames()) {
                 if (authorName != null && !authorName.trim().isEmpty()) {
-                    Author author = authorRepository.findByName(authorName.trim())
+                    Author author = authorRepository
+                            .findByName(authorName.trim())
                             .orElseGet(() -> {
                                 Author newAuthor = new Author();
                                 newAuthor.setName(authorName.trim());
@@ -98,10 +99,12 @@ public class BookService {
         }
 
         // Handle publishers
-        if (bookCreateDto.publisherNames() != null && !bookCreateDto.publisherNames().isEmpty()) {
+        if (bookCreateDto.publisherNames() != null
+                && !bookCreateDto.publisherNames().isEmpty()) {
             for (String publisherName : bookCreateDto.publisherNames()) {
                 if (publisherName != null && !publisherName.trim().isEmpty()) {
-                    Publisher publisher = publisherRepository.findByName(publisherName.trim())
+                    Publisher publisher = publisherRepository
+                            .findByName(publisherName.trim())
                             .orElseGet(() -> {
                                 Publisher newPublisher = new Publisher();
                                 newPublisher.setName(publisherName.trim());
@@ -144,56 +147,47 @@ public class BookService {
     public Page<BookSummaryDto> getAllBooksSummaryPaged(Pageable pageable) {
         // First, fetch books with authors
         Page<Book> booksWithAuthors = bookRepository.findAllWithAuthors(pageable);
-        
+
         // Extract book IDs
-        List<Long> bookIds = booksWithAuthors.getContent().stream()
-                .map(Book::getId)
-                .toList();
-        
+        List<Long> bookIds =
+                booksWithAuthors.getContent().stream().map(Book::getId).toList();
+
         // Fetch the same books with publishers
         List<Book> booksWithPublishers = bookRepository.findBooksWithPublishersByIds(bookIds);
-        
+
         // Create a map for quick lookup of publishers by book ID
         Map<Long, List<String>> publishersMap = booksWithPublishers.stream()
                 .collect(Collectors.toMap(
-                    Book::getId,
-                    book -> book.getPublishers() != null 
-                        ? book.getPublishers().stream()
-                            .map(bp -> bp.getPublisher().getName())
-                            .toList()
-                        : List.of()
-                ));
-        
+                        Book::getId,
+                        book -> book.getPublishers() != null
+                                ? book.getPublishers().stream()
+                                        .map(bp -> bp.getPublisher().getName())
+                                        .toList()
+                                : List.of()));
+
         return booksWithAuthors.map(book -> convertToBookSummaryDto(book, publishersMap));
     }
 
     private BookSummaryDto convertToBookSummaryDto(Book book, Map<Long, List<String>> publishersMap) {
-        List<String> authorNames = book.getAuthors() != null 
-            ? book.getAuthors().stream()
-                .map(bookAuthor -> bookAuthor.getAuthor().getName())
-                .toList()
-            : List.of();
+        List<String> authorNames = book.getAuthors() != null
+                ? book.getAuthors().stream()
+                        .map(bookAuthor -> bookAuthor.getAuthor().getName())
+                        .toList()
+                : List.of();
 
         List<String> publisherNames = publishersMap != null
-            ? publishersMap.getOrDefault(book.getId(), List.of())
-            : book.getPublishers() != null
-                ? book.getPublishers().stream()
-                    .map(bp -> bp.getPublisher().getName())
-                    .toList()
-                : List.of();
+                ? publishersMap.getOrDefault(book.getId(), List.of())
+                : book.getPublishers() != null
+                        ? book.getPublishers().stream()
+                                .map(bp -> bp.getPublisher().getName())
+                                .toList()
+                        : List.of();
 
         int available = getAvailableCopiesCount(book);
         int total = getTotalCopiesCount(book);
 
         return new BookSummaryDto(
-            book.getId(),
-            book.getTitle(),
-            authorNames,
-            publisherNames,
-            book.getCoverURL(),
-            available,
-            total
-        );
+                book.getId(), book.getTitle(), authorNames, publisherNames, book.getCoverURL(), available, total);
     }
 
     @Transactional(readOnly = true)
@@ -207,8 +201,7 @@ public class BookService {
     }
 
     public void updateBook(Long id, BookUpdateDto bookUpdateDto) {
-        Book book = bookRepository
-                .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
         // Update basic fields
         if (bookUpdateDto.title() != null) {
@@ -242,30 +235,29 @@ public class BookService {
             // Get current authors from database to avoid stale collections
             List<BookAuthor> currentBookAuthors = bookAuthorRepository.findByBook(savedBook);
             List<String> currentAuthorNames = currentBookAuthors.stream()
-                .map(ba -> ba.getAuthor().getName())
-                .toList();
-            
+                    .map(ba -> ba.getAuthor().getName())
+                    .toList();
+
             // Get new author names (trimmed and non-empty)
             List<String> newAuthorNames = bookUpdateDto.authorNames().stream()
-                .filter(name -> name != null && !name.trim().isEmpty())
-                .map(String::trim)
-                .toList();
-            
+                    .filter(name -> name != null && !name.trim().isEmpty())
+                    .map(String::trim)
+                    .toList();
+
             // Remove authors that are no longer needed
             List<BookAuthor> authorsToRemove = currentBookAuthors.stream()
-                .filter(ba -> !newAuthorNames.contains(ba.getAuthor().getName()))
-                .toList();
+                    .filter(ba -> !newAuthorNames.contains(ba.getAuthor().getName()))
+                    .toList();
             bookAuthorRepository.deleteAll(authorsToRemove);
-            
+
             // Add new authors that don't exist yet
             for (String authorName : newAuthorNames) {
                 if (!currentAuthorNames.contains(authorName)) {
-                    Author author = authorRepository.findByName(authorName)
-                            .orElseGet(() -> {
-                                Author newAuthor = new Author();
-                                newAuthor.setName(authorName);
-                                return authorRepository.save(newAuthor);
-                            });
+                    Author author = authorRepository.findByName(authorName).orElseGet(() -> {
+                        Author newAuthor = new Author();
+                        newAuthor.setName(authorName);
+                        return authorRepository.save(newAuthor);
+                    });
 
                     // Use proper duplicate check like in createBook method
                     if (!bookAuthorRepository.existsByBookAndAuthor(savedBook, author)) {
@@ -283,25 +275,26 @@ public class BookService {
             // Get current publishers from database to avoid stale collections
             List<BookPublisher> currentBookPublishers = bookPublisherRepository.findByBook(savedBook);
             List<String> currentPublisherNames = currentBookPublishers.stream()
-                .map(bp -> bp.getPublisher().getName())
-                .toList();
-            
+                    .map(bp -> bp.getPublisher().getName())
+                    .toList();
+
             // Get new publisher names (trimmed and non-empty)
             List<String> newPublisherNames = bookUpdateDto.publisherNames().stream()
-                .filter(name -> name != null && !name.trim().isEmpty())
-                .map(String::trim)
-                .toList();
-            
+                    .filter(name -> name != null && !name.trim().isEmpty())
+                    .map(String::trim)
+                    .toList();
+
             // Remove publishers that are no longer needed
             List<BookPublisher> publishersToRemove = currentBookPublishers.stream()
-                .filter(bp -> !newPublisherNames.contains(bp.getPublisher().getName()))
-                .toList();
+                    .filter(bp -> !newPublisherNames.contains(bp.getPublisher().getName()))
+                    .toList();
             bookPublisherRepository.deleteAll(publishersToRemove);
-            
+
             // Add new publishers that don't exist yet
             for (String publisherName : newPublisherNames) {
                 if (!currentPublisherNames.contains(publisherName)) {
-                    Publisher publisher = publisherRepository.findByName(publisherName)
+                    Publisher publisher = publisherRepository
+                            .findByName(publisherName)
                             .orElseGet(() -> {
                                 Publisher newPublisher = new Publisher();
                                 newPublisher.setName(publisherName);
@@ -321,13 +314,13 @@ public class BookService {
     }
 
     public void deleteBook(Long id) {
-        Book book = bookRepository
-                .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+        Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
         // Check if there are any book copies
         List<BookCopy> copies = bookCopyRepository.findByBook(book);
         if (!copies.isEmpty()) {
-            throw new BusinessLogicException("Cannot delete book with existing copies. Please remove all copies first.");
+            throw new BusinessLogicException(
+                    "Cannot delete book with existing copies. Please remove all copies first.");
         }
 
         bookRepository.delete(book);
@@ -355,9 +348,8 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public List<BookCopy> getBookCopies(Long bookId) {
-        Book book = bookRepository
-                .findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+        Book book =
+                bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
 
         return bookCopyRepository.findByBook(book);
     }

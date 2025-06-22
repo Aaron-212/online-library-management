@@ -1,5 +1,7 @@
 package com.aaron212.onlinelibrarymanagement.backend.controller;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
 import com.aaron212.onlinelibrarymanagement.backend.dto.CommentCreateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.CommentDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.CommentUpdateDto;
@@ -16,6 +18,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,12 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @RestController
 @RequestMapping("/api/v1/comments")
@@ -70,7 +69,8 @@ public class CommentController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping
-    public ResponseEntity<?> createComment(@Valid @RequestBody CommentCreateDto commentCreateDto, Authentication authentication) {
+    public ResponseEntity<?> createComment(
+            @Valid @RequestBody CommentCreateDto commentCreateDto, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
@@ -86,9 +86,7 @@ public class CommentController {
         }
     }
 
-    @Operation(
-            summary = "Get comment by ID",
-            description = "Retrieves a specific comment by its ID")
+    @Operation(summary = "Get comment by ID", description = "Retrieves a specific comment by its ID")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -111,7 +109,8 @@ public class CommentController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Comment not found"));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to retrieve comment"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to retrieve comment"));
         }
     }
 
@@ -225,13 +224,15 @@ public class CommentController {
             List<CommentDto> pendingComments = commentService.getPendingComments();
             return ResponseEntity.ok(pendingComments);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to retrieve pending comments"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to retrieve pending comments"));
         }
     }
 
     @Operation(
             summary = "Update comment",
-            description = "Updates an existing comment. Only the author can update their own comment and only if it's still pending.",
+            description =
+                    "Updates an existing comment. Only the author can update their own comment and only if it's still pending.",
             security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
@@ -308,9 +309,10 @@ public class CommentController {
 
         try {
             // Get user role for authorization
-            User user = userRepository.findByUsername(authentication.getName())
+            User user = userRepository
+                    .findByUsername(authentication.getName())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            
+
             commentService.deleteComment(id, authentication.getName(), user.getRole());
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
@@ -416,12 +418,10 @@ public class CommentController {
         try {
             Optional<Double> averageRating = commentService.getAverageRatingForBook(bookId);
             long commentCount = commentService.getCommentCountForBook(bookId);
-            
-            Map<String, Object> response = Map.of(
-                    "averageRating", averageRating.orElse(0.0),
-                    "commentCount", commentCount
-            );
-            
+
+            Map<String, Object> response =
+                    Map.of("averageRating", averageRating.orElse(0.0), "commentCount", commentCount);
+
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));

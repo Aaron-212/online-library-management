@@ -2,6 +2,7 @@ package com.aaron212.onlinelibrarymanagement.backend.controller;
 
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserLoginDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.UserRegisterDto;
+import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.service.JwtService;
 import com.aaron212.onlinelibrarymanagement.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,10 +23,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-
-import com.aaron212.onlinelibrarymanagement.backend.model.User;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -86,8 +84,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody UserLoginDto loginRequest) {
         if (loginRequest.usernameOrEmail() == null || loginRequest.password() == null) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Username/email and password are required"));
         }
 
@@ -99,8 +96,7 @@ public class AuthController {
             String token = jwtService.generateToken(principal.getUsername(), principal.getLastUpdateTime());
             return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid username or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
         }
     }
 

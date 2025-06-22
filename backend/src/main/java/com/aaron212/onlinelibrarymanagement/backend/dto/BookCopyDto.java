@@ -1,7 +1,6 @@
 package com.aaron212.onlinelibrarymanagement.backend.dto;
 
 import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -16,6 +15,4 @@ public record BookCopyDto(
         LocalDateTime purchaseTime,
         LocalDateTime lastMaintenance,
         LocalDateTime createTime,
-        LocalDateTime updateTime
-) {
-}
+        LocalDateTime updateTime) {}

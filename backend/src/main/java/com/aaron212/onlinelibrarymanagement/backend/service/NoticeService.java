@@ -7,13 +7,12 @@ import com.aaron212.onlinelibrarymanagement.backend.model.Notice;
 import com.aaron212.onlinelibrarymanagement.backend.model.User;
 import com.aaron212.onlinelibrarymanagement.backend.repository.NoticeRepository;
 import com.aaron212.onlinelibrarymanagement.backend.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,7 +27,8 @@ public class NoticeService {
     }
 
     public NoticeResponseDto createNotice(NoticeCreateDto noticeCreateDto, String creatorUsername) {
-        User creatorUser = userRepository.findByUsername(creatorUsername)
+        User creatorUser = userRepository
+                .findByUsername(creatorUsername)
                 .orElseThrow(() -> new RuntimeException("Creator user not found"));
 
         Notice.Status status = Notice.Status.fromValue(noticeCreateDto.status());
@@ -68,14 +68,17 @@ public class NoticeService {
     public Page<NoticeResponseDto> getNoticesByStatus(Integer statusValue, Pageable pageable) {
         Notice.Status status = Notice.Status.fromValue(statusValue);
         LocalDateTime currentTime = LocalDateTime.now();
-        return noticeRepository.findActiveNoticesByStatus(status, currentTime, pageable).map(this::mapToResponseDto);
+        return noticeRepository
+                .findActiveNoticesByStatus(status, currentTime, pageable)
+                .map(this::mapToResponseDto);
     }
 
     @Transactional(readOnly = true)
     public Optional<NoticeResponseDto> getNoticeById(Long id, String username) {
         boolean isAdmin = false;
         if (username != null) {
-            isAdmin = userRepository.findByUsername(username)
+            isAdmin = userRepository
+                    .findByUsername(username)
                     .map(user -> user.getRole() == User.Role.ADMIN)
                     .orElse(false);
         }
@@ -93,7 +96,8 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public Page<NoticeResponseDto> getNoticesByCreator(String creatorUsername, Pageable pageable) {
-        User creatorUser = userRepository.findByUsername(creatorUsername)
+        User creatorUser = userRepository
+                .findByUsername(creatorUsername)
                 .orElseThrow(() -> new RuntimeException("Creator user not found"));
         return noticeRepository.findByCreatorUser(creatorUser, pageable).map(this::mapToResponseDto);
     }
@@ -105,15 +109,17 @@ public class NoticeService {
     }
 
     public NoticeResponseDto updateNotice(Long id, NoticeUpdateDto noticeUpdateDto, String updaterUsername) {
-        Notice notice = noticeRepository.findById(id)
+        Notice notice = noticeRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Notice not found with id: " + id));
 
         // Check if the updater is the creator or has admin role
-        User updaterUser = userRepository.findByUsername(updaterUsername)
+        User updaterUser = userRepository
+                .findByUsername(updaterUsername)
                 .orElseThrow(() -> new RuntimeException("Updater user not found"));
-        
-        if (!notice.getCreatorUser().getId().equals(updaterUser.getId()) && 
-            !updaterUser.getRole().equals(User.Role.ADMIN)) {
+
+        if (!notice.getCreatorUser().getId().equals(updaterUser.getId())
+                && !updaterUser.getRole().equals(User.Role.ADMIN)) {
             throw new RuntimeException("You can only update your own notices or you must be an admin");
         }
 
@@ -130,15 +136,17 @@ public class NoticeService {
     }
 
     public void deleteNotice(Long id, String deleterUsername) {
-        Notice notice = noticeRepository.findById(id)
+        Notice notice = noticeRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Notice not found with id: " + id));
 
         // Check if the deleter is the creator or has admin role
-        User deleterUser = userRepository.findByUsername(deleterUsername)
+        User deleterUser = userRepository
+                .findByUsername(deleterUsername)
                 .orElseThrow(() -> new RuntimeException("Deleter user not found"));
-        
-        if (!notice.getCreatorUser().getId().equals(deleterUser.getId()) && 
-            !deleterUser.getRole().equals(User.Role.ADMIN)) {
+
+        if (!notice.getCreatorUser().getId().equals(deleterUser.getId())
+                && !deleterUser.getRole().equals(User.Role.ADMIN)) {
             throw new RuntimeException("You can only delete your own notices or you must be an admin");
         }
 
@@ -155,7 +163,6 @@ public class NoticeService {
                 notice.getExpireTime(),
                 notice.getStatus().getValue(),
                 notice.getCreateTime(),
-                notice.getUpdateTime()
-        );
+                notice.getUpdateTime());
     }
-} 
+}

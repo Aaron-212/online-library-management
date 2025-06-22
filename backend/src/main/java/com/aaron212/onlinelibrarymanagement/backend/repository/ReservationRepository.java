@@ -1,10 +1,9 @@
 package com.aaron212.onlinelibrarymanagement.backend.repository;
 
 import com.aaron212.onlinelibrarymanagement.backend.model.Reservation;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
