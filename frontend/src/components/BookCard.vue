@@ -95,7 +95,7 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
           </div>
           
           <!-- Favorite Button -->
-          <div v-if="showFavoriteButton && bookId" class="bg-white/90 backdrop-blur-sm rounded-md">
+          <div v-if="showFavoriteButton && bookId">
             <FavoriteButton 
               :book-id="bookId" 
               size="sm"
