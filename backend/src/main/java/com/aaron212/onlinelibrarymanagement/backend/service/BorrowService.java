@@ -114,6 +114,30 @@ public class BorrowService {
     }
 
     /**
+     * Return a book by borrow ID
+     * @param borrowId Borrow ID
+     * @param userId User ID (for security verification)
+     * @return Updated borrow record
+     * @throws RuntimeException if return fails
+     */
+    public Borrow returnBookById(Long borrowId, Long userId) {
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new ResourceNotFoundException("Borrow", "id", borrowId));
+
+        // Verify that the borrow record belongs to the user
+        if (!borrow.getUser().getId().equals(userId)) {
+            throw new BusinessLogicException("无权限操作此借阅记录");
+        }
+
+        // Verify that the book is currently borrowed
+        if (borrow.getStatus() != Borrow.Status.BORROWED) {
+            throw new BusinessLogicException("此书已归还或不在借阅状态");
+        }
+
+        return returnBook(userId, borrow.getCopy().getId());
+    }
+
+    /**
      * Return a book
      * @param userId User ID
      * @param copyId Book copy ID
@@ -150,6 +174,30 @@ public class BorrowService {
         reservationService.processNextReservation(copy.getBook().getId());
         
         return borrow;
+    }
+
+    /**
+     * Renew a book by borrow ID
+     * @param borrowId Borrow ID
+     * @param userId User ID (for security verification)
+     * @return Updated borrow record
+     * @throws RuntimeException if renewal fails
+     */
+    public Borrow renewBookById(Long borrowId, Long userId) {
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new ResourceNotFoundException("Borrow", "id", borrowId));
+
+        // Verify that the borrow record belongs to the user
+        if (!borrow.getUser().getId().equals(userId)) {
+            throw new BusinessLogicException("无权限操作此借阅记录");
+        }
+
+        // Verify that the book is currently borrowed
+        if (borrow.getStatus() != Borrow.Status.BORROWED) {
+            throw new BusinessLogicException("此书已归还或不在借阅状态，无法续借");
+        }
+
+        return renewBook(userId, borrow.getCopy().getId());
     }
 
     /**
