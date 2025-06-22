@@ -67,12 +67,6 @@ const navigationItems = computed(() => [
     icon: Bell,
   },
   {
-    title: 'My Reservations',
-    url: '/reservations',
-    icon: Clock,
-    requiresAuth: true,
-  },
-  {
     title: 'Favorites',
     url: '/favorites',
     icon: Heart,
@@ -83,11 +77,6 @@ const navigationItems = computed(() => [
     url: '/billing',
     icon: CreditCard,
     requiresAuth: true,
-  },
-  {
-    title: 'Api Test',
-    url: '/api-test',
-    icon: Bell,
   },
 ])
 
