@@ -13,4 +13,5 @@ public interface BookPublisherRepository extends JpaRepository<BookPublisher, Lo
     List<BookPublisher> findByBook(Book book);
     List<BookPublisher> findByPublisher(Publisher publisher);
     boolean existsByBookAndPublisher(Book book, Publisher publisher);
+    void deleteByBook(Book book);
 }

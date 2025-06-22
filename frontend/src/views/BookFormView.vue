@@ -31,6 +31,7 @@ const formData = ref({
   title: '',
   language: '',
   description: '',
+  coverURL: '',
   authorNames: [] as string[],
   publisherNames: [] as string[],
   categoryName: '',
@@ -61,6 +62,7 @@ const loadBook = async () => {
       title: book.title,
       language: book.language,
       description: book.description || '',
+      coverURL: book.coverURL || '',
       authorNames: book.authors.map(author => author.name),
       publisherNames: book.publishers.map(publisher => publisher.name),
       categoryName: book.indexCategory?.name || '',
@@ -141,6 +143,7 @@ const handleSubmit = async () => {
         title: formData.value.title,
         language: formData.value.language,
         description: formData.value.description || undefined,
+        coverURL: formData.value.coverURL || undefined,
         authorNames: formData.value.authorNames,
         publisherNames: formData.value.publisherNames,
         categoryName: formData.value.categoryName
@@ -155,6 +158,7 @@ const handleSubmit = async () => {
         title: formData.value.title,
         language: formData.value.language,
         description: formData.value.description || undefined,
+        coverURL: formData.value.coverURL || undefined,
         authorNames: formData.value.authorNames,
         publisherNames: formData.value.publisherNames,
         categoryName: formData.value.categoryName,
@@ -280,6 +284,16 @@ onMounted(() => {
               v-model="formData.description"
               class="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               placeholder="Enter book description (optional)"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <Label for="coverURL">Cover Image URL</Label>
+            <Input
+              id="coverURL"
+              v-model="formData.coverURL"
+              type="url"
+              placeholder="https://example.com/book-cover.jpg (optional)"
             />
           </div>
         </CardContent>

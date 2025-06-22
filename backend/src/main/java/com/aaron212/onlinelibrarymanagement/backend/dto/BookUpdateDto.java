@@ -1,8 +1,12 @@
 package com.aaron212.onlinelibrarymanagement.backend.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 
 public record BookUpdateDto(
-        @NotBlank(message = "Title is required") String title,
-        @NotBlank(message = "Index category is required") String indexCategory,
-        @NotBlank(message = "Location is required") String location) {}
+        String title,
+        String language,
+        String description,
+        String coverURL,
+        List<String> authorNames,
+        List<String> publisherNames,
+        String categoryName) {}

@@ -55,6 +55,7 @@ export interface Book {
   availableQuantity: number
   totalQuantity: number
   description?: string
+  coverURL?: string
   authors: Author[]
   publishers: Publisher[]
   indexCategory: IndexCategory
@@ -91,6 +92,7 @@ export interface BookCreateDto {
   title: string
   language: string
   description?: string
+  coverURL?: string
   authorNames: string[]
   publisherNames: string[]
   categoryName: string
@@ -101,6 +103,7 @@ export interface BookUpdateDto {
   title?: string
   language?: string
   description?: string
+  coverURL?: string
   authorNames?: string[]
   publisherNames?: string[]
   categoryName?: string

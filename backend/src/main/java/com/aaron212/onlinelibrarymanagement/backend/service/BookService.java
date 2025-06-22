@@ -67,6 +67,7 @@ public class BookService {
         book.setTitle(bookCreateDto.title());
         book.setLanguage(bookCreateDto.language());
         book.setDescription(bookCreateDto.description());
+        book.setCoverURL(bookCreateDto.coverURL());
         book.setIndexCategory(category);
         book.setLocation("LIBRARY"); // Default location since frontend doesn't provide it
 
@@ -207,13 +208,73 @@ public class BookService {
         Book book = bookRepository
                 .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
-        IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookUpdateDto.indexCategory());
+        // Update basic fields
+        if (bookUpdateDto.title() != null) {
+            book.setTitle(bookUpdateDto.title());
+        }
+        if (bookUpdateDto.language() != null) {
+            book.setLanguage(bookUpdateDto.language());
+        }
+        if (bookUpdateDto.description() != null) {
+            book.setDescription(bookUpdateDto.description());
+        }
+        if (bookUpdateDto.coverURL() != null) {
+            book.setCoverURL(bookUpdateDto.coverURL());
+        }
 
-        book.setTitle(bookUpdateDto.title());
-        book.setIndexCategory(category);
-        book.setLocation(bookUpdateDto.location());
+        // Update category
+        if (bookUpdateDto.categoryName() != null) {
+            IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookUpdateDto.categoryName());
+            book.setIndexCategory(category);
+        }
 
-        bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+
+        // Update authors
+        if (bookUpdateDto.authorNames() != null) {
+            // Remove existing author relationships
+            bookAuthorRepository.deleteByBook(savedBook);
+            
+            // Add new author relationships
+            for (String authorName : bookUpdateDto.authorNames()) {
+                if (authorName != null && !authorName.trim().isEmpty()) {
+                    Author author = authorRepository.findByName(authorName.trim())
+                            .orElseGet(() -> {
+                                Author newAuthor = new Author();
+                                newAuthor.setName(authorName.trim());
+                                return authorRepository.save(newAuthor);
+                            });
+
+                    BookAuthor bookAuthor = new BookAuthor();
+                    bookAuthor.setBook(savedBook);
+                    bookAuthor.setAuthor(author);
+                    bookAuthorRepository.save(bookAuthor);
+                }
+            }
+        }
+
+        // Update publishers
+        if (bookUpdateDto.publisherNames() != null) {
+            // Remove existing publisher relationships
+            bookPublisherRepository.deleteByBook(savedBook);
+            
+            // Add new publisher relationships
+            for (String publisherName : bookUpdateDto.publisherNames()) {
+                if (publisherName != null && !publisherName.trim().isEmpty()) {
+                    Publisher publisher = publisherRepository.findByName(publisherName.trim())
+                            .orElseGet(() -> {
+                                Publisher newPublisher = new Publisher();
+                                newPublisher.setName(publisherName.trim());
+                                return publisherRepository.save(newPublisher);
+                            });
+
+                    BookPublisher bookPublisher = new BookPublisher();
+                    bookPublisher.setBook(savedBook);
+                    bookPublisher.setPublisher(publisher);
+                    bookPublisherRepository.save(bookPublisher);
+                }
+            }
+        }
     }
 
     public void deleteBook(Long id) {

@@ -194,7 +194,14 @@ onMounted(() => {
         <div class="lg:col-span-1">
           <Card class="overflow-hidden">
             <div class="aspect-[3/4] bg-muted flex items-center justify-center relative">
-              <div class="text-muted-foreground p-8 text-center">
+              <img 
+                v-if="book.coverURL" 
+                :src="book.coverURL" 
+                :alt="`Cover of ${book.title}`"
+                class="object-cover w-full h-full"
+                @error="(e) => { e.target.style.display = 'none' }"
+              />
+              <div v-else class="text-muted-foreground p-8 text-center">
                 <BookOpen class="h-16 w-16 mx-auto mb-4" />
                 <p>No cover image available</p>
               </div>
