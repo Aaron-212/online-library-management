@@ -173,8 +173,20 @@ const changePassword = async () => {
     )
 
     if (result.success) {
+      // On successful password change, immediately log the user out and redirect to login page
       isChangingPassword.value = false
-      toast.success('Password changed successfully!')
+      toast.success('Password changed successfully! Please log in with your new password.')
+
+      // Clear authentication state and force re-authentication
+      authStore.logout()
+
+      // Redirect to login page with a success message
+      await router.push({
+        path: '/login',
+        query: {
+          message: 'Password changed successfully! Please log in with your new password.',
+        },
+      })
     } else {
       toast.error(result.message || 'Failed to change password')
     }
