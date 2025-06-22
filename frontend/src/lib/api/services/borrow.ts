@@ -71,16 +71,19 @@ export class BorrowService {
     // Use the secure endpoint that validates ownership
     const result = await this.renewBookById(borrowId)
     
+    // Get the updated borrow record after renewal to get the correct new due date
+    const updatedBorrowRecord = await this.getBorrowById(borrowId)
+    
     // Return a compatible response format with real data for backward compatibility
     return {
-      borrowId: borrowRecord.borrowId,
-      userId: borrowRecord.userId,
-      username: borrowRecord.username,
-      copyId: borrowRecord.copyId,
-      bookTitle: borrowRecord.bookTitle,
-      isbn: borrowRecord.isbn,
-      borrowTime: borrowRecord.borrowTime,
-      returnTime: new Date().toISOString(), // Current timestamp as return time
+      borrowId: updatedBorrowRecord.borrowId,
+      userId: updatedBorrowRecord.userId,
+      username: updatedBorrowRecord.username,
+      copyId: updatedBorrowRecord.copyId,
+      bookTitle: updatedBorrowRecord.bookTitle,
+      isbn: updatedBorrowRecord.isbn,
+      borrowTime: updatedBorrowRecord.borrowTime,
+      returnTime: updatedBorrowRecord.returnTime, // Use the updated due date from renewal
       status: 'BORROWED' as any,
       message: result.message
     }

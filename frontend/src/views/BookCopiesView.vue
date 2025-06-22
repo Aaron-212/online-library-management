@@ -346,7 +346,7 @@ const handleReturn = async (copy: BookCopy) => {
     // Find active borrow record for this user and copy
     const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
     const activeBorrow = currentBorrowings.find(borrow =>
-      borrow.copyId === copy.id && borrow.status === 'BORROWED'
+      borrow.copyId === copy.id && (borrow.status === 'BORROWED' || borrow.status === 'OVERDUE')
     )
 
     if (!activeBorrow) {
