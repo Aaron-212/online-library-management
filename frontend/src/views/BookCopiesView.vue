@@ -5,17 +5,13 @@
       <nav class="flex items-center gap-2 text-sm text-gray-600 mb-4">
         <router-link to="/books" class="hover:text-gray-900">Books</router-link>
         <span>/</span>
-        <router-link 
-          v-if="book" 
-          :to="`/books/${book.id}`" 
-          class="hover:text-gray-900"
-        >
+        <router-link v-if="book" :to="`/books/${book.id}`" class="hover:text-gray-900">
           {{ book.title }}
         </router-link>
         <span>/</span>
         <span class="text-gray-900">Copies</span>
       </nav>
-      
+
       <div v-if="book" class="flex items-start justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 mb-2">Book Copies</h1>
@@ -24,7 +20,7 @@
             <Badge variant="outline">{{ book.isbn }}</Badge>
           </div>
         </div>
-        
+
         <div v-if="isAdmin" class="flex gap-2">
           <Button @click="showCreateDialog = true" class="gap-2">
             <Plus class="h-4 w-4" />
@@ -55,15 +51,9 @@
 
     <!-- Book copies list -->
     <div v-else-if="book">
-      <BookCopyList
-        :copies="copies"
-        :loading="loadingCopies"
-        :show-actions="true"
-        @borrow="handleBorrow"
-        @return="handleReturn"
-        @maintenance="handleMaintenance"
-        @edit="handleEdit"
-      />
+      <BookCopyList :copies="copies" :loading="loadingCopies" :show-actions="true"
+        :user-borrowed-copies="userBorrowedCopies" @borrow="handleBorrow" @return="handleReturn"
+        @maintenance="handleMaintenance" @edit="handleEdit" />
     </div>
 
     <!-- Create Copy Dialog -->
@@ -75,17 +65,13 @@
             Create a new copy of "{{ book?.title }}"
           </DialogDescription>
         </DialogHeader>
-        
+
         <div class="space-y-4">
           <div>
             <Label for="barcode">Barcode</Label>
-            <Input
-              id="barcode"
-              v-model="newCopy.barcode"
-              placeholder="Enter barcode..."
-            />
+            <Input id="barcode" v-model="newCopy.barcode" placeholder="Enter barcode..." />
           </div>
-          
+
           <div>
             <Label for="status">Status</Label>
             <Select v-model="newCopy.status">
@@ -98,19 +84,14 @@
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Label for="purchasePrice">Purchase Price (Optional)</Label>
-            <Input
-              id="purchasePrice"
-              v-model.number="newCopy.purchasePrice"
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-            />
+            <Input id="purchasePrice" v-model.number="newCopy.purchasePrice" type="number" step="0.01"
+              placeholder="0.00" />
           </div>
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" @click="showCreateDialog = false">
             Cancel
@@ -131,17 +112,13 @@
             Update copy details
           </DialogDescription>
         </DialogHeader>
-        
+
         <div v-if="editingCopy" class="space-y-4">
           <div>
             <Label for="edit-barcode">Barcode</Label>
-            <Input
-              id="edit-barcode"
-              v-model="editForm.barcode"
-              placeholder="Enter barcode..."
-            />
+            <Input id="edit-barcode" v-model="editForm.barcode" placeholder="Enter barcode..." />
           </div>
-          
+
           <div>
             <Label for="edit-status">Status</Label>
             <Select v-model="editForm.status">
@@ -157,19 +134,14 @@
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Label for="edit-purchasePrice">Purchase Price</Label>
-            <Input
-              id="edit-purchasePrice"
-              v-model.number="editForm.purchasePrice"
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-            />
+            <Input id="edit-purchasePrice" v-model.number="editForm.purchasePrice" type="number" step="0.01"
+              placeholder="0.00" />
           </div>
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" @click="showEditDialog = false">
             Cancel
@@ -221,6 +193,7 @@ const copies = ref<BookCopy[]>([])
 const loadingBook = ref(false)
 const loadingCopies = ref(false)
 const error = ref<string | null>(null)
+const userBorrowedCopies = ref<Set<number>>(new Set())
 
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
@@ -268,7 +241,7 @@ const loadBookAndCopies = async () => {
     loadingBook.value = true
     loadingCopies.value = true
 
-    // Load book details and copies in parallel
+    // Load book details, copies, and user borrowed copies in parallel
     const [bookData, copiesData] = await Promise.all([
       api.books.getById(bookId),
       api.bookCopies.getCopiesByBookId(bookId)
@@ -276,12 +249,30 @@ const loadBookAndCopies = async () => {
 
     book.value = bookData
     copies.value = copiesData
+
+    // Load user borrowed copies after we have the copies data
+    await loadUserBorrowedCopies()
   } catch (err: any) {
     error.value = err.message || 'Failed to load book details'
     console.error('Error loading book and copies:', err)
   } finally {
     loadingBook.value = false
     loadingCopies.value = false
+  }
+}
+
+const loadUserBorrowedCopies = async () => {
+  try {
+    if (!authStore.user) return
+
+    const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
+    const borrowedCopyIds = currentBorrowings
+      .filter(borrow => borrow.status === 'BORROWED' || borrow.status === 'OVERDUE')
+      .map(borrow => borrow.copyId)
+
+    userBorrowedCopies.value = new Set(borrowedCopyIds)
+  } catch (error) {
+    console.error('Error loading user borrowed copies:', error)
   }
 }
 
@@ -346,8 +337,27 @@ const handleBorrow = async (copy: BookCopy) => {
 
 const handleReturn = async (copy: BookCopy) => {
   try {
-    // This would need a return endpoint
-    toast.error('Return functionality not yet implemented in backend')
+    // Security: Only allow returning if user is authenticated
+    if (!authStore.user) {
+      toast.error('Please login to return books')
+      return
+    }
+
+    // Find active borrow record for this user and copy
+    const currentBorrowings = await api.borrow.getMyCurrentBorrowings()
+    const activeBorrow = currentBorrowings.find(borrow =>
+      borrow.copyId === copy.id && (borrow.status === 'BORROWED' || borrow.status === 'OVERDUE')
+    )
+
+    if (!activeBorrow) {
+      toast.error('No active borrow record found for this book copy')
+      return
+    }
+
+    // Use secure return method with borrow ID
+    await api.borrow.returnBookById(activeBorrow.borrowId)
+    toast.success('Book returned successfully')
+    await loadBookAndCopies() // Reload to update status
   } catch (err: any) {
     toast.error(err.message || 'Failed to return book')
   }

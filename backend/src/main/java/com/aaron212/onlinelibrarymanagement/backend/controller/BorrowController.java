@@ -190,7 +190,7 @@ public class BorrowController {
 
     @Operation(
             summary = "Return a book",
-            description = "Allows a user to return a borrowed book",
+            description = "Allows a user to return a borrowed book using copy ID (authenticated user validation)",
             security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
@@ -208,8 +208,22 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/return")
-    public ResponseEntity<?> returnBook(@Valid @RequestBody BorrowRequestDto requestDto) {
+    public ResponseEntity<?> returnBook(@Valid @RequestBody BorrowRequestDto requestDto, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
+        }
+
         try {
+            // Get the authenticated user's ID
+            Long authenticatedUserId = userService.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
+            
+            // Security check: Ensure the request is for the authenticated user's borrowing
+            if (!authenticatedUserId.equals(requestDto.userId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "无权限操作其他用户的借阅记录"));
+            }
+            
             Borrow borrow = borrowService.returnBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             String message = borrow.getStatus() == Borrow.Status.OVERDUE 
@@ -228,6 +242,11 @@ public class BorrowController {
                 message
             );
             return ResponseEntity.ok(responseDto);
+        } catch (RuntimeException e) {
+            if ("User not found".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
@@ -304,8 +323,22 @@ public class BorrowController {
                         content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @PostMapping("/renew")
-    public ResponseEntity<?> renewBook(@Valid @RequestBody BorrowRequestDto requestDto) {
+    public ResponseEntity<?> renewBook(@Valid @RequestBody BorrowRequestDto requestDto, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
+        }
+
         try {
+            // Get the authenticated user's ID
+            Long authenticatedUserId = userService.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
+            
+            // Security check: Ensure the request is for the authenticated user's borrowing
+            if (!authenticatedUserId.equals(requestDto.userId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "无权限操作其他用户的借阅记录"));
+            }
+            
             Borrow borrow = borrowService.renewBook(requestDto.userId(), requestDto.copyId());
             BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
             responseDto = new BorrowResponseDto(
@@ -321,6 +354,11 @@ public class BorrowController {
                 "续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate()
             );
             return ResponseEntity.ok(responseDto);
+        } catch (RuntimeException e) {
+            if ("User not found".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
