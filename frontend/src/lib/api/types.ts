@@ -66,6 +66,8 @@ export interface BookSummaryDto {
   authors: string[]
   publishers: string[]
   coverURL?: string
+  availableQuantity: number
+  totalQuantity: number
 }
 
 export interface Author {
@@ -106,7 +108,9 @@ export interface BookUpdateDto {
 
 export interface BookCopy {
   id: number
-  book: Book
+  bookId: number
+  bookTitle: string
+  bookIsbn: string
   barcode: string
   status: BookCopyStatus
   purchasePrice?: number

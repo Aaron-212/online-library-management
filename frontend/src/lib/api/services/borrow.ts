@@ -16,6 +16,10 @@ export class BorrowService {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/borrow`, request)
   }
 
+  async borrowBookByBookId(request: { userId: number; bookId: number }): Promise<BorrowResponseDto> {
+    return apiClient.post<BorrowResponseDto>(`${this.basePath}/borrow-by-book`, request)
+  }
+
   async returnBook(borrowId: number): Promise<MessageResponse> {
     return apiClient.put<MessageResponse>(`${this.basePath}/${borrowId}/return`)
   }
