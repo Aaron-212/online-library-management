@@ -20,6 +20,7 @@ import {
   User,
 } from 'lucide-vue-next'
 import CommentList from '@/components/CommentList.vue'
+import FavoriteButton from '@/components/FavoriteButton.vue'
 import { booksService, borrowService, commentsService, usersService } from '@/lib/api'
 import type { Book, Comment } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
@@ -158,6 +159,13 @@ const renderStars = (rating: number) => {
   return stars
 }
 
+const handleFavoriteChanged = (isFavorite: boolean) => {
+  // The FavoriteButton component already handles toast notifications
+  // We could add additional logic here if needed, such as updating
+  // analytics or refreshing related data
+  console.log(`Book ${bookId.value} favorite status changed to: ${isFavorite}`)
+}
+
 // Lifecycle
 onMounted(() => {
   loadBook()
@@ -256,6 +264,15 @@ onMounted(() => {
                 <BookOpen class="h-4 w-4 mr-2" />
                 {{ isBorrowing ? 'Borrowing...' : 'Borrow Book' }}
               </Button>
+
+              <FavoriteButton 
+                v-if="authStore.isAuthenticated"
+                :book-id="bookId" 
+                show-text
+                variant="outline"
+                size="lg"
+                @favorite-changed="handleFavoriteChanged"
+              />
 
               <Button variant="outline" @click="handleViewCopies" size="lg">
                 <Copy class="h-4 w-4 mr-2" />

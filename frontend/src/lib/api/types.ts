@@ -346,4 +346,24 @@ export interface Reservation {
   isActive: boolean
 }
 
+// Favorites types
+export interface FavoriteDto {
+  id: number
+  book: Book
+  createTime: string
+}
+
+export interface FavoriteResponseDto {
+  id: number
+  bookId: number
+  bookTitle: string
+  bookIsbn: string
+  bookCoverURL?: string
+  createTime: string
+}
+
+export interface FavoriteCreateDto {
+  bookId: number
+}
+
 export type BookDto = Book;
