@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import FavoriteButton from '@/components/FavoriteButton.vue'
 
 const props = defineProps<{
   title: string
@@ -19,6 +20,8 @@ const props = defineProps<{
   available?: boolean
   totalCopies?: number
   availableCopies?: number
+  bookId?: number
+  showFavoriteButton?: boolean
 }>()
 
 const { isLoading, error } = useImage({ src: props.coverImageUrl || '' })
@@ -57,26 +60,38 @@ const availabilityText = computed(() => {
         </div>
         <div v-else class="text-sm text-muted-foreground p-4 text-center">No image available</div>
 
-        <!-- Availability Badge -->
-        <div v-if="availabilityStatus" class="absolute top-2 right-2">
-          <Badge
-            :variant="
-              availabilityStatus === 'available'
-                ? 'default'
-                : availabilityStatus === 'limited'
-                  ? 'secondary'
-                  : 'destructive'
-            "
-            class="text-xs"
-          >
-            {{
-              availabilityStatus === 'available'
-                ? 'Available'
-                : availabilityStatus === 'limited'
-                  ? 'Limited'
-                  : 'Out of Stock'
-            }}
-          </Badge>
+        <!-- Top right badges/buttons -->
+        <div class="absolute top-2 right-2 flex flex-col gap-2">
+          <!-- Availability Badge -->
+          <div v-if="availabilityStatus">
+            <Badge
+              :variant="
+                availabilityStatus === 'available'
+                  ? 'default'
+                  : availabilityStatus === 'limited'
+                    ? 'secondary'
+                    : 'destructive'
+              "
+              class="text-xs"
+            >
+              {{
+                availabilityStatus === 'available'
+                  ? 'Available'
+                  : availabilityStatus === 'limited'
+                    ? 'Limited'
+                    : 'Out of Stock'
+              }}
+            </Badge>
+          </div>
+          
+          <!-- Favorite Button -->
+          <div v-if="showFavoriteButton && bookId" class="bg-white/90 backdrop-blur-sm rounded-md">
+            <FavoriteButton 
+              :book-id="bookId" 
+              size="sm"
+              variant="ghost"
+            />
+          </div>
         </div>
       </div>
     </CardHeader>

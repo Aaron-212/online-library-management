@@ -73,7 +73,7 @@
                     </span>
                   </td>
                   <td class="p-3 text-sm text-muted-foreground">
-                    {{ formatDate(favorite.createdDate) }}
+                    {{ formatDate(favorite.createTime) }}
                   </td>
                   <td class="p-3">
                     <div class="flex gap-2">
@@ -106,7 +106,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { favoritesService } from '@/lib/api'
-import type { Favorite } from '@/lib/api/services/favorites'
+import type { FavoriteDto } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -114,7 +114,7 @@ const router = useRouter()
 // Reactive data
 const isLoading = ref(false)
 const isRemoving = ref(false)
-const favorites = ref<Favorite[]>([])
+const favorites = ref<FavoriteDto[]>([])
 
 // Methods
 const fetchFavorites = async () => {

@@ -363,6 +363,8 @@ onMounted(() => {
           :cover-image-url="book.coverURL"
           :available-copies="book.availableQuantity"
           :total-copies="book.totalQuantity"
+          :book-id="book.id"
+          :show-favorite-button="authStore.isAuthenticated"
         />
       </div>
     </div>
