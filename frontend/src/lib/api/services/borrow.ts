@@ -20,16 +20,90 @@ export class BorrowService {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/borrow-by-book`, request)
   }
 
-  async returnBook(borrowId: number): Promise<MessageResponse> {
-    return apiClient.put<MessageResponse>(`${this.basePath}/${borrowId}/return`)
+  // Main return method that matches backend
+  async returnBookDirect(request: BorrowRequestDto): Promise<BorrowResponseDto> {
+    return apiClient.post<BorrowResponseDto>(`${this.basePath}/return`, request)
   }
 
-  async renewBook(borrowId: number): Promise<MessageResponse> {
-    return apiClient.put<MessageResponse>(`${this.basePath}/${borrowId}/renew`)
+  // Main renew method that matches backend  
+  async renewBookDirect(request: BorrowRequestDto): Promise<BorrowResponseDto> {
+    return apiClient.post<BorrowResponseDto>(`${this.basePath}/renew`, request)
   }
 
+  // Convenience method for returning by borrow ID
+  async returnBook(borrowId: number): Promise<BorrowResponseDto> {
+    // Get current borrowings to find the borrow record
+    const currentBorrowings = await this.getMyCurrentBorrowings()
+    const borrow = currentBorrowings.find(b => b.borrowId === borrowId)
+    
+    if (!borrow) {
+      throw new Error(`Active borrow record with ID ${borrowId} not found`)
+    }
+
+    return this.returnBookDirect({
+      userId: borrow.userId,
+      copyId: borrow.copyId
+    })
+  }
+
+  // Convenience method for renewing by borrow ID
+  async renewBook(borrowId: number): Promise<BorrowResponseDto> {
+    // Get current borrowings to find the borrow record
+    const currentBorrowings = await this.getMyCurrentBorrowings()
+    const borrow = currentBorrowings.find(b => b.borrowId === borrowId)
+    
+    if (!borrow) {
+      throw new Error(`Active borrow record with ID ${borrowId} not found`)
+    }
+
+    return this.renewBookDirect({
+      userId: borrow.userId, 
+      copyId: borrow.copyId
+    })
+  }
+
+  // Get current active borrowings for authenticated user
+  async getMyCurrentBorrowings(): Promise<Borrow[]> {
+    return apiClient.get<Borrow[]>(`${this.basePath}/my-current`)
+  }
+
+  // Get complete borrowing history for authenticated user
+  async getMyBorrowHistory(): Promise<Borrow[]> {
+    return apiClient.get<Borrow[]>(`${this.basePath}/my-history`)
+  }
+
+  // Legacy method for backward compatibility - returns current borrowings in paginated format
   async getUserBorrows(params?: { page?: number; size?: number }): Promise<PagedResponse<Borrow>> {
-    return apiClient.get<PagedResponse<Borrow>>(`${this.basePath}/user`, params)
+    // For backward compatibility, we'll simulate pagination from the current borrowings
+    const currentBorrowings = await this.getMyCurrentBorrowings()
+    const page = params?.page ?? 0
+    const size = Math.max(1, params?.size ?? 10) // Prevent division by zero by ensuring size >= 1
+    const startIndex = page * size
+    const endIndex = startIndex + size
+    const content = currentBorrowings.slice(startIndex, endIndex)
+    
+    const totalPages = Math.max(1, Math.ceil(currentBorrowings.length / size))
+    // Fix isLast calculation: true when page is at or beyond the last available page
+    const isLast = page >= totalPages - 1
+    
+    return {
+      content,
+      pageable: {
+        page,
+        size,
+        totalElements: currentBorrowings.length,
+        totalPages,
+        first: page === 0,
+        last: isLast
+      },
+      totalElements: currentBorrowings.length,
+      totalPages,
+      first: page === 0,
+      last: isLast,
+      numberOfElements: content.length,
+      size,
+      number: page
+    }
   }
 
   async getBorrowById(id: number): Promise<Borrow> {
@@ -62,6 +136,14 @@ export class BorrowService {
   // Admin methods
   async adminBorrowBook(request: { userId: number; copyId: number }): Promise<BorrowResponseDto> {
     return apiClient.post<BorrowResponseDto>(`${this.basePath}/admin/borrow`, request)
+  }
+
+  async adminReturnBook(request: BorrowRequestDto): Promise<BorrowResponseDto> {
+    return apiClient.post<BorrowResponseDto>(`${this.basePath}/admin/return`, request)
+  }
+
+  async adminRenewBook(request: BorrowRequestDto): Promise<BorrowResponseDto> {
+    return apiClient.post<BorrowResponseDto>(`${this.basePath}/admin/renew`, request)
   }
 
   async adminGetAllBorrows(params?: { page?: number; size?: number }): Promise<Borrow[]> {
