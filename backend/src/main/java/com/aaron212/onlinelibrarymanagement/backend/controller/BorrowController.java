@@ -135,6 +135,51 @@ public class BorrowController {
     }
 
     @Operation(
+            summary = "Return a book by borrow ID",
+            description = "Allows a user to return a borrowed book using the borrow ID",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book returned successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid request or book not borrowed by user",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PutMapping("/{borrowId}/return")
+    public ResponseEntity<?> returnBookById(
+            @Parameter(description = "Borrow ID", required = true, example = "1") @PathVariable @Positive Long borrowId,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
+        }
+
+        try {
+            Long userId = userService.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
+            
+            Borrow borrow = borrowService.returnBookById(borrowId, userId);
+            String message = borrow.getStatus() == Borrow.Status.OVERDUE 
+                ? "还书成功（已逾期，罚金：" + borrow.getFine() + "元）" 
+                : "还书成功";
+            
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User or borrow record not found"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(
             summary = "Return a book",
             description = "Allows a user to return a borrowed book",
             security = @SecurityRequirement(name = "Bearer Authentication"))
@@ -174,6 +219,49 @@ public class BorrowController {
                 message
             );
             return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(
+            summary = "Renew a book by borrow ID",
+            description = "Allows a user to extend the borrowing period of a book using the borrow ID",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book renewed successfully",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid request or renewal not allowed",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PutMapping("/{borrowId}/renew")
+    public ResponseEntity<?> renewBookById(
+            @Parameter(description = "Borrow ID", required = true, example = "1") @PathVariable @Positive Long borrowId,
+            Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
+        }
+
+        try {
+            Long userId = userService.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
+            
+            Borrow borrow = borrowService.renewBookById(borrowId, userId);
+            String message = "续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate();
+            
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User or borrow record not found"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
@@ -516,12 +604,14 @@ public class BorrowController {
     }
 
     @Operation(
-            summary = "Get borrowings for current user (stub)",
-            description = "Temporary stub endpoint to align with frontend '/borrow/user' path. Returns an empty page until full implementation is provided.")
+            summary = "Get borrowings for current user with pagination",
+            description = "Retrieves the complete borrowing history for the authenticated user with pagination support",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
     @ApiResponses(
             value = {
-                @ApiResponse(responseCode = "200", description = "Request successful", content = @Content(schema = @Schema(implementation = Page.class))),
-                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class)))
+                @ApiResponse(responseCode = "200", description = "Borrowing history retrieved successfully", content = @Content(schema = @Schema(implementation = Page.class))),
+                @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = Map.class)))
             })
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUserBorrowingsPaged(
@@ -532,8 +622,41 @@ public class BorrowController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not authenticated"));
         }
 
-        // TODO: Replace with real implementation once pagination is supported in the service layer
-        Page<?> emptyPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
-        return ResponseEntity.ok(emptyPage);
+        try {
+            Long userId = userService.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
+            
+            // Get all borrowing history for the user
+            List<Borrow> allBorrows = borrowService.getBorrowHistory(userId);
+            
+            // Convert to DTOs
+            List<BorrowDto> borrowDtos = allBorrows.stream()
+                    .map(BorrowMapper.INSTANCE::toBorrowDto)
+                    .toList();
+            
+            // Manual pagination
+            int totalElements = borrowDtos.size();
+            int totalPages = (int) Math.ceil((double) totalElements / size);
+            int startIndex = page * size;
+            int endIndex = Math.min(startIndex + size, totalElements);
+            
+            // Handle edge case where page is beyond available data
+            List<BorrowDto> pageContent;
+            if (startIndex >= totalElements) {
+                pageContent = List.of(); // Return empty list for pages beyond available data
+            } else {
+                pageContent = borrowDtos.subList(startIndex, endIndex);
+            }
+            
+            // Create a Page object
+            Page<BorrowDto> pagedBorrows = new PageImpl<>(pageContent, PageRequest.of(page, size), totalElements);
+            
+            return ResponseEntity.ok(pagedBorrows);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
     }
 }
