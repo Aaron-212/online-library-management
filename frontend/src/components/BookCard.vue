@@ -56,15 +56,9 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
 <template>
   <Card class="w-full h-auto flex flex-col hover:shadow-lg transition-shadow p-0">
     <CardHeader class="p-0">
-      <div
-        class="aspect-[3/4] w-full bg-muted flex items-center justify-center rounded-t-lg overflow-hidden relative"
-      >
-        <img
-          v-if="!isLoading && !error && props.coverImageUrl"
-          :alt="altText"
-          :src="props.coverImageUrl"
-          class="object-cover w-full h-full"
-        />
+      <div class="aspect-[3/4] w-full bg-muted flex items-center justify-center rounded-t-lg overflow-hidden relative">
+        <img v-if="!isLoading && !error && props.coverImageUrl" :alt="altText" :src="props.coverImageUrl"
+          class="object-cover w-full h-full" />
         <div v-else-if="isLoading" class="text-sm text-muted-foreground p-4 text-center">
           Loading image...
         </div>
@@ -74,16 +68,12 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
         <div class="absolute top-2 right-2 flex flex-col gap-2">
           <!-- Availability Badge -->
           <div v-if="availabilityStatus">
-            <Badge
-              :variant="
-                availabilityStatus === 'available'
-                  ? 'default'
-                  : availabilityStatus === 'limited'
-                    ? 'secondary'
-                    : 'destructive'
-              "
-              class="text-xs"
-            >
+            <Badge :variant="availabilityStatus === 'available'
+              ? 'default'
+              : availabilityStatus === 'limited'
+                ? 'secondary'
+                : 'destructive'
+              " class="text-xs">
               {{
                 availabilityStatus === 'available'
                   ? 'Available'
@@ -93,15 +83,10 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
               }}
             </Badge>
           </div>
-          
+
           <!-- Favorite Button -->
           <div v-if="showFavoriteButton && bookId">
-            <FavoriteButton 
-              :book-id="bookId" 
-              size="sm"
-              variant="ghost"
-              @favorite-changed="handleFavoriteChanged"
-            />
+            <FavoriteButton :book-id="bookId" size="sm" variant="outline" @favorite-changed="handleFavoriteChanged" />
           </div>
         </div>
       </div>
