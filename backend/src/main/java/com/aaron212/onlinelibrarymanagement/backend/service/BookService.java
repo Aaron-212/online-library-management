@@ -69,7 +69,9 @@ public class BookService {
         book.setDescription(bookCreateDto.description());
         book.setCoverURL(bookCreateDto.coverURL());
         book.setIndexCategory(category);
-        book.setLocation("LIBRARY"); // Default location since frontend doesn't provide it
+        book.setLocation(bookCreateDto.location() != null && !bookCreateDto.location().trim().isEmpty() 
+            ? bookCreateDto.location().trim() 
+            : "LIBRARY"); // Default location if not provided
 
         Book savedBook = bookRepository.save(book);
 
@@ -221,6 +223,10 @@ public class BookService {
         // Handle coverURL - allow clearing by setting to empty string
         if (bookUpdateDto.coverURL() != null) {
             book.setCoverURL(bookUpdateDto.coverURL().isEmpty() ? null : bookUpdateDto.coverURL());
+        }
+        // Update location
+        if (bookUpdateDto.location() != null) {
+            book.setLocation(bookUpdateDto.location());
         }
 
         // Update category

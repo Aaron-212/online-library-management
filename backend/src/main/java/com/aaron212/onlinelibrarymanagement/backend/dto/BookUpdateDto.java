@@ -7,6 +7,7 @@ public record BookUpdateDto(
         String language,
         String description,
         String coverURL,
+        String location,
         List<String> authorNames,
         List<String> publisherNames,
         String categoryName) {}

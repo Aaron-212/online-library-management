@@ -52,6 +52,7 @@ export interface Book {
   isbn: string
   title: string
   language: string
+  location: string
   availableQuantity: number
   totalQuantity: number
   description?: string
@@ -93,6 +94,7 @@ export interface BookCreateDto {
   language: string
   description?: string
   coverURL?: string
+  location?: string
   authorNames: string[]
   publisherNames: string[]
   categoryName: string
@@ -104,6 +106,7 @@ export interface BookUpdateDto {
   language?: string
   description?: string
   coverURL?: string
+  location?: string
   authorNames?: string[]
   publisherNames?: string[]
   categoryName?: string
