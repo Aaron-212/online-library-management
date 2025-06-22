@@ -24,6 +24,23 @@ class ApiClient {
     this.baseUrl = baseUrl
   }
 
+  /**
+   * Build the absolute URL for an API request. Handles leading/trailing slashes gracefully
+   * so that service classes can pass either `/books` or `books` and still get a valid
+   * URL like `http://host/api/v1/books`.
+   */
+  private buildUrl(endpoint: string): string {
+    // If the caller already supplied a full URL, use it verbatim
+    if (/^https?:\/\//i.test(endpoint)) {
+      return endpoint
+    }
+
+    const sanitizedBase = this.baseUrl.replace(/\/$/, '') // remove trailing slash
+    const sanitizedEndpoint = endpoint.replace(/^\//, '') // remove leading slash
+
+    return `${sanitizedBase}/${sanitizedEndpoint}`
+  }
+
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const authStore = useAuthStore()
 
@@ -44,8 +61,10 @@ class ApiClient {
       ...options.headers,
     }
 
+    const url = this.buildUrl(endpoint)
+
     // Make the request
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+    const response = await fetch(url, {
       ...options,
       headers,
     })
@@ -91,21 +110,17 @@ class ApiClient {
 
   // HTTP methods
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    let finalEndpoint = endpoint
+    const url = new URL(this.buildUrl(endpoint))
 
     if (params) {
-      // Create a proper URL to handle existing query parameters correctly
-      const fullUrl = new URL(endpoint, this.baseUrl)
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          fullUrl.searchParams.append(key, String(value))
+          url.searchParams.append(key, String(value))
         }
       })
-      // Extract just the path and search parts (relative to base URL)
-      finalEndpoint = fullUrl.pathname + fullUrl.search
     }
 
-    return this.makeRequest<T>(finalEndpoint)
+    return this.makeRequest<T>(url.toString())
   }
 
   async post<T>(endpoint: string, data?: any): Promise<T> {
