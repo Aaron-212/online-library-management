@@ -7,9 +7,10 @@ import com.aaron212.onlinelibrarymanagement.backend.dto.BookSummaryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.BookUpdateDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.IndexCategoryDto;
 import com.aaron212.onlinelibrarymanagement.backend.dto.PublisherDto;
+import com.aaron212.onlinelibrarymanagement.backend.dto.BookCopyDto;
 import com.aaron212.onlinelibrarymanagement.backend.model.Book;
-import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import com.aaron212.onlinelibrarymanagement.backend.service.BookService;
+import com.aaron212.onlinelibrarymanagement.backend.service.BookCopyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,9 +44,11 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 public class BookController {
 
     private final BookService bookService;
+    private final BookCopyService bookCopyService;
 
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, BookCopyService bookCopyService) {
         this.bookService = bookService;
+        this.bookCopyService = bookCopyService;
     }
 
     @Operation(
@@ -265,7 +268,7 @@ public class BookController {
     public ResponseEntity<?> getBookCopies(
             @Parameter(description = "Book ID", required = true, example = "1") @PathVariable @Positive Long id) {
         try {
-            List<BookCopy> copies = bookService.getBookCopies(id);
+            List<BookCopyDto> copies = bookCopyService.getCopiesByBookId(id);
             return ResponseEntity.ok(copies);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Book not found"));
