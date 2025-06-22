@@ -42,8 +42,13 @@ export class BorrowService {
 
   // Convenience method for returning by borrow ID - SECURE
   async returnBook(borrowId: number): Promise<BorrowResponseDto> {
-    // First, get the actual borrow record to maintain backward compatibility
-    const borrowRecord = await this.getBorrowById(borrowId)
+    // Get current borrowings to find the record we're returning
+    const currentBorrowings = await this.getMyCurrentBorrowings()
+    const borrowRecord = currentBorrowings.find(b => b.borrowId === borrowId)
+    
+    if (!borrowRecord) {
+      throw new Error(`未找到借阅记录 ID: ${borrowId}`)
+    }
     
     // Use the secure endpoint that validates ownership
     const result = await this.returnBookById(borrowId)
@@ -65,25 +70,31 @@ export class BorrowService {
 
   // Convenience method for renewing by borrow ID - SECURE
   async renewBook(borrowId: number): Promise<BorrowResponseDto> {
-    // First, get the actual borrow record to maintain backward compatibility
-    const borrowRecord = await this.getBorrowById(borrowId)
+    // Get current borrowings to find the record we're renewing
+    const currentBorrowings = await this.getMyCurrentBorrowings()
+    const borrowRecord = currentBorrowings.find(b => b.borrowId === borrowId)
+    
+    if (!borrowRecord) {
+      throw new Error(`未找到借阅记录 ID: ${borrowId}`)
+    }
     
     // Use the secure endpoint that validates ownership
     const result = await this.renewBookById(borrowId)
     
-    // Get the updated borrow record after renewal to get the correct new due date
-    const updatedBorrowRecord = await this.getBorrowById(borrowId)
+    // Get updated borrowings after renewal to get the new due date
+    const updatedBorrowings = await this.getMyCurrentBorrowings()
+    const updatedBorrowRecord = updatedBorrowings.find(b => b.borrowId === borrowId)
     
     // Return a compatible response format with real data for backward compatibility
     return {
-      borrowId: updatedBorrowRecord.borrowId,
-      userId: updatedBorrowRecord.userId,
-      username: updatedBorrowRecord.username,
-      copyId: updatedBorrowRecord.copyId,
-      bookTitle: updatedBorrowRecord.bookTitle,
-      isbn: updatedBorrowRecord.isbn,
-      borrowTime: updatedBorrowRecord.borrowTime,
-      returnTime: updatedBorrowRecord.returnTime, // Use the updated due date from renewal
+      borrowId: borrowRecord.borrowId,
+      userId: borrowRecord.userId,
+      username: borrowRecord.username,
+      copyId: borrowRecord.copyId,
+      bookTitle: borrowRecord.bookTitle,
+      isbn: borrowRecord.isbn,
+      borrowTime: borrowRecord.borrowTime,
+      returnTime: updatedBorrowRecord?.returnTime || borrowRecord.returnTime, // Use updated due date if available
       status: 'BORROWED' as any,
       message: result.message
     }
@@ -131,10 +142,6 @@ export class BorrowService {
       size,
       number: page
     }
-  }
-
-  async getBorrowById(id: number): Promise<Borrow> {
-    return apiClient.get<Borrow>(`${this.basePath}/${id}`)
   }
 
   async getOverdueBorrows(params?: {
