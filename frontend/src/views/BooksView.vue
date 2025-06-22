@@ -88,13 +88,13 @@ const isAdmin = computed(() => {
 const loadBooks = async () => {
   try {
     isLoading.value = true
-    let response: PagedResponse<BookSummaryDto | BookDto>
+    let response: PagedResponse<BookSummaryDto> | PagedResponse<BookDto>
 
     if (searchKeyword.value.trim()) {
       // Perform search when keyword is provided
-      response = await booksService.search(searchParams.value)
+      const searchResp: PagedResponse<BookDto> = await booksService.search(searchParams.value)
       // Map detailed BookDto list to BookSummaryDto-like structure expected by the UI
-      books.value = response.content.map((book: BookDto) => ({
+      books.value = (searchResp.content as BookDto[]).map((book) => ({
         id: book.id,
         title: book.title,
         authors: book.authors?.map((author) => author.name) || [],
@@ -103,14 +103,15 @@ const loadBooks = async () => {
         availableQuantity: book.availableQuantity,
         totalQuantity: book.totalQuantity,
       }))
+      totalPages.value = searchResp.totalPages
+      totalElements.value = searchResp.totalElements
     } else {
       // Default to all books summary when no keyword is specified
-      response = await booksService.getAllSummary(searchParams.value)
-      books.value = response.content as BookSummaryDto[]
+      const summaryResp: PagedResponse<BookSummaryDto> = await booksService.getAllSummary(searchParams.value)
+      books.value = summaryResp.content as BookSummaryDto[]
+      totalPages.value = summaryResp.totalPages
+      totalElements.value = summaryResp.totalElements
     }
-
-    totalPages.value = response.totalPages
-    totalElements.value = response.totalElements
   } catch (error) {
     console.error('Error loading books:', error)
     toast.error('Failed to load books')
