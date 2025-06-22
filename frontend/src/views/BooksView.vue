@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { booksService, categoriesService } from '@/lib/api'
-import type { Book, BookSearchParams, BookSummaryDto, PagedResponse, IndexCategory } from '@/lib/api/types'
+import type { Book, BookSearchParams, BookSummaryDto, PagedResponse, IndexCategory, BookDto } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { toast } from 'vue-sonner'
 
@@ -88,8 +88,27 @@ const isAdmin = computed(() => {
 const loadBooks = async () => {
   try {
     isLoading.value = true
-    const response: PagedResponse<BookSummaryDto> = await booksService.getAllSummary(searchParams.value)
-    books.value = response.content
+    let response: PagedResponse<BookSummaryDto | BookDto>
+
+    if (searchKeyword.value.trim()) {
+      // Perform search when keyword is provided
+      response = await booksService.search(searchParams.value)
+      // Map detailed BookDto list to BookSummaryDto-like structure expected by the UI
+      books.value = response.content.map((book: BookDto) => ({
+        id: book.id,
+        title: book.title,
+        authors: book.authors?.map((author) => author.name) || [],
+        publishers: book.publishers?.map((publisher) => publisher.name) || [],
+        coverURL: (book as any).coverURL, // coverURL is optional
+        availableQuantity: book.availableQuantity,
+        totalQuantity: book.totalQuantity,
+      }))
+    } else {
+      // Default to all books summary when no keyword is specified
+      response = await booksService.getAllSummary(searchParams.value)
+      books.value = response.content as BookSummaryDto[]
+    }
+
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
   } catch (error) {
