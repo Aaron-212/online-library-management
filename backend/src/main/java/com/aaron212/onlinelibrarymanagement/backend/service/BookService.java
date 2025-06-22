@@ -67,8 +67,11 @@ public class BookService {
         book.setTitle(bookCreateDto.title());
         book.setLanguage(bookCreateDto.language());
         book.setDescription(bookCreateDto.description());
+        book.setCoverURL(bookCreateDto.coverURL());
         book.setIndexCategory(category);
-        book.setLocation("LIBRARY"); // Default location since frontend doesn't provide it
+        book.setLocation(bookCreateDto.location() != null && !bookCreateDto.location().trim().isEmpty() 
+            ? bookCreateDto.location().trim() 
+            : "LIBRARY"); // Default location if not provided
 
         Book savedBook = bookRepository.save(book);
 
@@ -207,13 +210,114 @@ public class BookService {
         Book book = bookRepository
                 .findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
-        IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookUpdateDto.indexCategory());
+        // Update basic fields
+        if (bookUpdateDto.title() != null) {
+            book.setTitle(bookUpdateDto.title());
+        }
+        if (bookUpdateDto.language() != null) {
+            book.setLanguage(bookUpdateDto.language());
+        }
+        if (bookUpdateDto.description() != null) {
+            book.setDescription(bookUpdateDto.description());
+        }
+        // Handle coverURL - allow clearing by setting to empty string
+        if (bookUpdateDto.coverURL() != null) {
+            book.setCoverURL(bookUpdateDto.coverURL().isEmpty() ? null : bookUpdateDto.coverURL());
+        }
+        // Update location
+        if (bookUpdateDto.location() != null) {
+            book.setLocation(bookUpdateDto.location());
+        }
 
-        book.setTitle(bookUpdateDto.title());
-        book.setIndexCategory(category);
-        book.setLocation(bookUpdateDto.location());
+        // Update category
+        if (bookUpdateDto.categoryName() != null) {
+            IndexCategory category = indexCategoryService.addCategoryWithHierarchy(bookUpdateDto.categoryName());
+            book.setIndexCategory(category);
+        }
 
-        bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+
+        // Update authors incrementally
+        if (bookUpdateDto.authorNames() != null) {
+            // Get current authors from database to avoid stale collections
+            List<BookAuthor> currentBookAuthors = bookAuthorRepository.findByBook(savedBook);
+            List<String> currentAuthorNames = currentBookAuthors.stream()
+                .map(ba -> ba.getAuthor().getName())
+                .toList();
+            
+            // Get new author names (trimmed and non-empty)
+            List<String> newAuthorNames = bookUpdateDto.authorNames().stream()
+                .filter(name -> name != null && !name.trim().isEmpty())
+                .map(String::trim)
+                .toList();
+            
+            // Remove authors that are no longer needed
+            List<BookAuthor> authorsToRemove = currentBookAuthors.stream()
+                .filter(ba -> !newAuthorNames.contains(ba.getAuthor().getName()))
+                .toList();
+            bookAuthorRepository.deleteAll(authorsToRemove);
+            
+            // Add new authors that don't exist yet
+            for (String authorName : newAuthorNames) {
+                if (!currentAuthorNames.contains(authorName)) {
+                    Author author = authorRepository.findByName(authorName)
+                            .orElseGet(() -> {
+                                Author newAuthor = new Author();
+                                newAuthor.setName(authorName);
+                                return authorRepository.save(newAuthor);
+                            });
+
+                    // Use proper duplicate check like in createBook method
+                    if (!bookAuthorRepository.existsByBookAndAuthor(savedBook, author)) {
+                        BookAuthor bookAuthor = new BookAuthor();
+                        bookAuthor.setBook(savedBook);
+                        bookAuthor.setAuthor(author);
+                        bookAuthorRepository.save(bookAuthor);
+                    }
+                }
+            }
+        }
+
+        // Update publishers incrementally
+        if (bookUpdateDto.publisherNames() != null) {
+            // Get current publishers from database to avoid stale collections
+            List<BookPublisher> currentBookPublishers = bookPublisherRepository.findByBook(savedBook);
+            List<String> currentPublisherNames = currentBookPublishers.stream()
+                .map(bp -> bp.getPublisher().getName())
+                .toList();
+            
+            // Get new publisher names (trimmed and non-empty)
+            List<String> newPublisherNames = bookUpdateDto.publisherNames().stream()
+                .filter(name -> name != null && !name.trim().isEmpty())
+                .map(String::trim)
+                .toList();
+            
+            // Remove publishers that are no longer needed
+            List<BookPublisher> publishersToRemove = currentBookPublishers.stream()
+                .filter(bp -> !newPublisherNames.contains(bp.getPublisher().getName()))
+                .toList();
+            bookPublisherRepository.deleteAll(publishersToRemove);
+            
+            // Add new publishers that don't exist yet
+            for (String publisherName : newPublisherNames) {
+                if (!currentPublisherNames.contains(publisherName)) {
+                    Publisher publisher = publisherRepository.findByName(publisherName)
+                            .orElseGet(() -> {
+                                Publisher newPublisher = new Publisher();
+                                newPublisher.setName(publisherName);
+                                return publisherRepository.save(newPublisher);
+                            });
+
+                    // Use proper duplicate check like in createBook method
+                    if (!bookPublisherRepository.existsByBookAndPublisher(savedBook, publisher)) {
+                        BookPublisher bookPublisher = new BookPublisher();
+                        bookPublisher.setBook(savedBook);
+                        bookPublisher.setPublisher(publisher);
+                        bookPublisherRepository.save(bookPublisher);
+                    }
+                }
+            }
+        }
     }
 
     public void deleteBook(Long id) {

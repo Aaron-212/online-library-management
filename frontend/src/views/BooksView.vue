@@ -59,6 +59,7 @@ const bookForm = ref({
   publisher: '',
   publishedYear: new Date().getFullYear(),
   description: '',
+  coverURL: '',
   totalQuantity: 1,
 })
 
@@ -167,6 +168,7 @@ const closeAddBookDialog = () => {
     publisher: '',
     publishedYear: new Date().getFullYear(),
     description: '',
+    coverURL: '',
     totalQuantity: 1,
   }
   isSubmitting.value = false
@@ -187,6 +189,7 @@ const handleCreateBook = async () => {
       title: bookForm.value.title,
       language: bookForm.value.language,
       description: bookForm.value.description,
+      coverURL: bookForm.value.coverURL || undefined,
       authorNames: bookForm.value.authors
         .split(',')
         .map((author) => author.trim())
@@ -478,6 +481,16 @@ onMounted(() => {
             v-model="bookForm.description"
             placeholder="Enter book description..."
             class="w-full min-h-[100px] p-3 border rounded-md resize-none"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <Label for="coverURL">Cover Image URL</Label>
+          <Input
+            id="coverURL"
+            type="url"
+            v-model="bookForm.coverURL"
+            placeholder="https://example.com/book-cover.jpg (optional)"
           />
         </div>
 

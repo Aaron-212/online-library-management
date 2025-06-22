@@ -11,6 +11,8 @@ public record BookCreateDto(
         @NotBlank(message = "Title is required") String title,
         @NotBlank(message = "Language is required") String language,
         String description,
+        String coverURL,
+        String location,
         @NotNull(message = "Author names are required") List<String> authorNames,
         List<String> publisherNames,
         @NotBlank(message = "Category name is required") String categoryName,
