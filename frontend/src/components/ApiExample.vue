@@ -82,10 +82,17 @@
       </div>
 
       <div v-if="borrowApi.borrows.value.length > 0" class="space-y-2">
-        <div v-for="borrow in borrowApi.borrows.value" :key="borrow.borrowId" class="border p-3 rounded">
+        <div
+          v-for="borrow in borrowApi.borrows.value"
+          :key="borrow.borrowId"
+          class="border p-3 rounded"
+        >
           <h3 class="font-semibold">{{ borrow.bookTitle }}</h3>
           <p class="text-sm">Due: {{ new Date(borrow.returnTime).toLocaleDateString() }}</p>
-          <p :class="borrow.status === 'RETURNED' ? 'text-green-600' : 'text-orange-600'" class="text-sm">
+          <p
+            :class="borrow.status === 'RETURNED' ? 'text-green-600' : 'text-orange-600'"
+            class="text-sm"
+          >
             Status: {{ borrow.status === 'RETURNED' ? 'Returned' : 'Borrowed' }}
           </p>
 

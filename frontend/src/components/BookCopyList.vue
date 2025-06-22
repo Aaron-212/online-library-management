@@ -10,7 +10,7 @@
           <span>Maintenance: {{ maintenanceCount }}</span>
         </div>
       </div>
-      
+
       <div class="flex gap-2">
         <!-- Status filter -->
         <Select v-model="statusFilter">
@@ -26,7 +26,7 @@
             <SelectItem value="DISCARDED">Discarded</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <!-- Sort options -->
         <Select v-model="sortBy">
           <SelectTrigger class="w-40">
@@ -40,7 +40,7 @@
             <SelectItem value="purchaseTime">Purchase Date</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -66,7 +66,11 @@
       <BookX class="h-16 w-16 text-gray-400 mx-auto mb-4" />
       <h3 class="text-lg font-medium text-gray-900 mb-2">No book copies found</h3>
       <p class="text-gray-500">
-        {{ statusFilter === 'all' ? 'This book has no copies yet.' : `No copies with status "${formatStatus(statusFilter)}".` }}
+        {{
+          statusFilter === 'all'
+            ? 'This book has no copies yet.'
+            : `No copies with status "${formatStatus(statusFilter)}".`
+        }}
       </p>
     </div>
 
@@ -113,7 +117,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
   showActions: true,
-  userBorrowedCopies: () => new Set()
+  userBorrowedCopies: () => new Set(),
 })
 
 defineEmits<{
@@ -127,20 +131,19 @@ const statusFilter = ref<string>('all')
 const sortBy = ref<string>('id')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 
-const formatStatus = (status: string) => 
-  bookCopiesService.formatStatus(status)
+const formatStatus = (status: string) => bookCopiesService.formatStatus(status)
 
 // Computed statistics
-const availableCount = computed(() => 
-  props.copies.filter(copy => copy.status === 'AVAILABLE').length
+const availableCount = computed(
+  () => props.copies.filter((copy) => copy.status === 'AVAILABLE').length,
 )
 
-const borrowedCount = computed(() => 
-  props.copies.filter(copy => copy.status === 'BORROWED').length
+const borrowedCount = computed(
+  () => props.copies.filter((copy) => copy.status === 'BORROWED').length,
 )
 
-const maintenanceCount = computed(() => 
-  props.copies.filter(copy => copy.status === 'MAINTENANCE').length
+const maintenanceCount = computed(
+  () => props.copies.filter((copy) => copy.status === 'MAINTENANCE').length,
 )
 
 // Filtered and sorted copies
@@ -149,7 +152,7 @@ const filteredCopies = computed(() => {
 
   // Apply status filter
   if (statusFilter.value !== 'all') {
-    filtered = filtered.filter(copy => copy.status === statusFilter.value)
+    filtered = filtered.filter((copy) => copy.status === statusFilter.value)
   }
 
   // Apply sorting

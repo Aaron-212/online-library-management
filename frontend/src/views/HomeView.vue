@@ -250,9 +250,7 @@ onMounted(() => {
               class="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               @keyup.enter="handleSearch"
             />
-            <Button @click="handleSearch">
-              Search
-            </Button>
+            <Button @click="handleSearch"> Search </Button>
           </div>
         </div>
       </div>

@@ -1,10 +1,5 @@
 import { apiClient } from '../client'
-import type {
-  BookCopy,
-  BookCopyCreateDto,
-  BookCopyUpdateDto,
-  MessageResponse,
-} from '../types'
+import type { BookCopy, BookCopyCreateDto, BookCopyUpdateDto, MessageResponse } from '../types'
 
 export class BookCopiesService {
   private basePath = '/books'

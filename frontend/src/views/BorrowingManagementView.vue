@@ -61,7 +61,7 @@ const filteredBorrows = computed(() => {
     filtered = filtered.filter(
       (borrow) =>
         borrow.bookTitle.toLowerCase().includes(keyword) ||
-        borrow.isbn.toLowerCase().includes(keyword)
+        borrow.isbn.toLowerCase().includes(keyword),
     )
   }
 

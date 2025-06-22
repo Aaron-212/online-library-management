@@ -17,17 +17,17 @@
         <span class="text-gray-600">Purchase Price:</span>
         <span class="font-medium">${{ copy.purchasePrice.toFixed(2) }}</span>
       </div>
-      
+
       <div v-if="copy.purchaseTime" class="flex justify-between">
         <span class="text-gray-600">Purchase Date:</span>
         <span>{{ formatDate(copy.purchaseTime) }}</span>
       </div>
-      
+
       <div v-if="copy.lastMaintenance" class="flex justify-between">
         <span class="text-gray-600">Last Maintenance:</span>
         <span>{{ formatDate(copy.lastMaintenance) }}</span>
       </div>
-      
+
       <div class="flex justify-between">
         <span class="text-gray-600">Created:</span>
         <span>{{ formatDate(copy.createTime) }}</span>
@@ -44,7 +44,7 @@
         <BookOpen class="h-4 w-4 mr-1" />
         Borrow
       </Button>
-      
+
       <Button
         v-if="copy.status === 'BORROWED' && (isUserBorrowed || isAdmin)"
         size="sm"
@@ -54,7 +54,7 @@
         <ArrowLeftCircle class="h-4 w-4 mr-1" />
         Return
       </Button>
-      
+
       <Button
         v-if="copy.status === 'AVAILABLE' && isAdmin"
         size="sm"
@@ -64,13 +64,8 @@
         <Wrench class="h-4 w-4 mr-1" />
         Maintenance
       </Button>
-      
-      <Button
-        v-if="isAdmin"
-        size="sm"
-        variant="outline"
-        @click="$emit('edit', copy)"
-      >
+
+      <Button v-if="isAdmin" size="sm" variant="outline" @click="$emit('edit', copy)">
         <Edit class="h-4 w-4 mr-1" />
         Edit
       </Button>
@@ -95,7 +90,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   showActions: true,
-  isUserBorrowed: false
+  isUserBorrowed: false,
 })
 
 defineEmits<{
@@ -109,18 +104,15 @@ const authStore = useAuthStore()
 
 const isAdmin = computed(() => authStore.user?.role === 'ADMIN')
 
-const statusBadgeColor = computed(() => 
-  bookCopiesService.getStatusBadgeColor(props.copy.status)
-)
+const statusBadgeColor = computed(() => bookCopiesService.getStatusBadgeColor(props.copy.status))
 
-const formatStatus = (status: string) => 
-  bookCopiesService.formatStatus(status)
+const formatStatus = (status: string) => bookCopiesService.formatStatus(status)
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 </script>

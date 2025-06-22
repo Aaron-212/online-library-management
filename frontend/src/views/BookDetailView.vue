@@ -196,9 +196,9 @@ onMounted(() => {
         <div class="lg:col-span-1">
           <Card class="overflow-hidden">
             <div class="aspect-[3/4] bg-muted flex items-center justify-center relative">
-              <img 
-                v-if="book.coverURL && !imageLoadError" 
-                :src="book.coverURL" 
+              <img
+                v-if="book.coverURL && !imageLoadError"
+                :src="book.coverURL"
                 :alt="`Cover of ${book.title}`"
                 class="object-cover w-full h-full"
                 @error="imageLoadError = true"
@@ -276,9 +276,9 @@ onMounted(() => {
                 {{ isBorrowing ? 'Borrowing...' : 'Borrow Book' }}
               </Button>
 
-              <FavoriteButton 
+              <FavoriteButton
                 v-if="authStore.isAuthenticated"
-                :book-id="bookId" 
+                :book-id="bookId"
                 show-text
                 variant="outline"
                 size="lg"

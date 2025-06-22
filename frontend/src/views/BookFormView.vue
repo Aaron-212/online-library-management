@@ -36,7 +36,7 @@ const formData = ref({
   authorNames: [] as string[],
   publisherNames: [] as string[],
   categoryName: '',
-  totalQuantity: 1
+  totalQuantity: 1,
 })
 
 // Input refs for author and publisher management
@@ -45,8 +45,10 @@ const newPublisher = ref('')
 
 // Computed
 const isEditMode = computed(() => !!props.id)
-const pageTitle = computed(() => isEditMode.value ? 'Edit Book' : 'Add New Book')
-const submitButtonText = computed(() => isSaving.value ? 'Saving...' : (isEditMode.value ? 'Update Book' : 'Create Book'))
+const pageTitle = computed(() => (isEditMode.value ? 'Edit Book' : 'Add New Book'))
+const submitButtonText = computed(() =>
+  isSaving.value ? 'Saving...' : isEditMode.value ? 'Update Book' : 'Create Book',
+)
 
 // Methods
 const loadBook = async () => {
@@ -55,9 +57,9 @@ const loadBook = async () => {
   try {
     isLoading.value = true
     error.value = null
-    
+
     const book = await booksService.getById(parseInt(props.id))
-    
+
     formData.value = {
       isbn: book.isbn,
       title: book.title,
@@ -65,10 +67,10 @@ const loadBook = async () => {
       description: book.description || '',
       coverURL: book.coverURL || '',
       location: book.location || '',
-      authorNames: book.authors.map(author => author.name),
-      publisherNames: book.publishers.map(publisher => publisher.name),
+      authorNames: book.authors.map((author) => author.name),
+      publisherNames: book.publishers.map((publisher) => publisher.name),
       categoryName: book.indexCategory?.name || '',
-      totalQuantity: book.totalQuantity
+      totalQuantity: book.totalQuantity,
     }
   } catch (err: any) {
     error.value = err.message || 'Failed to load book data'
@@ -89,7 +91,10 @@ const removeAuthor = (index: number) => {
 }
 
 const addPublisher = () => {
-  if (newPublisher.value.trim() && !formData.value.publisherNames.includes(newPublisher.value.trim())) {
+  if (
+    newPublisher.value.trim() &&
+    !formData.value.publisherNames.includes(newPublisher.value.trim())
+  ) {
     formData.value.publisherNames.push(newPublisher.value.trim())
     newPublisher.value = ''
   }
@@ -149,9 +154,9 @@ const handleSubmit = async () => {
         location: formData.value.location || undefined,
         authorNames: formData.value.authorNames,
         publisherNames: formData.value.publisherNames,
-        categoryName: formData.value.categoryName
+        categoryName: formData.value.categoryName,
       }
-      
+
       await booksService.update(parseInt(props.id!), updateData)
       success.value = 'Book updated successfully!'
     } else {
@@ -166,9 +171,9 @@ const handleSubmit = async () => {
         authorNames: formData.value.authorNames,
         publisherNames: formData.value.publisherNames,
         categoryName: formData.value.categoryName,
-        totalQuantity: formData.value.totalQuantity
+        totalQuantity: formData.value.totalQuantity,
       }
-      
+
       await booksService.create(createData)
       success.value = 'Book created successfully!'
     }
@@ -240,12 +245,7 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="title">Title *</Label>
-              <Input
-                id="title"
-                v-model="formData.title"
-                placeholder="Enter book title"
-                required
-              />
+              <Input id="title" v-model="formData.title" placeholder="Enter book title" required />
             </div>
             <div class="space-y-2">
               <Label for="isbn">ISBN *</Label>
@@ -258,7 +258,7 @@ onMounted(() => {
               />
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="language">Language *</Label>
@@ -278,7 +278,7 @@ onMounted(() => {
               />
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" v-if="!isEditMode">
             <div class="space-y-2">
               <Label for="totalQuantity">Total Quantity *</Label>
@@ -322,16 +322,10 @@ onMounted(() => {
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="flex space-x-2">
-            <Input
-              v-model="newAuthor"
-              placeholder="Enter author name"
-              @keyup.enter="addAuthor"
-            />
-            <Button type="button" @click="addAuthor" variant="outline">
-              Add
-            </Button>
+            <Input v-model="newAuthor" placeholder="Enter author name" @keyup.enter="addAuthor" />
+            <Button type="button" @click="addAuthor" variant="outline"> Add </Button>
           </div>
-          
+
           <div v-if="formData.authorNames.length > 0" class="space-y-2">
             <div
               v-for="(author, index) in formData.authorNames"
@@ -339,12 +333,7 @@ onMounted(() => {
               class="flex items-center justify-between p-2 bg-muted rounded"
             >
               <span>{{ author }}</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                @click="removeAuthor(index)"
-              >
+              <Button type="button" variant="ghost" size="sm" @click="removeAuthor(index)">
                 Remove
               </Button>
             </div>
@@ -365,11 +354,9 @@ onMounted(() => {
               placeholder="Enter publisher name"
               @keyup.enter="addPublisher"
             />
-            <Button type="button" @click="addPublisher" variant="outline">
-              Add
-            </Button>
+            <Button type="button" @click="addPublisher" variant="outline"> Add </Button>
           </div>
-          
+
           <div v-if="formData.publisherNames.length > 0" class="space-y-2">
             <div
               v-for="(publisher, index) in formData.publisherNames"
@@ -377,12 +364,7 @@ onMounted(() => {
               class="flex items-center justify-between p-2 bg-muted rounded"
             >
               <span>{{ publisher }}</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                @click="removePublisher(index)"
-              >
+              <Button type="button" variant="ghost" size="sm" @click="removePublisher(index)">
                 Remove
               </Button>
             </div>
@@ -413,9 +395,7 @@ onMounted(() => {
 
       <!-- Form Actions -->
       <div class="flex justify-end space-x-4">
-        <Button type="button" variant="outline" @click="goBack">
-          Cancel
-        </Button>
+        <Button type="button" variant="outline" @click="goBack"> Cancel </Button>
         <Button type="submit" :disabled="isSaving">
           <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin mr-2" />
           <Save v-else class="h-4 w-4 mr-2" />

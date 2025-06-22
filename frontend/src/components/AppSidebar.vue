@@ -138,10 +138,10 @@ const filteredNavigationItems = computed(() => {
   return navigationItems.value.filter((item) => {
     // Filter out items that require auth when user is not authenticated
     if (item.requiresAuth && !authStore.isAuthenticated) return false
-    
+
     // Filter out items that should be hidden for admins when user is admin
     if (item.hideForAdmin && authStore.isAuthenticated && authStore.isAdmin()) return false
-    
+
     return true
   })
 })

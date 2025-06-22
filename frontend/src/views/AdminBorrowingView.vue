@@ -286,6 +286,16 @@ const goToUserProfile = (userId: number) => {
   router.push(`/users/${userId}`)
 }
 
+const clearSelectedUser = () => {
+  selectedUser.value = null
+  userSearchKeyword.value = ''
+}
+
+const clearSelectedBook = () => {
+  selectedBook.value = null
+  bookSearchKeyword.value = ''
+}
+
 // Watch for search changes
 watch(userSearchKeyword, (newValue) => {
   if (!newValue) {
@@ -379,16 +389,7 @@ onMounted(() => {
                       <span class="font-medium">{{ selectedUser.username }}</span>
                       <Badge variant="outline">ID: {{ selectedUser.id }}</Badge>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      @click="
-                        selectedUser = null;
-                        userSearchKeyword = '';
-                      "
-                    >
-                      ×
-                    </Button>
+                    <Button size="sm" variant="ghost" @click="clearSelectedUser()"> × </Button>
                   </div>
                 </div>
               </div>
@@ -444,16 +445,7 @@ onMounted(() => {
                         {{ selectedBook.authors.map((a) => a.name).join(', ') }}
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      @click="
-                        selectedBook = null;
-                        bookSearchKeyword = '';
-                      "
-                    >
-                      ×
-                    </Button>
+                    <Button size="sm" variant="ghost" @click="clearSelectedBook"> × </Button>
                   </div>
                 </div>
               </div>

@@ -222,7 +222,7 @@ export const useAuthStore = defineStore('auth', () => {
         logout()
       }
     }
-    
+
     isInitialized.value = true
   }
 
