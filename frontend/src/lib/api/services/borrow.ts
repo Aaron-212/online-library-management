@@ -42,19 +42,22 @@ export class BorrowService {
 
   // Convenience method for returning by borrow ID - SECURE
   async returnBook(borrowId: number): Promise<BorrowResponseDto> {
+    // First, get the actual borrow record to maintain backward compatibility
+    const borrowRecord = await this.getBorrowById(borrowId)
+    
     // Use the secure endpoint that validates ownership
     const result = await this.returnBookById(borrowId)
     
-    // Return a compatible response format for backward compatibility
+    // Return a compatible response format with real data for backward compatibility
     return {
-      borrowId: borrowId,
-      userId: 0, // Will be filled by backend
-      username: '',
-      copyId: 0,
-      bookTitle: '',
-      isbn: '',
-      borrowTime: new Date().toISOString(),
-      returnTime: new Date().toISOString(),
+      borrowId: borrowRecord.borrowId,
+      userId: borrowRecord.userId,
+      username: borrowRecord.username,
+      copyId: borrowRecord.copyId,
+      bookTitle: borrowRecord.bookTitle,
+      isbn: borrowRecord.isbn,
+      borrowTime: borrowRecord.borrowTime,
+      returnTime: new Date().toISOString(), // Current timestamp as return time
       status: 'RETURNED' as any,
       message: result.message
     }
@@ -62,19 +65,22 @@ export class BorrowService {
 
   // Convenience method for renewing by borrow ID - SECURE
   async renewBook(borrowId: number): Promise<BorrowResponseDto> {
+    // First, get the actual borrow record to maintain backward compatibility
+    const borrowRecord = await this.getBorrowById(borrowId)
+    
     // Use the secure endpoint that validates ownership
     const result = await this.renewBookById(borrowId)
     
-    // Return a compatible response format for backward compatibility
+    // Return a compatible response format with real data for backward compatibility
     return {
-      borrowId: borrowId,
-      userId: 0, // Will be filled by backend
-      username: '',
-      copyId: 0,
-      bookTitle: '',
-      isbn: '',
-      borrowTime: new Date().toISOString(),
-      returnTime: new Date().toISOString(),
+      borrowId: borrowRecord.borrowId,
+      userId: borrowRecord.userId,
+      username: borrowRecord.username,
+      copyId: borrowRecord.copyId,
+      bookTitle: borrowRecord.bookTitle,
+      isbn: borrowRecord.isbn,
+      borrowTime: borrowRecord.borrowTime,
+      returnTime: new Date().toISOString(), // Current timestamp as return time
       status: 'BORROWED' as any,
       message: result.message
     }
