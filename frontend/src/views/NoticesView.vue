@@ -95,7 +95,7 @@ const loadNotices = async () => {
   try {
     isLoading.value = true
     let response: PagedResponse<Notice>
-    
+
     if (isAdmin.value) {
       // Admin can see all notices including unpublished ones
       response = await noticesService.getAllForAdmin({
@@ -109,7 +109,7 @@ const loadNotices = async () => {
         size: pageSize.value,
       })
     }
-    
+
     notices.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
@@ -176,8 +176,8 @@ const formatUTCDateForInput = (utcDateString: string) => {
 const openAddDialog = () => {
   const now = new Date()
   const publishTime = new Date(now.getTime() + 5 * 60000) // Default to 5 minutes from now
-  noticeForm.value = { 
-    title: '', 
+  noticeForm.value = {
+    title: '',
     content: '',
     publishTime: formatDateForInput(publishTime), // Use local time directly
     expireTime: '',
@@ -190,7 +190,7 @@ const openEditDialog = (notice: Notice) => {
   editingNotice.value = notice
   const publishTime = formatUTCDateForInput(notice.publishTime)
   const expireTime = notice.expireTime ? formatUTCDateForInput(notice.expireTime) : ''
-  
+
   noticeForm.value = {
     title: notice.title,
     content: notice.content,
@@ -207,8 +207,8 @@ const closeDialogs = () => {
   showDeleteDialog.value = false
   editingNotice.value = null
   deletingNoticeId.value = null
-  noticeForm.value = { 
-    title: '', 
+  noticeForm.value = {
+    title: '',
     content: '',
     publishTime: '',
     expireTime: '',
@@ -352,11 +352,7 @@ onMounted(() => {
       </div>
 
       <div v-else class="space-y-4">
-        <Card
-          v-for="notice in filteredNotices"
-          :key="notice.id"
-          class="hover:shadow-md transition-shadow"
-        >
+        <Card v-for="notice in filteredNotices" :key="notice.id" class="hover:shadow-md transition-shadow">
           <CardHeader class="pb-3">
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -369,9 +365,7 @@ onMounted(() => {
                 <div class="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar class="h-4 w-4" />
                   <span>{{ getTimeSince(notice.publishTime) }}</span>
-                  <span
-                    v-if="notice.updateTime && notice.updateTime !== notice.publishTime"
-                  >
+                  <span v-if="notice.updateTime && notice.updateTime !== notice.publishTime">
                     • Updated {{ getTimeSince(notice.updateTime) }}
                   </span>
                   <Badge v-if="notice.status === 2" variant="outline" class="text-xs ml-2">
@@ -402,12 +396,7 @@ onMounted(() => {
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="currentPage === 0"
-          @click="handlePageChange(currentPage - 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
           <ChevronLeft class="h-4 w-4" />
           Previous
         </Button>
@@ -416,12 +405,8 @@ onMounted(() => {
           Page {{ currentPage + 1 }} of {{ totalPages }}
         </span>
 
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="currentPage === totalPages - 1"
-          @click="handlePageChange(currentPage + 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
+          @click="handlePageChange(currentPage + 1)">
           Next
           <ChevronRight class="h-4 w-4" />
         </Button>
@@ -439,43 +424,24 @@ onMounted(() => {
         <form @submit.prevent="handleCreateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="add-title">Title</Label>
-            <Input
-              id="add-title"
-              v-model="noticeForm.title"
-              placeholder="Enter notice title..."
-              required
-            />
+            <Input id="add-title" v-model="noticeForm.title" placeholder="Enter notice title..." required />
           </div>
 
           <div class="space-y-2">
             <Label for="add-content">Content</Label>
-            <textarea
-              id="add-content"
-              v-model="noticeForm.content"
-              placeholder="Enter notice content..."
-              class="w-full min-h-[200px] p-3 border rounded-md resize-none"
-              required
-            />
+            <textarea id="add-content" v-model="noticeForm.content" placeholder="Enter notice content..."
+              class="w-full min-h-[200px] p-3 border rounded-md resize-none" required />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="add-publish-time">Publish Time *</Label>
-              <Input
-                id="add-publish-time"
-                v-model="noticeForm.publishTime"
-                type="datetime-local"
-                required
-              />
+              <Input id="add-publish-time" v-model="noticeForm.publishTime" type="datetime-local" required />
             </div>
 
             <div class="space-y-2">
               <Label for="add-expire-time">Expire Time (optional)</Label>
-              <Input
-                id="add-expire-time"
-                v-model="noticeForm.expireTime"
-                type="datetime-local"
-              />
+              <Input id="add-expire-time" v-model="noticeForm.expireTime" type="datetime-local" />
             </div>
           </div>
 
@@ -513,43 +479,24 @@ onMounted(() => {
         <form @submit.prevent="handleUpdateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="edit-title">Title</Label>
-            <Input
-              id="edit-title"
-              v-model="noticeForm.title"
-              placeholder="Enter notice title..."
-              required
-            />
+            <Input id="edit-title" v-model="noticeForm.title" placeholder="Enter notice title..." required />
           </div>
 
           <div class="space-y-2">
             <Label for="edit-content">Content</Label>
-            <textarea
-              id="edit-content"
-              v-model="noticeForm.content"
-              placeholder="Enter notice content..."
-              class="w-full min-h-[200px] p-3 border rounded-md resize-none"
-              required
-            />
+            <textarea id="edit-content" v-model="noticeForm.content" placeholder="Enter notice content..."
+              class="w-full min-h-[200px] p-3 border rounded-md resize-none" required />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="edit-publish-time">Publish Time *</Label>
-              <Input
-                id="edit-publish-time"
-                v-model="noticeForm.publishTime"
-                type="datetime-local"
-                required
-              />
+              <Input id="edit-publish-time" v-model="noticeForm.publishTime" type="datetime-local" required />
             </div>
 
             <div class="space-y-2">
               <Label for="edit-expire-time">Expire Time (optional)</Label>
-              <Input
-                id="edit-expire-time"
-                v-model="noticeForm.expireTime"
-                type="datetime-local"
-              />
+              <Input id="edit-expire-time" v-model="noticeForm.expireTime" type="datetime-local" />
             </div>
           </div>
 
@@ -587,7 +534,7 @@ onMounted(() => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel @click="closeDialogs">Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="handleDeleteNotice" class="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogAction @click="handleDeleteNotice" class="bg-destructive text-white hover:bg-destructive/90">
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
