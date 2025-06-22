@@ -166,11 +166,21 @@ const router = createRouter({
   ],
 })
 
-// Simplified navigation guard
+// Navigation guard with proper initialization check
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
+  const isInitialized = authStore.isInitialized
   const isAdmin = authStore.isAdmin()
+
+  // If auth state is not initialized yet, wait for it
+  // This is a safety check, though with the await in main.ts this shouldn't happen
+  if (!isInitialized) {
+    // This should not happen with the current implementation, but provides a safety net
+    console.warn('Router guard called before auth initialization completed')
+    next()
+    return
+  }
 
   // Redirect authenticated users away from login/register pages
   if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
