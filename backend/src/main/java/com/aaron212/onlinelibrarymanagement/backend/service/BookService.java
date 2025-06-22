@@ -233,12 +233,11 @@ public class BookService {
 
         // Update authors incrementally
         if (bookUpdateDto.authorNames() != null) {
-            // Get current author names
-            List<String> currentAuthorNames = savedBook.getAuthors() != null 
-                ? savedBook.getAuthors().stream()
-                    .map(ba -> ba.getAuthor().getName())
-                    .toList()
-                : List.of();
+            // Get current authors from database to avoid stale collections
+            List<BookAuthor> currentBookAuthors = bookAuthorRepository.findByBook(savedBook);
+            List<String> currentAuthorNames = currentBookAuthors.stream()
+                .map(ba -> ba.getAuthor().getName())
+                .toList();
             
             // Get new author names (trimmed and non-empty)
             List<String> newAuthorNames = bookUpdateDto.authorNames().stream()
@@ -247,12 +246,10 @@ public class BookService {
                 .toList();
             
             // Remove authors that are no longer needed
-            if (savedBook.getAuthors() != null) {
-                List<BookAuthor> authorsToRemove = savedBook.getAuthors().stream()
-                    .filter(ba -> !newAuthorNames.contains(ba.getAuthor().getName()))
-                    .toList();
-                bookAuthorRepository.deleteAll(authorsToRemove);
-            }
+            List<BookAuthor> authorsToRemove = currentBookAuthors.stream()
+                .filter(ba -> !newAuthorNames.contains(ba.getAuthor().getName()))
+                .toList();
+            bookAuthorRepository.deleteAll(authorsToRemove);
             
             // Add new authors that don't exist yet
             for (String authorName : newAuthorNames) {
@@ -264,22 +261,24 @@ public class BookService {
                                 return authorRepository.save(newAuthor);
                             });
 
-                    BookAuthor bookAuthor = new BookAuthor();
-                    bookAuthor.setBook(savedBook);
-                    bookAuthor.setAuthor(author);
-                    bookAuthorRepository.save(bookAuthor);
+                    // Use proper duplicate check like in createBook method
+                    if (!bookAuthorRepository.existsByBookAndAuthor(savedBook, author)) {
+                        BookAuthor bookAuthor = new BookAuthor();
+                        bookAuthor.setBook(savedBook);
+                        bookAuthor.setAuthor(author);
+                        bookAuthorRepository.save(bookAuthor);
+                    }
                 }
             }
         }
 
         // Update publishers incrementally
         if (bookUpdateDto.publisherNames() != null) {
-            // Get current publisher names
-            List<String> currentPublisherNames = savedBook.getPublishers() != null 
-                ? savedBook.getPublishers().stream()
-                    .map(bp -> bp.getPublisher().getName())
-                    .toList()
-                : List.of();
+            // Get current publishers from database to avoid stale collections
+            List<BookPublisher> currentBookPublishers = bookPublisherRepository.findByBook(savedBook);
+            List<String> currentPublisherNames = currentBookPublishers.stream()
+                .map(bp -> bp.getPublisher().getName())
+                .toList();
             
             // Get new publisher names (trimmed and non-empty)
             List<String> newPublisherNames = bookUpdateDto.publisherNames().stream()
@@ -288,12 +287,10 @@ public class BookService {
                 .toList();
             
             // Remove publishers that are no longer needed
-            if (savedBook.getPublishers() != null) {
-                List<BookPublisher> publishersToRemove = savedBook.getPublishers().stream()
-                    .filter(bp -> !newPublisherNames.contains(bp.getPublisher().getName()))
-                    .toList();
-                bookPublisherRepository.deleteAll(publishersToRemove);
-            }
+            List<BookPublisher> publishersToRemove = currentBookPublishers.stream()
+                .filter(bp -> !newPublisherNames.contains(bp.getPublisher().getName()))
+                .toList();
+            bookPublisherRepository.deleteAll(publishersToRemove);
             
             // Add new publishers that don't exist yet
             for (String publisherName : newPublisherNames) {
@@ -305,10 +302,13 @@ public class BookService {
                                 return publisherRepository.save(newPublisher);
                             });
 
-                    BookPublisher bookPublisher = new BookPublisher();
-                    bookPublisher.setBook(savedBook);
-                    bookPublisher.setPublisher(publisher);
-                    bookPublisherRepository.save(bookPublisher);
+                    // Use proper duplicate check like in createBook method
+                    if (!bookPublisherRepository.existsByBookAndPublisher(savedBook, publisher)) {
+                        BookPublisher bookPublisher = new BookPublisher();
+                        bookPublisher.setBook(savedBook);
+                        bookPublisher.setPublisher(publisher);
+                        bookPublisherRepository.save(bookPublisher);
+                    }
                 }
             }
         }
