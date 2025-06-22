@@ -173,8 +173,27 @@ const changePassword = async () => {
     )
 
     if (result.success) {
+      // On successful password change, immediately log the user out and redirect to login page
       isChangingPassword.value = false
-      toast.success('Password changed successfully!')
+      toast.success('Password changed successfully! Please log in with your new password.')
+
+      // Clear authentication state and force re-authentication
+      authStore.logout()
+
+      // Redirect to login page with a success message
+      // Handle navigation separately to avoid conflating router errors with password change errors
+      try {
+        await router.push({
+          path: '/login',
+          query: {
+            message: 'Password changed successfully! Please log in with your new password.',
+          },
+        })
+      } catch (navigationError) {
+        console.error('Error navigating to login page:', navigationError)
+        // Password change was successful, just log the navigation error
+        // The user is already logged out, so they'll need to navigate manually
+      }
     } else {
       toast.error(result.message || 'Failed to change password')
     }
@@ -295,21 +314,12 @@ onMounted(() => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2 md:col-span-2">
                 <Label for="username">User Name</Label>
-                <Input
-                  id="username"
-                  v-model="profileForm.username"
-                  placeholder="Enter your username"
-                />
+                <Input id="username" v-model="profileForm.username" placeholder="Enter your username" />
               </div>
 
               <div class="space-y-2 md:col-span-2">
                 <Label for="email">Email</Label>
-                <Input
-                  id="email"
-                  v-model="profileForm.email"
-                  placeholder="Enter your email address"
-                  type="email"
-                />
+                <Input id="email" v-model="profileForm.email" placeholder="Enter your email address" type="email" />
               </div>
             </div>
 
@@ -348,32 +358,20 @@ onMounted(() => {
           <div v-else class="space-y-4">
             <div class="space-y-2">
               <Label for="currentPassword">Current Password</Label>
-              <Input
-                id="currentPassword"
-                v-model="passwordForm.currentPassword"
-                placeholder="Enter your current password"
-                type="password"
-              />
+              <Input id="currentPassword" v-model="passwordForm.currentPassword"
+                placeholder="Enter your current password" type="password" />
             </div>
 
             <div class="space-y-2">
               <Label for="newPassword">New Password</Label>
-              <Input
-                id="newPassword"
-                v-model="passwordForm.newPassword"
-                placeholder="Enter your new password"
-                type="password"
-              />
+              <Input id="newPassword" v-model="passwordForm.newPassword" placeholder="Enter your new password"
+                type="password" />
             </div>
 
             <div class="space-y-2">
               <Label for="confirmPassword">Confirm New Password</Label>
-              <Input
-                id="confirmPassword"
-                v-model="passwordForm.confirmPassword"
-                placeholder="Confirm your new password"
-                type="password"
-              />
+              <Input id="confirmPassword" v-model="passwordForm.confirmPassword" placeholder="Confirm your new password"
+                type="password" />
             </div>
 
             <div class="flex gap-2">
@@ -436,11 +434,8 @@ onMounted(() => {
           </div>
 
           <div v-else class="space-y-4">
-            <div
-              v-for="borrow in recentBorrows"
-              :key="borrow.borrowId"
-              class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-            >
+            <div v-for="borrow in recentBorrows" :key="borrow.borrowId"
+              class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-12 bg-muted rounded flex items-center justify-center">
                   <BookOpen class="h-5 w-5 text-muted-foreground" />
@@ -457,10 +452,7 @@ onMounted(() => {
                   {{ getBorrowStatusBadge(borrow).text }}
                 </span>
                 <CheckCircle v-if="borrow.status === 'RETURNED'" class="h-4 w-4 text-green-600" />
-                <Clock
-                  v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')"
-                  class="h-4 w-4 text-blue-600"
-                />
+                <Clock v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')" class="h-4 w-4 text-blue-600" />
                 <AlertTriangle v-else class="h-4 w-4 text-red-600" />
               </div>
             </div>
