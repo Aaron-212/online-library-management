@@ -340,6 +340,9 @@ onMounted(() => {
         <BookCard
           :title="book.title"
           :author="book.authors.join(', ')"
+          :cover-image-url="book.coverURL"
+          :available-copies="book.availableQuantity"
+          :total-copies="book.totalQuantity"
         />
       </div>
     </div>

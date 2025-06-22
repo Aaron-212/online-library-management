@@ -90,10 +90,10 @@ const loadBorrowingData = async () => {
 
     borrowStats.value = {
       totalBorrows: borrows.length,
-      activeBorrows: borrows.filter((b) => !b.isReturned).length,
-      overdueBorrows: borrows.filter((b) => !b.isReturned && new Date(b.dueDate) < new Date())
+      activeBorrows: borrows.filter((b) => b.status === 'BORROWED').length,
+      overdueBorrows: borrows.filter((b) => b.status === 'BORROWED' && new Date(b.returnTime) < new Date())
         .length,
-      returnedBorrows: borrows.filter((b) => b.isReturned).length,
+      returnedBorrows: borrows.filter((b) => b.status === 'RETURNED').length,
     }
   } catch (error) {
     console.error('Error loading borrowing data:', error)
@@ -191,23 +191,27 @@ const formatDate = (dateString: string) => {
 }
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
-  if (borrow.isReturned) {
+  if (borrow.status === 'RETURNED') {
     return { color: 'text-green-600', text: 'Returned' }
   }
 
-  const dueDate = new Date(borrow.dueDate)
-  const now = new Date()
+  if (borrow.status === 'BORROWED') {
+    const dueDate = new Date(borrow.returnTime)
+    const now = new Date()
 
-  if (dueDate < now) {
-    return { color: 'text-red-600', text: 'Overdue' }
+    if (dueDate < now) {
+      return { color: 'text-red-600', text: 'Overdue' }
+    }
+
+    const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    if (daysUntilDue <= 3) {
+      return { color: 'text-orange-600', text: 'Due Soon' }
+    }
+
+    return { color: 'text-blue-600', text: 'Active' }
   }
 
-  const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  if (daysUntilDue <= 3) {
-    return { color: 'text-orange-600', text: 'Due Soon' }
-  }
-
-  return { color: 'text-blue-600', text: 'Active' }
+  return { color: 'text-gray-600', text: borrow.status }
 }
 
 // Lifecycle
@@ -434,7 +438,7 @@ onMounted(() => {
           <div v-else class="space-y-4">
             <div
               v-for="borrow in recentBorrows"
-              :key="borrow.id"
+              :key="borrow.borrowId"
               class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
             >
               <div class="flex items-center gap-3">
@@ -443,8 +447,8 @@ onMounted(() => {
                 </div>
 
                 <div>
-                  <h4 class="font-medium">{{ borrow.bookCopy.book.title }}</h4>
-                  <p class="text-sm text-muted-foreground">Due: {{ formatDate(borrow.dueDate) }}</p>
+                  <h4 class="font-medium">{{ borrow.bookTitle }}</h4>
+                  <p class="text-sm text-muted-foreground">Due: {{ formatDate(borrow.returnTime) }}</p>
                 </div>
               </div>
 
@@ -452,7 +456,7 @@ onMounted(() => {
                 <span :class="getBorrowStatusBadge(borrow).color" class="text-sm font-medium">
                   {{ getBorrowStatusBadge(borrow).text }}
                 </span>
-                <CheckCircle v-if="borrow.isReturned" class="h-4 w-4 text-green-600" />
+                <CheckCircle v-if="borrow.status === 'RETURNED'" class="h-4 w-4 text-green-600" />
                 <Clock
                   v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')"
                   class="h-4 w-4 text-blue-600"

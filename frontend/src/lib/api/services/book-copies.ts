@@ -8,40 +8,34 @@ import type {
 
 export class BookCopiesService {
   private basePath = '/books'
+  private copyBasePath = '/book-copies'
 
   async getCopiesByBookId(bookId: number): Promise<BookCopy[]> {
     return apiClient.get<BookCopy[]>(`${this.basePath}/${bookId}/copies`)
   }
 
-  // Future endpoints when backend supports them
-  async createCopy(copyData: BookCopyCreateDto): Promise<MessageResponse> {
-    // This would be implemented when backend supports it
-    // return apiClient.post<MessageResponse>('/book-copies', copyData)
-    throw new Error('Creating book copies is not yet supported by the backend')
+  async createCopy(copyData: BookCopyCreateDto): Promise<BookCopy> {
+    return apiClient.post<BookCopy>(this.copyBasePath, copyData)
   }
 
-  async updateCopy(copyId: number, copyData: BookCopyUpdateDto): Promise<MessageResponse> {
-    // This would be implemented when backend supports it
-    // return apiClient.put<MessageResponse>(`/book-copies/${copyId}`, copyData)
-    throw new Error('Updating book copies is not yet supported by the backend')
+  async updateCopy(copyId: number, copyData: BookCopyUpdateDto): Promise<BookCopy> {
+    return apiClient.put<BookCopy>(`${this.copyBasePath}/${copyId}`, copyData)
   }
 
   async deleteCopy(copyId: number): Promise<void> {
-    // This would be implemented when backend supports it
-    // return apiClient.delete<void>(`/book-copies/${copyId}`)
-    throw new Error('Deleting book copies is not yet supported by the backend')
+    return apiClient.delete<void>(`${this.copyBasePath}/${copyId}`)
   }
 
-  async updateCopyStatus(copyId: number, status: string): Promise<MessageResponse> {
-    // This would be implemented when backend supports it
-    // return apiClient.patch<MessageResponse>(`/book-copies/${copyId}/status`, { status })
-    throw new Error('Updating book copy status is not yet supported by the backend')
+  async updateCopyStatus(copyId: number, status: string): Promise<BookCopy> {
+    return apiClient.patch<BookCopy>(`${this.copyBasePath}/${copyId}/status`, { status })
   }
 
   async getCopyById(copyId: number): Promise<BookCopy> {
-    // This would be implemented when backend supports it
-    // return apiClient.get<BookCopy>(`/book-copies/${copyId}`)
-    throw new Error('Getting individual book copies is not yet supported by the backend')
+    return apiClient.get<BookCopy>(`${this.copyBasePath}/${copyId}`)
+  }
+
+  async getAllAvailableCopies(): Promise<BookCopy[]> {
+    return apiClient.get<BookCopy[]>(`${this.copyBasePath}/available`)
   }
 
   // Helper methods

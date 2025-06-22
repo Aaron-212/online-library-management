@@ -33,15 +33,32 @@ public class BorrowService {
     private final UserRepository userRepository;
     private final BorrowingRuleService borrowingRuleService;
     private final ReservationService reservationService;
+    private final BookCopyService bookCopyService;
 
     public BorrowService(BorrowRepository borrowRepository, BookCopyRepository bookCopyRepository, 
                         UserRepository userRepository, BorrowingRuleService borrowingRuleService,
-                        ReservationService reservationService) {
+                        ReservationService reservationService, BookCopyService bookCopyService) {
         this.borrowRepository = borrowRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.userRepository = userRepository;
         this.borrowingRuleService = borrowingRuleService;
         this.reservationService = reservationService;
+        this.bookCopyService = bookCopyService;
+    }
+
+    /**
+     * Borrow a book by automatically finding an available copy
+     * @param userId User ID
+     * @param bookId Book ID
+     * @return Borrow record
+     * @throws RuntimeException if borrowing fails
+     */
+    public Borrow borrowBookByBookId(Long userId, Long bookId) {
+        Optional<BookCopy> availableCopy = bookCopyService.findAvailableCopyForBook(bookId);
+        if (availableCopy.isEmpty()) {
+            throw new BusinessLogicException("没有可借阅的副本");
+        }
+        return borrowBook(userId, availableCopy.get().getId());
     }
 
     /**

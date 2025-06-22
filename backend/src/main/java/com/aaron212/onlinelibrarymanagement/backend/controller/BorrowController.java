@@ -44,6 +44,55 @@ public class BorrowController {
     }
 
     @Operation(
+            summary = "Borrow a book by book ID",
+            description = "Allows a user to borrow any available copy of a book by book ID",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book borrowed successfully",
+                        content = @Content(schema = @Schema(implementation = BorrowResponseDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid request or no available copies",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PostMapping("/borrow-by-book")
+    public ResponseEntity<?> borrowBookByBookId(@RequestBody Map<String, Long> request) {
+        try {
+            Long userId = request.get("userId");
+            Long bookId = request.get("bookId");
+            if (userId == null || bookId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "User ID and Book ID are required"));
+            }
+            
+            Borrow borrow = borrowService.borrowBookByBookId(userId, bookId);
+            BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
+            responseDto = new BorrowResponseDto(
+                responseDto.borrowId(),
+                responseDto.userId(),
+                responseDto.username(),
+                responseDto.copyId(),
+                responseDto.bookTitle(),
+                responseDto.isbn(),
+                responseDto.borrowTime(),
+                responseDto.returnTime(),
+                responseDto.status(),
+                "借书成功，应还日期：" + borrow.getReturnTime().toLocalDate()
+            );
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(
             summary = "Borrow a book",
             description = "Allows a user to borrow a specific book copy",
             security = @SecurityRequirement(name = "Bearer Authentication"))

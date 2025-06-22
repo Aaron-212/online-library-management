@@ -112,10 +112,10 @@ const loadUserStats = async () => {
 
       userStats.value = {
         totalBorrows: allBorrows.length,
-        activeBorrows: allBorrows.filter((b) => !b.isReturned).length,
+        activeBorrows: allBorrows.filter((b) => b.status === 'BORROWED').length,
         overdueBorrows: allBorrows.filter((b) => {
-          if (b.isReturned) return false
-          const dueDate = new Date(b.dueDate)
+          if (b.status !== 'BORROWED') return false
+          const dueDate = new Date(b.returnTime)
           return dueDate < new Date()
         }).length,
         favoriteGenres: [], // This would require additional API to get user's reading preferences
@@ -171,23 +171,27 @@ const loadDashboardData = async () => {
 }
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
-  if (borrow.isReturned) {
+  if (borrow.status === 'RETURNED') {
     return { variant: 'success' as const, text: 'Returned' }
   }
 
-  const dueDate = new Date(borrow.dueDate)
-  const now = new Date()
+  if (borrow.status === 'BORROWED') {
+    const dueDate = new Date(borrow.returnTime)
+    const now = new Date()
 
-  if (dueDate < now) {
-    return { variant: 'destructive' as const, text: 'Overdue' }
+    if (dueDate < now) {
+      return { variant: 'destructive' as const, text: 'Overdue' }
+    }
+
+    const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    if (daysUntilDue <= 3) {
+      return { variant: 'secondary' as const, text: 'Due Soon' }
+    }
+
+    return { variant: 'default' as const, text: 'Active' }
   }
 
-  const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  if (daysUntilDue <= 3) {
-    return { variant: 'secondary' as const, text: 'Due Soon' }
-  }
-
-  return { variant: 'default' as const, text: 'Active' }
+  return { variant: 'default' as const, text: borrow.status }
 }
 
 const formatDate = (dateString: string) => {
@@ -346,18 +350,17 @@ onMounted(() => {
             <div v-else class="space-y-3">
               <div
                 v-for="borrow in userBorrows"
-                :key="borrow.id"
+                :key="borrow.borrowId"
                 class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
-                @click="router.push(`/books/${borrow.bookCopy.book.id}`)"
               >
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium truncate">{{ borrow.bookCopy.book.title }}</p>
+                  <p class="text-sm font-medium truncate">{{ borrow.bookTitle }}</p>
                   <p class="text-xs text-muted-foreground">
-                    {{ borrow.isReturned ? 'Returned' : 'Due' }}:
+                    {{ borrow.status === 'RETURNED' ? 'Returned' : 'Due' }}:
                     {{
-                      borrow.isReturned && borrow.returnDate
-                        ? formatDate(borrow.returnDate)
-                        : formatDate(borrow.dueDate)
+                      borrow.status === 'RETURNED' && borrow.actualReturnTime
+                        ? formatDate(borrow.actualReturnTime)
+                        : formatDate(borrow.returnTime)
                     }}
                   </p>
                 </div>

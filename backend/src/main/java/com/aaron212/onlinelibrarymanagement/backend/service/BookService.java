@@ -179,12 +179,17 @@ public class BookService {
                     .toList()
                 : List.of();
 
+        int available = getAvailableCopiesCount(book);
+        int total = getTotalCopiesCount(book);
+
         return new BookSummaryDto(
             book.getId(),
             book.getTitle(),
             authorNames,
             publisherNames,
-            book.getCoverURL()
+            book.getCoverURL(),
+            available,
+            total
         );
     }
 

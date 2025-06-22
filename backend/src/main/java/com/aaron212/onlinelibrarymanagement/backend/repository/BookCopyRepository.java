@@ -5,6 +5,7 @@ import com.aaron212.onlinelibrarymanagement.backend.model.BookCopy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
     List<BookCopy> findByBook(Book book);
@@ -15,4 +16,13 @@ public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
     long countByBook(Book book);
 
     long countByBookAndStatus(Book book, BookCopy.Status status);
+
+    /* Find by barcode - useful for uniqueness checks */
+    Optional<BookCopy> findByBarcode(String barcode);
+
+    /* Find copies by status */
+    List<BookCopy> findByStatus(BookCopy.Status status);
+
+    /* Find first available copy for a book */
+    Optional<BookCopy> findFirstByBookAndStatus(Book book, BookCopy.Status status);
 }

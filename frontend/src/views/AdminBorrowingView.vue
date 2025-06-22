@@ -104,7 +104,7 @@ const filteredBooks = computed(() => {
 const availableCopies = computed(() => {
   if (!selectedBook.value) return []
   return bookCopies.value.filter(
-    (copy) => copy.book.id === selectedBook.value?.id && copy.status === 'AVAILABLE',
+    (copy) => copy.bookId === selectedBook.value?.id && copy.status === 'AVAILABLE',
   )
 })
 
@@ -115,9 +115,9 @@ const filteredBorrows = computed(() => {
     const keyword = searchKeyword.value.toLowerCase()
     filtered = filtered.filter(
       (borrow) =>
-        borrow.user.username.toLowerCase().includes(keyword) ||
-        borrow.bookCopy.book.title.toLowerCase().includes(keyword) ||
-        borrow.bookCopy.book.isbn.toLowerCase().includes(keyword),
+        borrow.username.toLowerCase().includes(keyword) ||
+        borrow.bookTitle.toLowerCase().includes(keyword) ||
+        borrow.isbn.toLowerCase().includes(keyword),
     )
   }
 
@@ -125,11 +125,11 @@ const filteredBorrows = computed(() => {
     filtered = filtered.filter((borrow) => {
       switch (statusFilter.value) {
         case 'active':
-          return !borrow.isReturned && !isOverdue(borrow)
+          return borrow.status === 'BORROWED' && !isOverdue(borrow)
         case 'returned':
-          return borrow.isReturned
+          return borrow.status === 'RETURNED'
         case 'overdue':
-          return !borrow.isReturned && isOverdue(borrow)
+          return borrow.status === 'BORROWED' && isOverdue(borrow)
         default:
           return true
       }
@@ -139,10 +139,10 @@ const filteredBorrows = computed(() => {
   return filtered
 })
 
-const activeBorrows = computed(() => borrows.value.filter((borrow) => !borrow.isReturned))
+const activeBorrows = computed(() => borrows.value.filter((borrow) => borrow.status === 'BORROWED'))
 
 const overdueBorrows = computed(() =>
-  borrows.value.filter((borrow) => !borrow.isReturned && isOverdue(borrow)),
+  borrows.value.filter((borrow) => borrow.status === 'BORROWED' && isOverdue(borrow)),
 )
 
 // Form validation
@@ -152,30 +152,33 @@ const isFormValid = computed(() => {
 
 // Methods
 const isOverdue = (borrow: Borrow) => {
-  return new Date(borrow.dueDate) < new Date()
+  return new Date(borrow.returnTime) < new Date()
 }
 
 const getDaysUntilDue = (borrow: Borrow) => {
-  const dueDate = new Date(borrow.dueDate)
+  const dueDate = new Date(borrow.returnTime)
   const now = new Date()
   return Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
-  if (borrow.isReturned) {
+  if (borrow.status === 'RETURNED') {
     return { variant: 'success' as const, text: 'Returned', icon: CheckCircle }
   }
 
-  if (isOverdue(borrow)) {
+  if (borrow.status === 'OVERDUE' || (borrow.status === 'BORROWED' && isOverdue(borrow))) {
     return { variant: 'destructive' as const, text: 'Overdue', icon: AlertTriangle }
   }
 
-  const daysUntilDue = getDaysUntilDue(borrow)
-  if (daysUntilDue <= 3) {
-    return { variant: 'secondary' as const, text: 'Due Soon', icon: Clock }
+  if (borrow.status === 'BORROWED') {
+    const daysUntilDue = getDaysUntilDue(borrow)
+    if (daysUntilDue <= 3) {
+      return { variant: 'secondary' as const, text: 'Due Soon', icon: Clock }
+    }
+    return { variant: 'default' as const, text: 'Active', icon: BookOpen }
   }
 
-  return { variant: 'default' as const, text: 'Active', icon: BookOpen }
+  return { variant: 'default' as const, text: borrow.status, icon: BookOpen }
 }
 
 const formatDate = (dateString: string) => {
@@ -600,7 +603,7 @@ onMounted(() => {
         <div v-else class="space-y-4">
           <div
             v-for="borrow in filteredBorrows"
-            :key="borrow.id"
+            :key="borrow.borrowId"
             class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
           >
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -615,23 +618,17 @@ onMounted(() => {
                     <User class="h-4 w-4" />
                     <span
                       class="font-medium hover:text-primary cursor-pointer"
-                      @click="goToUserProfile(borrow.user.id)"
+                      @click="goToUserProfile(borrow.userId)"
                     >
-                      {{ borrow.user.username }}
+                      {{ borrow.username }}
                     </span>
                   </div>
 
-                  <h3
-                    class="font-medium hover:text-primary cursor-pointer truncate"
-                    @click="goToBookDetail(borrow.bookCopy.book.id)"
-                  >
-                    {{ borrow.bookCopy.book.title }}
+                  <h3 class="font-medium truncate">
+                    {{ borrow.bookTitle }}
                   </h3>
-                  <p class="text-sm text-muted-foreground truncate">
-                    {{ borrow.bookCopy.book.authors.map((a) => a.name).join(', ') }}
-                  </p>
                   <p class="text-xs text-muted-foreground">
-                    ISBN: {{ borrow.bookCopy.book.isbn }} | Copy #{{ borrow.bookCopy.id }}
+                    ISBN: {{ borrow.isbn }} | Copy #{{ borrow.copyId }}
                   </p>
                 </div>
               </div>
@@ -646,12 +643,12 @@ onMounted(() => {
                 <div class="text-sm text-muted-foreground">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-3 w-3" />
-                    Borrowed: {{ formatDate(borrow.borrowDate) }}
+                    Borrowed: {{ formatDate(borrow.borrowTime) }}
                   </div>
                   <div class="flex items-center gap-1">
                     <Clock class="h-3 w-3" />
-                    Due: {{ formatDate(borrow.dueDate) }}
-                    <span v-if="!borrow.isReturned" class="ml-1">
+                    Due: {{ formatDate(borrow.returnTime) }}
+                    <span v-if="borrow.status === 'BORROWED'" class="ml-1">
                       ({{
                         getDaysUntilDue(borrow) > 0
                           ? `${getDaysUntilDue(borrow)} days left`
@@ -659,9 +656,9 @@ onMounted(() => {
                       }})
                     </span>
                   </div>
-                  <div v-if="borrow.returnDate" class="flex items-center gap-1">
+                  <div v-if="borrow.actualReturnTime" class="flex items-center gap-1">
                     <CheckCircle class="h-3 w-3" />
-                    Returned: {{ formatDate(borrow.returnDate) }}
+                    Returned: {{ formatDate(borrow.actualReturnTime) }}
                   </div>
                 </div>
               </div>

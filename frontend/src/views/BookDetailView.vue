@@ -108,18 +108,10 @@ const handleBorrow = async () => {
     // Get current user data to get the user ID
     const currentUser = await usersService.getCurrentUser()
 
-    // Get available copies for the book
-    const copies = await booksService.getCopies(bookId.value)
-    const availableCopy = copies.find((copy) => copy.status === 'AVAILABLE')
-
-    if (!availableCopy) {
-      toast.error('No available copies for this book')
-      return
-    }
-
-    await borrowService.borrowBook({
+    // Use the new convenience method to borrow by book ID
+    await borrowService.borrowBookByBookId({
       userId: currentUser.id,
-      copyId: availableCopy.id,
+      bookId: bookId.value,
     })
     toast.success('Book borrowed successfully!')
     // Reload book data to update availability

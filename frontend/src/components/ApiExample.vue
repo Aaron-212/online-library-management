@@ -82,23 +82,23 @@
       </div>
 
       <div v-if="borrowApi.borrows.value.length > 0" class="space-y-2">
-        <div v-for="borrow in borrowApi.borrows.value" :key="borrow.id" class="border p-3 rounded">
-          <h3 class="font-semibold">{{ borrow.bookCopy.book.title }}</h3>
-          <p class="text-sm">Due: {{ new Date(borrow.dueDate).toLocaleDateString() }}</p>
-          <p :class="borrow.isReturned ? 'text-green-600' : 'text-orange-600'" class="text-sm">
-            Status: {{ borrow.isReturned ? 'Returned' : 'Borrowed' }}
+        <div v-for="borrow in borrowApi.borrows.value" :key="borrow.borrowId" class="border p-3 rounded">
+          <h3 class="font-semibold">{{ borrow.bookTitle }}</h3>
+          <p class="text-sm">Due: {{ new Date(borrow.returnTime).toLocaleDateString() }}</p>
+          <p :class="borrow.status === 'RETURNED' ? 'text-green-600' : 'text-orange-600'" class="text-sm">
+            Status: {{ borrow.status === 'RETURNED' ? 'Returned' : 'Borrowed' }}
           </p>
 
-          <div v-if="!borrow.isReturned" class="mt-2 space-x-2">
+          <div v-if="borrow.status === 'BORROWED'" class="mt-2 space-x-2">
             <button
               class="bg-red-500 text-white px-3 py-1 rounded text-sm"
-              @click="handleReturnBook(borrow.id)"
+              @click="handleReturnBook(borrow.borrowId)"
             >
               Return
             </button>
             <button
               class="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
-              @click="handleRenewBook(borrow.id)"
+              @click="handleRenewBook(borrow.borrowId)"
             >
               Renew
             </button>

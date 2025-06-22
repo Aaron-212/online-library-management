@@ -66,6 +66,8 @@ export interface BookSummaryDto {
   authors: string[]
   publishers: string[]
   coverURL?: string
+  availableQuantity: number
+  totalQuantity: number
 }
 
 export interface Author {
@@ -106,7 +108,9 @@ export interface BookUpdateDto {
 
 export interface BookCopy {
   id: number
-  book: Book
+  bookId: number
+  bookTitle: string
+  bookIsbn: string
   barcode: string
   status: BookCopyStatus
   purchasePrice?: number
@@ -136,14 +140,17 @@ export interface BookCopyUpdateDto {
 
 // Borrow types
 export interface Borrow {
-  id: number
-  user: UserPublic
-  bookCopy: BookCopy
-  borrowDate: string
-  dueDate: string
-  returnDate?: string
-  isReturned: boolean
-  lateFee?: number
+  borrowId: number
+  userId: number
+  username: string
+  copyId: number
+  bookTitle: string
+  isbn: string
+  borrowTime: string
+  returnTime: string
+  actualReturnTime?: string
+  status: string
+  fine?: number
 }
 
 export interface BorrowRequestDto {

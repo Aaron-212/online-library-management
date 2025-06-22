@@ -7,6 +7,8 @@ public record BookSummaryDto(
         String title,
         List<String> authors,
         List<String> publishers,
-        String coverURL
+        String coverURL,
+        int availableQuantity,
+        int totalQuantity
 ) {
 } 
