@@ -481,6 +481,103 @@ public class BorrowController {
     }
 
     @Operation(
+            summary = "Admin return book",
+            description = "Allows an admin to return a book on behalf of any user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book returned successfully",
+                        content = @Content(schema = @Schema(implementation = BorrowResponseDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid request or book not borrowed by user",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/return")
+    public ResponseEntity<?> adminReturnBook(@Valid @RequestBody BorrowRequestDto requestDto) {
+        try {
+            Borrow borrow = borrowService.returnBook(requestDto.userId(), requestDto.copyId());
+            BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
+            String message = borrow.getStatus() == Borrow.Status.OVERDUE 
+                ? "管理员代为还书成功（已逾期，罚金：" + borrow.getFine() + "元）" 
+                : "管理员代为还书成功";
+            responseDto = new BorrowResponseDto(
+                responseDto.borrowId(),
+                responseDto.userId(),
+                responseDto.username(),
+                responseDto.copyId(),
+                responseDto.bookTitle(),
+                responseDto.isbn(),
+                responseDto.borrowTime(),
+                responseDto.returnTime(),
+                responseDto.status(),
+                message
+            );
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(
+            summary = "Admin renew book",
+            description = "Allows an admin to renew a book on behalf of any user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Book renewed successfully",
+                        content = @Content(schema = @Schema(implementation = BorrowResponseDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid request or renewal not allowed",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "User not authenticated",
+                        content = @Content(schema = @Schema(implementation = Map.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Access denied - admin role required",
+                        content = @Content(schema = @Schema(implementation = Map.class)))
+            })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/renew")
+    public ResponseEntity<?> adminRenewBook(@Valid @RequestBody BorrowRequestDto requestDto) {
+        try {
+            Borrow borrow = borrowService.renewBook(requestDto.userId(), requestDto.copyId());
+            BorrowResponseDto responseDto = BorrowMapper.INSTANCE.toBorrowResponseDto(borrow);
+            responseDto = new BorrowResponseDto(
+                responseDto.borrowId(),
+                responseDto.userId(),
+                responseDto.username(),
+                responseDto.copyId(),
+                responseDto.bookTitle(),
+                responseDto.isbn(),
+                responseDto.borrowTime(),
+                responseDto.returnTime(),
+                responseDto.status(),
+                "管理员代为续借成功，新还书日期：" + borrow.getReturnTime().toLocalDate()
+            );
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @Operation(
             summary = "Get all borrowings (Admin only)",
             description = "Retrieves all borrowing records across the system (admin only)",
             security = @SecurityRequirement(name = "Bearer Authentication"))
