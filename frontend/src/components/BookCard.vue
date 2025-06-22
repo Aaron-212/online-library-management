@@ -41,7 +41,7 @@ const availabilityText = computed(() => {
 </script>
 
 <template>
-  <Card class="w-64 h-auto flex flex-col hover:shadow-lg transition-shadow p-0">
+  <Card class="w-full h-auto flex flex-col hover:shadow-lg transition-shadow p-0">
     <CardHeader class="p-0">
       <div
         class="aspect-[3/4] w-full bg-muted flex items-center justify-center rounded-t-lg overflow-hidden relative"
