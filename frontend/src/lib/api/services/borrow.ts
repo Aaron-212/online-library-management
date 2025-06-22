@@ -77,13 +77,14 @@ export class BorrowService {
     // For backward compatibility, we'll simulate pagination from the current borrowings
     const currentBorrowings = await this.getMyCurrentBorrowings()
     const page = params?.page ?? 0
-    const size = params?.size ?? 10
+    const size = Math.max(1, params?.size ?? 10) // Prevent division by zero by ensuring size >= 1
     const startIndex = page * size
     const endIndex = startIndex + size
     const content = currentBorrowings.slice(startIndex, endIndex)
     
     const totalPages = Math.max(1, Math.ceil(currentBorrowings.length / size))
-    const isLast = currentBorrowings.length === 0 ? page === 0 : page === totalPages - 1
+    // Fix isLast calculation: true when page is at or beyond the last available page
+    const isLast = page >= totalPages - 1
     
     return {
       content,
