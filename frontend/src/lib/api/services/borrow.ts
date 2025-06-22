@@ -82,20 +82,23 @@ export class BorrowService {
     const endIndex = startIndex + size
     const content = currentBorrowings.slice(startIndex, endIndex)
     
+    const totalPages = Math.max(1, Math.ceil(currentBorrowings.length / size))
+    const isLast = currentBorrowings.length === 0 ? page === 0 : page === totalPages - 1
+    
     return {
       content,
       pageable: {
         page,
         size,
         totalElements: currentBorrowings.length,
-        totalPages: Math.ceil(currentBorrowings.length / size),
+        totalPages,
         first: page === 0,
-        last: page >= Math.ceil(currentBorrowings.length / size) - 1
+        last: isLast
       },
       totalElements: currentBorrowings.length,
-      totalPages: Math.ceil(currentBorrowings.length / size),
+      totalPages,
       first: page === 0,
-      last: page >= Math.ceil(currentBorrowings.length / size) - 1,
+      last: isLast,
       numberOfElements: content.length,
       size,
       number: page
