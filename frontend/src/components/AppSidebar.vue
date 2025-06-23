@@ -10,6 +10,7 @@ import {
   Gauge,
   Heart,
   Home,
+  Languages,
   Library,
   LogOut,
   Settings,
@@ -19,6 +20,14 @@ import {
 } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/auth'
+import { useLanguage } from '@/composables/useLanguage'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +50,7 @@ import {
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { currentLanguage, currentLanguageLabel, availableLanguages, changeLanguage } = useLanguage()
 
 // Main navigation for all users - computed to allow dynamic URLs
 const navigationItems = computed(() => [
@@ -220,6 +230,26 @@ const handleLogout = () => {
 
     <SidebarFooter>
       <SidebarMenu>
+        <!-- Language Selector -->
+        <SidebarMenuItem>
+          <div class="px-2 py-2">
+            <div class="flex items-center gap-2 mb-2">
+              <Languages class="h-4 w-4" />
+              <span class="text-sm font-medium">Language</span>
+            </div>
+            <Select :model-value="currentLanguage" @update:model-value="changeLanguage">
+              <SelectTrigger class="w-full">
+                <SelectValue>{{ currentLanguageLabel }}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="lang in availableLanguages" :key="lang.value" :value="lang.value">
+                  {{ lang.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </SidebarMenuItem>
+        
         <SidebarMenuItem>
           <!-- Show dropdown when authenticated, otherwise show login link -->
           <DropdownMenu v-if="authStore.isAuthenticated">
