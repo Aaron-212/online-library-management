@@ -672,5 +672,63 @@ export default {
       loadCopiesError: 'Failed to load book copies',
       validationError: 'Please select both a user and a book copy'
     }
+  },
+  bookDetail: {
+    title: 'Book Details',
+    backToBooks: 'Back to Books',
+    loading: 'Loading book details...',
+    cover: {
+      noImageAvailable: 'No cover image available',
+      altText: 'Cover of {title}'
+    },
+    availability: {
+      available: 'Available',
+      limited: 'Limited',
+      outOfStock: 'Out of Stock',
+      notAvailable: 'Not Available',
+      singleCopy: '1 copy available',
+      multipleCopies: '{count} copies available',
+      totalCopies: 'Total copies: {count}'
+    },
+    rating: {
+      singleReview: '1 review',
+      multipleReviews: '{count} reviews'
+    },
+    buttons: {
+      borrow: 'Borrow Book',
+      borrowing: 'Borrowing...',
+      viewCopies: 'View Copies',
+      share: 'Share',
+      edit: 'Edit Book'
+    },
+    details: {
+      title: 'Book Details',
+      isbn: 'ISBN:',
+      category: 'Category:',
+      publishers: 'Publishers:',
+      language: 'Language:',
+      available: 'Available:',
+      uncategorized: 'Uncategorized'
+    },
+    description: {
+      title: 'Description'
+    },
+    comments: {
+      title: 'Reviews & Comments',
+      description: 'See what others think about this book'
+    },
+    notFound: {
+      title: 'Book Not Found',
+      description: 'The book you\'re looking for doesn\'t exist.',
+      backButton: 'Back to Books'
+    },
+    messages: {
+      loadError: 'Failed to load book details',
+      borrowSuccess: 'Book borrowed successfully!',
+      borrowError: 'Failed to borrow book',
+      borrowLoginRequired: 'Please log in to borrow books',
+      borrowNotAvailable: 'This book is not available for borrowing',
+      shareSuccess: 'Link copied to clipboard!'
+    }
   }
 }

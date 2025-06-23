@@ -586,5 +586,63 @@ export default {
       loginRequiredReturn: '请登录后归还图书',
       noBorrowRecord: '未找到此图书副本的有效借阅记录'
     }
+  },
+  bookDetail: {
+    title: '图书详情',
+    backToBooks: '返回图书列表',
+    loading: '正在加载图书详情...',
+    cover: {
+      noImageAvailable: '无封面图片',
+      altText: '《{title}》封面'
+    },
+    availability: {
+      available: '可借阅',
+      limited: '库存有限',
+      outOfStock: '无库存',
+      notAvailable: '不可借阅',
+      singleCopy: '1本可借',
+      multipleCopies: '{count}本可借',
+      totalCopies: '总副本数：{count}'
+    },
+    rating: {
+      singleReview: '条评价',
+      multipleReviews: '{count}条评价'
+    },
+    buttons: {
+      borrow: '借阅图书',
+      borrowing: '正在借阅...',
+      viewCopies: '查看副本',
+      share: '分享',
+      edit: '编辑图书'
+    },
+    details: {
+      title: '图书详情',
+      isbn: 'ISBN：',
+      category: '分类：',
+      publishers: '出版社：',
+      language: '语言：',
+      available: '可借：',
+      uncategorized: '未分类'
+    },
+    description: {
+      title: '简介'
+    },
+    comments: {
+      title: '评价与评论',
+      description: '看看其他人对这本书的看法'
+    },
+    notFound: {
+      title: '图书未找到',
+      description: '您查找的图书不存在。',
+      backButton: '返回图书列表'
+    },
+    messages: {
+      loadError: '加载图书详情失败',
+      borrowSuccess: '图书借阅成功！',
+      borrowError: '图书借阅失败',
+      borrowLoginRequired: '请登录后借阅图书',
+      borrowNotAvailable: '此图书暂不可借阅',
+      shareSuccess: '链接已复制到剪贴板！'
+    }
   }
 }

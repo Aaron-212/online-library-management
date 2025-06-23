@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ import { toast } from 'vue-sonner'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const book = ref<Book | null>(null)
@@ -61,9 +63,9 @@ const availabilityStatus = computed(() => {
 
 const availabilityText = computed(() => {
   if (!book.value) return ''
-  if (book.value.availableQuantity === 0) return 'Not Available'
-  if (book.value.availableQuantity === 1) return '1 copy available'
-  return `${book.value.availableQuantity} copies available`
+  if (book.value.availableQuantity === 0) return t('bookDetail.availability.notAvailable')
+  if (book.value.availableQuantity === 1) return t('bookDetail.availability.singleCopy')
+  return t('bookDetail.availability.multipleCopies', { count: book.value.availableQuantity })
 })
 
 // Methods
@@ -74,7 +76,7 @@ const loadBook = async () => {
     book.value = await booksService.getById(bookId.value)
   } catch (error) {
     console.error('Error loading book:', error)
-    toast.error('Failed to load book details')
+    toast.error(t('bookDetail.messages.loadError'))
     router.push('/books')
   } finally {
     isLoading.value = false
@@ -95,13 +97,13 @@ const loadComments = async () => {
 
 const handleBorrow = async () => {
   if (!authStore.isAuthenticated) {
-    toast.error('Please log in to borrow books')
+    toast.error(t('bookDetail.messages.borrowLoginRequired'))
     router.push('/login')
     return
   }
 
   if (!book.value || book.value.availableQuantity === 0) {
-    toast.error('This book is not available for borrowing')
+    toast.error(t('bookDetail.messages.borrowNotAvailable'))
     return
   }
 
@@ -116,13 +118,13 @@ const handleBorrow = async () => {
       userId: currentUser.id,
       bookId: bookId.value,
     })
-    toast.success('Book borrowed successfully!')
+    toast.success(t('bookDetail.messages.borrowSuccess'))
     // Reload book data to update availability
     await loadBook()
   } catch (error) {
     console.error('Error borrowing book:', error)
     // Use the detailed error message from the API if available to give users clearer feedback
-    const errMsg = (error as any)?.message || 'Failed to borrow book'
+    const errMsg = (error as any)?.message || t('bookDetail.messages.borrowError')
     toast.error(errMsg)
   } finally {
     isBorrowing.value = false
@@ -147,7 +149,7 @@ const handleShare = async () => {
   } catch (error) {
     // Fallback to copying to clipboard
     await navigator.clipboard.writeText(window.location.href)
-    toast.success('Link copied to clipboard!')
+    toast.success(t('bookDetail.messages.shareSuccess'))
   }
 }
 
@@ -182,11 +184,11 @@ onMounted(() => {
     <!-- Back Button -->
     <Button variant="ghost" @click="goBack" class="mb-4">
       <ArrowLeft class="h-4 w-4 mr-2" />
-      Back to Books
+      {{ t('bookDetail.backToBooks') }}
     </Button>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">Loading book details...</div>
+    <div v-if="isLoading" class="text-center py-8">{{ t('bookDetail.loading') }}</div>
 
     <!-- Book Details -->
     <template v-else-if="book">
@@ -196,35 +198,28 @@ onMounted(() => {
         <div class="lg:col-span-1">
           <Card class="overflow-hidden">
             <div class="aspect-[3/4] bg-muted flex items-center justify-center relative">
-              <img
-                v-if="book.coverURL && !imageLoadError"
-                :src="book.coverURL"
-                :alt="`Cover of ${book.title}`"
-                class="object-cover w-full h-full"
-                @error="imageLoadError = true"
-              />
+              <img v-if="book.coverURL && !imageLoadError" :src="book.coverURL"
+                :alt="t('bookDetail.cover.altText', { title: book.title })" class="object-cover w-full h-full"
+                @error="imageLoadError = true" />
               <div v-else class="text-muted-foreground p-8 text-center">
                 <BookOpen class="h-16 w-16 mx-auto mb-4" />
-                <p>No cover image available</p>
+                <p>{{ t('bookDetail.cover.noImageAvailable') }}</p>
               </div>
 
               <!-- Availability Badge -->
               <div v-if="availabilityStatus" class="absolute top-4 right-4">
-                <Badge
-                  :variant="
-                    availabilityStatus === 'available'
-                      ? 'success'
-                      : availabilityStatus === 'limited'
-                        ? 'secondary'
-                        : 'destructive'
-                  "
-                >
+                <Badge :variant="availabilityStatus === 'available'
+                  ? 'success'
+                  : availabilityStatus === 'limited'
+                    ? 'secondary'
+                    : 'destructive'
+                  ">
                   {{
                     availabilityStatus === 'available'
-                      ? 'Available'
+                      ? t('bookDetail.availability.available')
                       : availabilityStatus === 'limited'
-                        ? 'Limited'
-                        : 'Out of Stock'
+                        ? t('bookDetail.availability.limited')
+                        : t('bookDetail.availability.outOfStock')
                   }}
                 </Badge>
               </div>
@@ -240,64 +235,54 @@ onMounted(() => {
             <!-- Authors -->
             <div class="flex items-center gap-2 text-lg text-muted-foreground mb-4">
               <User class="h-5 w-5" />
-              <span>{{ book.authors.map((a) => a.name).join(', ') }}</span>
+              <span>{{book.authors.map((a) => a.name).join(', ')}}</span>
             </div>
 
             <!-- Rating -->
             <div v-if="comments.length > 0" class="flex items-center gap-2 mb-4">
               <div class="flex items-center">
-                <Star
-                  v-for="(filled, index) in renderStars(Math.round(averageRating))"
-                  :key="index"
-                  :class="filled ? 'text-yellow-400 fill-current' : 'text-gray-300'"
-                  class="h-5 w-5"
-                />
+                <Star v-for="(filled, index) in renderStars(Math.round(averageRating))" :key="index"
+                  :class="filled ? 'text-yellow-400 fill-current' : 'text-gray-300'" class="h-5 w-5" />
               </div>
               <span class="text-sm text-muted-foreground">
                 {{ averageRating.toFixed(1) }} ({{ comments.length }}
-                {{ comments.length === 1 ? 'review' : 'reviews' }})
+                {{ comments.length === 1 ? t('bookDetail.rating.singleReview') : t('bookDetail.rating.multipleReviews',
+                  { count: comments.length }) }})
               </span>
             </div>
 
             <!-- Availability -->
             <div class="mb-6">
               <p class="text-lg font-semibold mb-2">{{ availabilityText }}</p>
-              <p class="text-sm text-muted-foreground">Total copies: {{ book.totalQuantity }}</p>
+              <p class="text-sm text-muted-foreground">{{ t('bookDetail.availability.totalCopies', {
+                count:
+                  book.totalQuantity
+              }) }}</p>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex flex-wrap gap-3 mb-6">
-              <Button
-                @click="handleBorrow"
-                :disabled="book.availableQuantity === 0 || isBorrowing"
-                size="lg"
-              >
+              <Button @click="handleBorrow" :disabled="book.availableQuantity === 0 || isBorrowing" size="lg">
                 <BookOpen class="h-4 w-4 mr-2" />
-                {{ isBorrowing ? 'Borrowing...' : 'Borrow Book' }}
+                {{ isBorrowing ? t('bookDetail.buttons.borrowing') : t('bookDetail.buttons.borrow') }}
               </Button>
 
-              <FavoriteButton
-                v-if="authStore.isAuthenticated"
-                :book-id="bookId"
-                show-text
-                variant="outline"
-                size="lg"
-                @favorite-changed="handleFavoriteChanged"
-              />
+              <FavoriteButton v-if="authStore.isAuthenticated" :book-id="bookId" show-text variant="outline" size="lg"
+                @favorite-changed="handleFavoriteChanged" />
 
               <Button variant="outline" @click="handleViewCopies" size="lg">
                 <Copy class="h-4 w-4 mr-2" />
-                View Copies
+                {{ t('bookDetail.buttons.viewCopies') }}
               </Button>
 
               <Button variant="outline" @click="handleShare" size="lg">
                 <Share class="h-4 w-4 mr-2" />
-                Share
+                {{ t('bookDetail.buttons.share') }}
               </Button>
 
               <Button v-if="isAdmin" variant="outline" @click="handleEdit" size="lg">
                 <Edit class="h-4 w-4 mr-2" />
-                Edit Book
+                {{ t('bookDetail.buttons.edit') }}
               </Button>
             </div>
           </div>
@@ -305,40 +290,38 @@ onMounted(() => {
           <!-- Book Details Grid -->
           <Card>
             <CardHeader>
-              <CardTitle>Book Details</CardTitle>
+              <CardTitle>{{ t('bookDetail.details.title') }}</CardTitle>
             </CardHeader>
             <CardContent class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-3">
                 <div class="flex items-center gap-2">
                   <Package class="h-4 w-4 text-muted-foreground" />
-                  <span class="text-sm font-medium">ISBN:</span>
+                  <span class="text-sm font-medium">{{ t('bookDetail.details.isbn') }}</span>
                   <span class="text-sm">{{ book.isbn }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
                   <Tag class="h-4 w-4 text-muted-foreground" />
-                  <span class="text-sm font-medium">Category:</span>
-                  <span class="text-sm">{{ book.indexCategory?.name || 'Uncategorized' }}</span>
+                  <span class="text-sm font-medium">{{ t('bookDetail.details.category') }}</span>
+                  <span class="text-sm">{{ book.indexCategory?.name || t('bookDetail.details.uncategorized') }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
                   <Building class="h-4 w-4 text-muted-foreground" />
-                  <span class="text-sm font-medium">Publishers:</span>
-                  <span class="text-sm">{{ book.publishers.map((p) => p.name).join(', ') }}</span>
+                  <span class="text-sm font-medium">{{ t('bookDetail.details.publishers') }}</span>
+                  <span class="text-sm">{{book.publishers.map((p) => p.name).join(', ')}}</span>
                 </div>
               </div>
 
               <div class="space-y-3">
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">Language:</span>
+                  <span class="text-sm font-medium">{{ t('bookDetail.details.language') }}</span>
                   <span class="text-sm">{{ book.language }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">Available:</span>
-                  <span class="text-sm"
-                    >{{ book.availableQuantity }} / {{ book.totalQuantity }}</span
-                  >
+                  <span class="text-sm font-medium">{{ t('bookDetail.details.available') }}</span>
+                  <span class="text-sm">{{ book.availableQuantity }} / {{ book.totalQuantity }}</span>
                 </div>
               </div>
             </CardContent>
@@ -347,7 +330,7 @@ onMounted(() => {
           <!-- Description -->
           <Card v-if="book.description">
             <CardHeader>
-              <CardTitle>Description</CardTitle>
+              <CardTitle>{{ t('bookDetail.description.title') }}</CardTitle>
             </CardHeader>
             <CardContent>
               <p class="text-sm leading-relaxed">{{ book.description }}</p>
@@ -363,30 +346,24 @@ onMounted(() => {
         <CardHeader>
           <CardTitle class="flex items-center gap-2">
             <MessageSquare class="h-5 w-5" />
-            Reviews & Comments
+            {{ t('bookDetail.comments.title') }}
           </CardTitle>
-          <CardDescription> See what others think about this book </CardDescription>
+          <CardDescription>{{ t('bookDetail.comments.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
-          <CommentList
-            :comments="comments"
-            :book-id="bookId"
-            :loading="isCommentsLoading"
-            @comment-added="loadComments"
-            @comment-updated="loadComments"
-            @comment-deleted="loadComments"
-          />
+          <CommentList :comments="comments" :book-id="bookId" :loading="isCommentsLoading" @comment-added="loadComments"
+            @comment-updated="loadComments" @comment-deleted="loadComments" />
         </CardContent>
       </Card>
     </template>
 
     <!-- Book Not Found -->
     <div v-else class="text-center py-8">
-      <h2 class="text-2xl font-bold mb-4">Book Not Found</h2>
-      <p class="text-muted-foreground mb-4">The book you're looking for doesn't exist.</p>
+      <h2 class="text-2xl font-bold mb-4">{{ t('bookDetail.notFound.title') }}</h2>
+      <p class="text-muted-foreground mb-4">{{ t('bookDetail.notFound.description') }}</p>
       <Button @click="router.push('/books')">
         <ArrowLeft class="h-4 w-4 mr-2" />
-        Back to Books
+        {{ t('bookDetail.notFound.backButton') }}
       </Button>
     </div>
   </div>
