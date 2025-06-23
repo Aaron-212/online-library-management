@@ -775,6 +775,92 @@ export default {
       updateSuccess: 'Book updated successfully!'
     }
   },
+  dashboard: {
+    greeting: {
+      morning: 'Good morning',
+      afternoon: 'Good afternoon',
+      evening: 'Good evening',
+      subtitle: 'Ready to explore your library today?'
+    },
+    loading: 'Loading your dashboard...',
+    user: {
+      roles: {
+        admin: 'Administrator',
+        user: 'Reader'
+      },
+      memberSince: 'Member since',
+      recently: 'recently'
+    },
+    stats: {
+      availableBooks: {
+        title: 'Available Books',
+        description: 'Ready to borrow'
+      },
+      activeLoans: {
+        title: 'Your Active Loans',
+        description: 'Currently borrowed'
+      },
+      booksRead: {
+        title: 'Books Read',
+        description: 'Successfully returned'
+      },
+      overdueBooks: {
+        title: 'Overdue Books',
+        description: 'Need to return'
+      }
+    },
+    quickActions: {
+      title: 'Quick Actions',
+      subtitle: 'What would you like to do today?',
+      browseBooks: {
+        title: 'Browse Books',
+        description: 'Explore available books'
+      },
+      myBorrowings: {
+        title: 'My Borrowings',
+        description: 'View borrowing history'
+      },
+      myProfile: {
+        title: 'My Profile',
+        description: 'Manage your account'
+      },
+      readingList: {
+        title: 'Reading List',
+        description: 'Manage your wishlist'
+      }
+    },
+    newArrivals: {
+      title: 'New Arrivals',
+      description: 'Recently added to the library',
+      browseAll: 'Browse All',
+      noBooks: 'No recent books found'
+    },
+    recentActivity: {
+      title: 'Your Recent Activity',
+      description: 'Your borrowing history',
+      viewAll: 'View All',
+      notAuthenticated: 'Please log in to view your activity',
+      noActivity: 'No borrowing activity yet',
+      startBrowsing: 'Start browsing books',
+      returned: 'Returned',
+      due: 'Due'
+    },
+    notices: {
+      title: 'Library Notices',
+      description: 'Important updates and announcements',
+      viewAll: 'View All',
+      noNotices: 'No recent notices'
+    },
+    recommendations: {
+      title: 'Recommended for You',
+      description: 'Based on your reading history and preferences',
+      comingSoon: 'Personalized recommendations coming soon!',
+      keepReading: 'Keep borrowing books to help us learn your preferences.'
+    },
+    messages: {
+      loadError: 'Failed to load statistics'
+    }
+  },
   bookDetail: {
     title: 'Book Details',
     backToBooks: 'Back to Books',

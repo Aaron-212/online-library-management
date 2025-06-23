@@ -587,6 +587,92 @@ export default {
       noBorrowRecord: '未找到此图书副本的有效借阅记录'
     }
   },
+  dashboard: {
+    greeting: {
+      morning: '上午好',
+      afternoon: '下午好',
+      evening: '晚上好',
+      subtitle: '准备好探索您的图书馆了吗？'
+    },
+    loading: '正在加载您的面板...',
+    user: {
+      roles: {
+        admin: '管理员',
+        user: '读者'
+      },
+      memberSince: '注册时间',
+      recently: '最近'
+    },
+    stats: {
+      availableBooks: {
+        title: '可借图书',
+        description: '可以借阅'
+      },
+      activeLoans: {
+        title: '您的借阅中',
+        description: '当前借阅中'
+      },
+      booksRead: {
+        title: '已读图书',
+        description: '成功归还'
+      },
+      overdueBooks: {
+        title: '逾期图书',
+        description: '需要归还'
+      }
+    },
+    quickActions: {
+      title: '快捷操作',
+      subtitle: '您今天想做什么？',
+      browseBooks: {
+        title: '浏览图书',
+        description: '探索可借图书'
+      },
+      myBorrowings: {
+        title: '我的借阅',
+        description: '查看借阅历史'
+      },
+      myProfile: {
+        title: '我的资料',
+        description: '管理您的账户'
+      },
+      readingList: {
+        title: '阅读清单',
+        description: '管理您的愿望清单'
+      }
+    },
+    newArrivals: {
+      title: '新书推荐',
+      description: '最新添加到图书馆',
+      browseAll: '浏览全部',
+      noBooks: '暂无最新图书'
+    },
+    recentActivity: {
+      title: '您的最近活动',
+      description: '您的借阅历史',
+      viewAll: '查看全部',
+      notAuthenticated: '请登录查看您的活动',
+      noActivity: '暂无借阅活动',
+      startBrowsing: '开始浏览图书',
+      returned: '已归还',
+      due: '到期'
+    },
+    notices: {
+      title: '图书馆公告',
+      description: '重要更新和公告',
+      viewAll: '查看全部',
+      noNotices: '暂无最新公告'
+    },
+    recommendations: {
+      title: '为您推荐',
+      description: '基于您的阅读历史和偏好',
+      comingSoon: '个性化推荐即将推出！',
+      keepReading: '继续借阅图书，帮助我们了解您的偏好。'
+    },
+    messages: {
+      loadError: '加载统计数据失败'
+    }
+  },
   bookDetail: {
     title: '图书详情',
     backToBooks: '返回图书列表',
