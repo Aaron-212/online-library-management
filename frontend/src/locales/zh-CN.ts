@@ -1042,5 +1042,107 @@ export default {
         loadFailed: '加载用户失败'
       }
     }
+  },
+  profile: {
+    title: '用户资料',
+    description: '管理您的个人信息和设置',
+    loading: {
+      profile: '正在加载个人资料...',
+      data: '正在加载用户数据...',
+      borrowing: '正在加载借阅数据...'
+    },
+    header: {
+      memberSince: '注册时间：{date}',
+      memberSinceLoading: '注册时间：加载中...'
+    },
+    sections: {
+      profileInfo: {
+        title: '个人信息',
+        description: '管理您的个人信息'
+      },
+      security: {
+        title: '安全设置',
+        description: '管理您的账户安全'
+      },
+      borrowingStats: {
+        title: '借阅统计',
+        description: '您的图书馆活动概览'
+      },
+      recentActivity: {
+        title: '最近借阅活动',
+        description: '您最近的图书借阅活动'
+      }
+    },
+    fields: {
+      username: {
+        label: '用户名',
+        placeholder: '请输入您的用户名'
+      },
+      email: {
+        label: '邮箱',
+        placeholder: '请输入您的邮箱地址'
+      },
+      registrationDate: {
+        label: '注册日期'
+      },
+      lastUpdated: {
+        label: '最后更新'
+      },
+      currentPassword: {
+        label: '当前密码',
+        placeholder: '请输入当前密码'
+      },
+      newPassword: {
+        label: '新密码',
+        placeholder: '请输入新密码'
+      },
+      confirmPassword: {
+        label: '确认新密码',
+        placeholder: '请确认新密码'
+      }
+    },
+    buttons: {
+      editProfile: '编辑资料',
+      saveChanges: '保存更改',
+      saving: '保存中...',
+      cancel: '取消',
+      changePassword: '修改密码',
+      changingPassword: '修改中...',
+      viewAllBorrows: '查看全部'
+    },
+    stats: {
+      totalBorrows: '总借阅',
+      returned: '已归还',
+      active: '借阅中',
+      overdue: '逾期'
+    },
+    activity: {
+      noActivity: '暂无借阅活动',
+      due: '到期：{date}',
+      dueDate: '到期日期 {date}'
+    },
+    status: {
+      returned: '已归还',
+      overdue: '逾期',
+      dueSoon: '即将到期',
+      active: '借阅中'
+    },
+    security: {
+      lastPasswordUpdate: '您的密码最后更新时间：{date}',
+      lastPasswordUpdateDefault: '您的密码最后更新时间：暂无'
+    },
+    messages: {
+      profileUpdateSuccess: '个人资料更新成功！',
+      profileUpdateError: '更新个人资料失败',
+      passwordChangeSuccess: '密码修改成功！请使用新密码登录。',
+      passwordChangeError: '修改密码失败',
+      passwordMismatch: '新密码不匹配',
+      passwordTooShort: '新密码至少需要6个字符',
+      loadUserDataError: '加载用户资料失败',
+      loadBorrowingDataError: '加载借阅数据失败'
+    },
+    placeholders: {
+      notAvailable: '暂无'
+    }
   }
 }

@@ -1230,5 +1230,107 @@ export default {
         loadFailed: 'Failed to load users'
       }
     }
+  },
+  profile: {
+    title: 'User Profile',
+    description: 'Manage your personal information and settings',
+    loading: {
+      profile: 'Loading profile...',
+      data: 'Loading user data...',
+      borrowing: 'Loading borrowing data...'
+    },
+    header: {
+      memberSince: 'Member since {date}',
+      memberSinceLoading: 'Member since loading...'
+    },
+    sections: {
+      profileInfo: {
+        title: 'Profile Information',
+        description: 'Manage your personal information'
+      },
+      security: {
+        title: 'Security',
+        description: 'Manage your account security'
+      },
+      borrowingStats: {
+        title: 'Borrowing Statistics',
+        description: 'Your library activity overview'
+      },
+      recentActivity: {
+        title: 'Recent Borrowing Activity',
+        description: 'Your latest book borrowing activity'
+      }
+    },
+    fields: {
+      username: {
+        label: 'Username',
+        placeholder: 'Enter your username'
+      },
+      email: {
+        label: 'Email',
+        placeholder: 'Enter your email address'
+      },
+      registrationDate: {
+        label: 'Registration Date'
+      },
+      lastUpdated: {
+        label: 'Last Updated'
+      },
+      currentPassword: {
+        label: 'Current Password',
+        placeholder: 'Enter your current password'
+      },
+      newPassword: {
+        label: 'New Password',
+        placeholder: 'Enter your new password'
+      },
+      confirmPassword: {
+        label: 'Confirm New Password',
+        placeholder: 'Confirm your new password'
+      }
+    },
+    buttons: {
+      editProfile: 'Edit Profile',
+      saveChanges: 'Save Changes',
+      saving: 'Saving...',
+      cancel: 'Cancel',
+      changePassword: 'Change Password',
+      changingPassword: 'Changing...',
+      viewAllBorrows: 'View All'
+    },
+    stats: {
+      totalBorrows: 'Total Borrows',
+      returned: 'Returned',
+      active: 'Active',
+      overdue: 'Overdue'
+    },
+    activity: {
+      noActivity: 'No recent borrowing activity',
+      due: 'Due: {date}',
+      dueDate: 'Due {date}'
+    },
+    status: {
+      returned: 'Returned',
+      overdue: 'Overdue',
+      dueSoon: 'Due Soon',
+      active: 'Active'
+    },
+    security: {
+      lastPasswordUpdate: 'Your password was last updated on {date}',
+      lastPasswordUpdateDefault: 'Your password was last updated on N/A'
+    },
+    messages: {
+      profileUpdateSuccess: 'Profile updated successfully!',
+      profileUpdateError: 'Failed to update profile',
+      passwordChangeSuccess: 'Password changed successfully! Please log in with your new password.',
+      passwordChangeError: 'Failed to change password',
+      passwordMismatch: 'New passwords do not match',
+      passwordTooShort: 'New password must be at least 6 characters long',
+      loadUserDataError: 'Failed to load user profile',
+      loadBorrowingDataError: 'Failed to load borrowing data'
+    },
+    placeholders: {
+      notAvailable: 'N/A'
+    }
   }
 }
