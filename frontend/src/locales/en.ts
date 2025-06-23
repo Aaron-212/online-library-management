@@ -502,5 +502,91 @@ export default {
       paySuccess: 'Fee paid successfully!',
       payError: 'Failed to pay fee'
     }
+  },
+  adminBorrowing: {
+    title: 'Admin Borrowing Management',
+    description: 'Register and manage book borrowing for users',
+    buttons: {
+      registerBorrow: 'Register Borrow',
+      cancel: 'Cancel',
+      creating: 'Creating...',
+      refresh: 'Refresh'
+    },
+    summary: {
+      totalBorrows: {
+        title: 'Total Borrows',
+        description: 'All borrowing records'
+      },
+      activeBorrows: {
+        title: 'Active Borrows',
+        description: 'Currently borrowed'
+      },
+      overdueBooks: {
+        title: 'Overdue Books',
+        description: 'Need attention'
+      }
+    },
+    dialog: {
+      title: 'Register Book Borrowing',
+      description: 'Select a user and book copy to register a new borrowing record',
+      userSelection: {
+        label: 'Select User',
+        placeholder: 'Search users by username...',
+        idPrefix: 'ID: '
+      },
+      bookSelection: {
+        label: 'Select Book',
+        placeholder: 'Search books by title, author, or ISBN...',
+        available: 'Available: {available} / {total}',
+        isbnPrefix: 'ISBN: '
+      },
+      copySelection: {
+        label: 'Select Available Copy',
+        copyNumber: 'Copy #{id}',
+        availableStatus: 'Available',
+        noAvailableCopies: 'No available copies for this book'
+      }
+    },
+    filters: {
+      search: {
+        label: 'Search Records',
+        placeholder: 'Search by user, book title, or ISBN...'
+      },
+      status: {
+        label: 'Status',
+        allBorrows: 'All Borrows',
+        active: 'Active',
+        returned: 'Returned',
+        overdue: 'Overdue'
+      }
+    },
+    list: {
+      title: 'All Borrowing Records',
+      description: 'Showing {count} of {total} records',
+      loading: 'Loading borrowing records...',
+      empty: 'No borrowing records found',
+      copyPrefix: 'Copy #',
+      isbnPrefix: 'ISBN: ',
+      borrowed: 'Borrowed: {date}',
+      due: 'Due: {date}',
+      returned: 'Returned: {date}',
+      daysLeft: '{days} days left',
+      daysOverdue: '{days} days overdue'
+    },
+    status: {
+      returned: 'Returned',
+      overdue: 'Overdue',
+      dueSoon: 'Due Soon',
+      active: 'Active'
+    },
+    messages: {
+      success: 'Book borrowed successfully!',
+      error: 'Failed to create borrowing record',
+      loadBorrowsError: 'Failed to load borrowing records',
+      loadUsersError: 'Failed to load users',
+      loadBooksError: 'Failed to load books',
+      loadCopiesError: 'Failed to load book copies',
+      validationError: 'Please select both a user and a book copy'
+    }
   }
 }

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -48,6 +49,7 @@ import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const borrows = ref<Borrow[]>([])
@@ -72,12 +74,12 @@ const searchKeyword = ref('')
 const statusFilter = ref('all')
 
 // Filter options
-const statusOptions = [
-  { value: 'all', label: 'All Borrows' },
-  { value: 'active', label: 'Active' },
-  { value: 'returned', label: 'Returned' },
-  { value: 'overdue', label: 'Overdue' },
-]
+const statusOptions = computed(() => [
+  { value: 'all', label: t('adminBorrowing.filters.status.allBorrows') },
+  { value: 'active', label: t('adminBorrowing.filters.status.active') },
+  { value: 'returned', label: t('adminBorrowing.filters.status.returned') },
+  { value: 'overdue', label: t('adminBorrowing.filters.status.overdue') },
+])
 
 // Computed
 const filteredUsers = computed(() => {
@@ -208,19 +210,19 @@ const getDaysUntilDue = (borrow: Borrow) => {
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.status === 'RETURNED') {
-    return { variant: 'success' as const, text: 'Returned', icon: CheckCircle }
+    return { variant: 'success' as const, text: t('adminBorrowing.status.returned'), icon: CheckCircle }
   }
 
   if (borrow.status === 'OVERDUE' || (borrow.status === 'BORROWED' && isOverdue(borrow))) {
-    return { variant: 'destructive' as const, text: 'Overdue', icon: AlertTriangle }
+    return { variant: 'destructive' as const, text: t('adminBorrowing.status.overdue'), icon: AlertTriangle }
   }
 
   if (borrow.status === 'BORROWED') {
     const daysUntilDue = getDaysUntilDue(borrow)
     if (daysUntilDue <= 3) {
-      return { variant: 'secondary' as const, text: 'Due Soon', icon: Clock }
+      return { variant: 'secondary' as const, text: t('adminBorrowing.status.dueSoon'), icon: Clock }
     }
-    return { variant: 'default' as const, text: 'Active', icon: BookOpen }
+    return { variant: 'default' as const, text: t('adminBorrowing.status.active'), icon: BookOpen }
   }
 
   return { variant: 'default' as const, text: borrow.status, icon: BookOpen }
@@ -253,7 +255,7 @@ const loadBorrows = async () => {
     await preloadMissingCovers(allBorrows)
   } catch (error) {
     console.error('Error loading borrows:', error)
-    toast.error('Failed to load borrowing records')
+    toast.error(t('adminBorrowing.messages.loadBorrowsError'))
   } finally {
     isLoading.value = false
   }
@@ -265,7 +267,7 @@ const loadUsers = async () => {
     users.value = response.content
   } catch (error) {
     console.error('Error loading users:', error)
-    toast.error('Failed to load users')
+    toast.error(t('adminBorrowing.messages.loadUsersError'))
   }
 }
 
@@ -287,7 +289,7 @@ const loadBooks = async () => {
     books.value = allBooks
   } catch (error) {
     console.error('Error loading books:', error)
-    toast.error('Failed to load books')
+    toast.error(t('adminBorrowing.messages.loadBooksError'))
   }
 }
 
@@ -297,7 +299,7 @@ const loadBookCopies = async (bookId: number) => {
     bookCopies.value = copies
   } catch (error) {
     console.error('Error loading book copies:', error)
-    toast.error('Failed to load book copies')
+    toast.error(t('adminBorrowing.messages.loadCopiesError'))
   }
 }
 
@@ -328,7 +330,7 @@ const resetForm = () => {
 
 const handleCreateBorrow = async () => {
   if (!isFormValid.value) {
-    toast.error('Please select both a user and a book copy')
+    toast.error(t('adminBorrowing.messages.validationError'))
     return
   }
 
@@ -339,13 +341,13 @@ const handleCreateBorrow = async () => {
       copyId: selectedCopy.value!.id,
     })
 
-    toast.success(response.message || 'Book borrowed successfully!')
+    toast.success(response.message || t('adminBorrowing.messages.success'))
     isCreateDialogOpen.value = false
     resetForm()
     await loadBorrows()
   } catch (error: any) {
     console.error('Error creating borrow:', error)
-    toast.error(error.response?.data?.error || 'Failed to create borrowing record')
+    toast.error(error.response?.data?.error || t('adminBorrowing.messages.error'))
   } finally {
     isSubmitting.value = false
   }
@@ -402,55 +404,43 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold">Admin Borrowing Management</h1>
-        <p class="text-muted-foreground">Register and manage book borrowing for users</p>
+        <h1 class="text-2xl font-bold">{{ t('adminBorrowing.title') }}</h1>
+        <p class="text-muted-foreground">{{ t('adminBorrowing.description') }}</p>
       </div>
       <div class="flex gap-2">
         <Dialog v-model:open="isCreateDialogOpen">
           <DialogTrigger asChild>
             <Button>
               <Plus class="h-4 w-4 mr-2" />
-              Register Borrow
+              {{ t('adminBorrowing.buttons.registerBorrow') }}
             </Button>
           </DialogTrigger>
           <DialogContent class="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Register Book Borrowing</DialogTitle>
+              <DialogTitle>{{ t('adminBorrowing.dialog.title') }}</DialogTitle>
               <DialogDescription>
-                Select a user and book copy to register a new borrowing record
+                {{ t('adminBorrowing.dialog.description') }}
               </DialogDescription>
             </DialogHeader>
 
             <div class="space-y-6">
               <!-- User Selection -->
               <div class="space-y-2">
-                <Label for="user-search">Select User</Label>
+                <Label for="user-search">{{ t('adminBorrowing.dialog.userSelection.label') }}</Label>
                 <div class="relative">
-                  <Search
-                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                  />
-                  <Input
-                    id="user-search"
-                    v-model="userSearchKeyword"
-                    placeholder="Search users by username..."
-                    class="pl-10"
-                  />
+                  <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input id="user-search" v-model="userSearchKeyword"
+                    :placeholder="t('adminBorrowing.dialog.userSelection.placeholder')" class="pl-10" />
                 </div>
 
-                <div
-                  v-if="userSearchKeyword && !selectedUser"
-                  class="border rounded-lg max-h-40 overflow-y-auto"
-                >
-                  <div
-                    v-for="user in filteredUsers"
-                    :key="user.id"
-                    class="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
-                    @click="selectUser(user)"
-                  >
+                <div v-if="userSearchKeyword && !selectedUser" class="border rounded-lg max-h-40 overflow-y-auto">
+                  <div v-for="user in filteredUsers" :key="user.id"
+                    class="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0" @click="selectUser(user)">
                     <div class="flex items-center gap-2">
                       <User class="h-4 w-4" />
                       <span class="font-medium">{{ user.username }}</span>
-                      <span class="text-sm text-muted-foreground">ID: {{ user.id }}</span>
+                      <span class="text-sm text-muted-foreground">{{ t('adminBorrowing.dialog.userSelection.idPrefix')
+                        }}{{ user.id }}</span>
                     </div>
                   </div>
                 </div>
@@ -460,7 +450,8 @@ onMounted(() => {
                     <div class="flex items-center gap-2">
                       <User class="h-4 w-4" />
                       <span class="font-medium">{{ selectedUser.username }}</span>
-                      <Badge variant="outline">ID: {{ selectedUser.id }}</Badge>
+                      <Badge variant="outline">{{ t('adminBorrowing.dialog.userSelection.idPrefix') }}{{ selectedUser.id
+                        }}</Badge>
                     </div>
                     <Button size="sm" variant="ghost" @click="clearSelectedUser()"> × </Button>
                   </div>
@@ -469,40 +460,22 @@ onMounted(() => {
 
               <!-- Book Selection -->
               <div class="space-y-2">
-                <Label for="book-search">Select Book</Label>
+                <Label for="book-search">{{ t('adminBorrowing.dialog.bookSelection.label') }}</Label>
                 <div class="relative">
-                  <Search
-                    class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                  />
-                  <Input
-                    id="book-search"
-                    v-model="bookSearchKeyword"
-                    placeholder="Search books by title, author, or ISBN..."
-                    class="pl-10"
-                  />
+                  <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input id="book-search" v-model="bookSearchKeyword"
+                    :placeholder="t('adminBorrowing.dialog.bookSelection.placeholder')" class="pl-10" />
                 </div>
 
-                <div
-                  v-if="bookSearchKeyword && !selectedBook"
-                  class="border rounded-lg max-h-40 overflow-y-auto"
-                >
-                  <div
-                    v-for="book in filteredBooks"
-                    :key="book.id"
-                    class="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
-                    @click="selectBook(book)"
-                  >
+                <div v-if="bookSearchKeyword && !selectedBook" class="border rounded-lg max-h-40 overflow-y-auto">
+                  <div v-for="book in filteredBooks" :key="book.id"
+                    class="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0" @click="selectBook(book)">
                     <div class="flex items-start gap-3">
                       <div
-                        class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0"
-                      >
-                        <img
-                          v-if="book.coverURL"
-                          :src="book.coverURL"
-                          :alt="book.title"
+                        class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <img v-if="book.coverURL" :src="book.coverURL" :alt="book.title"
                           class="w-full h-full object-cover"
-                          @error="($event.target as HTMLImageElement).style.display = 'none'"
-                        />
+                          @error="($event.target as HTMLImageElement).style.display = 'none'" />
                         <Book v-else class="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div class="flex-1 space-y-1">
@@ -510,10 +483,14 @@ onMounted(() => {
                           <span class="font-medium">{{ book.title }}</span>
                         </div>
                         <div class="text-sm text-muted-foreground">
-                          {{ book.authors.map((a) => a.name).join(', ') }} | ISBN: {{ book.isbn }}
+                          {{book.authors.map((a) => a.name).join(', ')}} | {{
+                            t('adminBorrowing.dialog.bookSelection.isbnPrefix') }}{{ book.isbn }}
                         </div>
                         <div class="text-xs text-muted-foreground">
-                          Available: {{ book.availableQuantity }} / {{ book.totalQuantity }}
+                          {{ t('adminBorrowing.dialog.bookSelection.available', {
+                            available: book.availableQuantity,
+                            total: book.totalQuantity
+                          }) }}
                         </div>
                       </div>
                     </div>
@@ -524,15 +501,10 @@ onMounted(() => {
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3 flex-1">
                       <div
-                        class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0"
-                      >
-                        <img
-                          v-if="selectedBook.coverURL"
-                          :src="selectedBook.coverURL"
-                          :alt="selectedBook.title"
+                        class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <img v-if="selectedBook.coverURL" :src="selectedBook.coverURL" :alt="selectedBook.title"
                           class="w-full h-full object-cover"
-                          @error="($event.target as HTMLImageElement).style.display = 'none'"
-                        />
+                          @error="($event.target as HTMLImageElement).style.display = 'none'" />
                         <Book v-else class="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div class="space-y-1">
@@ -540,7 +512,7 @@ onMounted(() => {
                           <span class="font-medium">{{ selectedBook.title }}</span>
                         </div>
                         <div class="text-sm text-muted-foreground">
-                          {{ selectedBook.authors.map((a) => a.name).join(', ') }}
+                          {{selectedBook.authors.map((a) => a.name).join(', ')}}
                         </div>
                       </div>
                     </div>
@@ -551,33 +523,32 @@ onMounted(() => {
 
               <!-- Copy Selection -->
               <div v-if="selectedBook && availableCopies.length > 0" class="space-y-2">
-                <Label>Select Available Copy</Label>
+                <Label>{{ t('adminBorrowing.dialog.copySelection.label') }}</Label>
                 <div class="grid grid-cols-2 gap-2">
-                  <button
-                    v-for="copy in availableCopies"
-                    :key="copy.id"
+                  <button v-for="copy in availableCopies" :key="copy.id"
                     class="p-3 border rounded-lg text-left hover:bg-muted transition-colors"
-                    :class="{ 'border-primary bg-primary/10': selectedCopy?.id === copy.id }"
-                    @click="selectCopy(copy)"
-                  >
-                    <div class="text-sm font-medium">Copy #{{ copy.id }}</div>
-                    <div class="text-xs text-muted-foreground">Available</div>
+                    :class="{ 'border-primary bg-primary/10': selectedCopy?.id === copy.id }" @click="selectCopy(copy)">
+                    <div class="text-sm font-medium">{{ t('adminBorrowing.dialog.copySelection.copyNumber', {
+                      id:
+                        copy.id
+                    }) }}</div>
+                    <div class="text-xs text-muted-foreground">{{
+                      t('adminBorrowing.dialog.copySelection.availableStatus') }}</div>
                   </button>
                 </div>
               </div>
 
-              <div
-                v-else-if="selectedBook && availableCopies.length === 0"
-                class="text-center py-4 text-muted-foreground"
-              >
-                No available copies for this book
+              <div v-else-if="selectedBook && availableCopies.length === 0"
+                class="text-center py-4 text-muted-foreground">
+                {{ t('adminBorrowing.dialog.copySelection.noAvailableCopies') }}
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="outline" @click="isCreateDialogOpen = false"> Cancel </Button>
+              <Button variant="outline" @click="isCreateDialogOpen = false">{{ t('adminBorrowing.buttons.cancel')
+                }}</Button>
               <Button @click="handleCreateBorrow" :disabled="!isFormValid || isSubmitting">
-                {{ isSubmitting ? 'Creating...' : 'Register Borrow' }}
+                {{ isSubmitting ? t('adminBorrowing.buttons.creating') : t('adminBorrowing.buttons.registerBorrow') }}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -589,34 +560,34 @@ onMounted(() => {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Borrows</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('adminBorrowing.summary.totalBorrows.title') }}</CardTitle>
           <BookOpen class="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold">{{ borrows.length }}</div>
-          <p class="text-xs text-muted-foreground">All borrowing records</p>
+          <p class="text-xs text-muted-foreground">{{ t('adminBorrowing.summary.totalBorrows.description') }}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Active Borrows</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('adminBorrowing.summary.activeBorrows.title') }}</CardTitle>
           <Users class="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold">{{ activeBorrows.length }}</div>
-          <p class="text-xs text-muted-foreground">Currently borrowed</p>
+          <p class="text-xs text-muted-foreground">{{ t('adminBorrowing.summary.activeBorrows.description') }}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Overdue Books</CardTitle>
+          <CardTitle class="text-sm font-medium">{{ t('adminBorrowing.summary.overdueBooks.title') }}</CardTitle>
           <AlertTriangle class="h-4 w-4 text-red-500" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-red-600">{{ overdueBorrows.length }}</div>
-          <p class="text-xs text-muted-foreground">Need attention</p>
+          <p class="text-xs text-muted-foreground">{{ t('adminBorrowing.summary.overdueBooks.description') }}</p>
         </CardContent>
       </Card>
     </div>
@@ -626,38 +597,30 @@ onMounted(() => {
       <div class="flex flex-wrap gap-4">
         <!-- Search -->
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
-          <Label for="search">Search Records</Label>
+          <Label for="search">{{ t('adminBorrowing.filters.search.label') }}</Label>
           <div class="relative">
-            <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              id="search"
-              v-model="searchKeyword"
-              placeholder="Search by user, book title, or ISBN..."
-              class="pl-10"
-            />
+            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="search" v-model="searchKeyword" :placeholder="t('adminBorrowing.filters.search.placeholder')"
+              class="pl-10" />
           </div>
         </div>
 
         <!-- Status Filter -->
         <div class="flex flex-col gap-2">
-          <Label for="status">Status</Label>
+          <Label for="status">{{ t('adminBorrowing.filters.status.label') }}</Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
                 {{
-                  statusOptions.find((opt) => opt.value === statusFilter)?.label || 'All Borrows'
+                  statusOptions.find((opt) => opt.value === statusFilter)?.label ||
+                  t('adminBorrowing.filters.status.allBorrows')
                 }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem
-                v-for="option in statusOptions"
-                :key="option.value"
-                @click="statusFilter = option.value"
-              >
+              <DropdownMenuItem v-for="option in statusOptions" :key="option.value"
+                @click="statusFilter = option.value">
                 {{ option.label }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -676,50 +639,35 @@ onMounted(() => {
     <!-- Borrows List -->
     <Card>
       <CardHeader>
-        <CardTitle>All Borrowing Records</CardTitle>
+        <CardTitle>{{ t('adminBorrowing.list.title') }}</CardTitle>
         <CardDescription>
-          Showing {{ filteredBorrows.length }} of {{ borrows.length }} records
+          {{ t('adminBorrowing.list.description', { count: filteredBorrows.length, total: borrows.length }) }}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div v-if="isLoading" class="text-center py-8">Loading borrowing records...</div>
+        <div v-if="isLoading" class="text-center py-8">{{ t('adminBorrowing.list.loading') }}</div>
 
-        <div
-          v-else-if="filteredBorrows.length === 0"
-          class="text-center py-8 text-muted-foreground"
-        >
-          No borrowing records found
+        <div v-else-if="filteredBorrows.length === 0" class="text-center py-8 text-muted-foreground">
+          {{ t('adminBorrowing.list.empty') }}
         </div>
 
         <div v-else class="space-y-4">
-          <div
-            v-for="borrow in filteredBorrows"
-            :key="borrow.borrowId"
-            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
-          >
+          <div v-for="borrow in filteredBorrows" :key="borrow.borrowId"
+            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- User and Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div
-                  class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden"
-                >
-                  <img
-                    v-if="getBookCoverUrlSync(borrow.isbn)"
-                    :src="getBookCoverUrlSync(borrow.isbn)"
-                    :alt="borrow.bookTitle"
-                    class="w-full h-full object-cover"
-                    @error="($event.target as HTMLImageElement).style.display = 'none'"
-                  />
+                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
+                  <img v-if="getBookCoverUrlSync(borrow.isbn)" :src="getBookCoverUrlSync(borrow.isbn)"
+                    :alt="borrow.bookTitle" class="w-full h-full object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'" />
                   <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
                 <div class="flex-1 min-w-0 space-y-2">
                   <div class="flex items-center gap-2">
                     <User class="h-4 w-4" />
-                    <span
-                      class="font-medium hover:text-primary cursor-pointer"
-                      @click="goToUserProfile(borrow.userId)"
-                    >
+                    <span class="font-medium hover:text-primary cursor-pointer" @click="goToUserProfile(borrow.userId)">
                       {{ borrow.username }}
                     </span>
                   </div>
@@ -728,7 +676,8 @@ onMounted(() => {
                     {{ borrow.bookTitle }}
                   </h3>
                   <p class="text-xs text-muted-foreground">
-                    ISBN: {{ borrow.isbn }} | Copy #{{ borrow.copyId }}
+                    {{ t('adminBorrowing.list.isbnPrefix') }}{{ borrow.isbn }} | {{ t('adminBorrowing.list.copyPrefix')
+                    }}{{ borrow.copyId }}
                   </p>
                 </div>
               </div>
@@ -743,22 +692,22 @@ onMounted(() => {
                 <div class="text-sm text-muted-foreground">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-3 w-3" />
-                    Borrowed: {{ formatDate(borrow.borrowTime) }}
+                    {{ t('adminBorrowing.list.borrowed', { date: formatDate(borrow.borrowTime) }) }}
                   </div>
                   <div class="flex items-center gap-1">
                     <Clock class="h-3 w-3" />
-                    Due: {{ formatDate(borrow.returnTime) }}
+                    {{ t('adminBorrowing.list.due', { date: formatDate(borrow.returnTime) }) }}
                     <span v-if="borrow.status === 'BORROWED'" class="ml-1">
                       ({{
                         getDaysUntilDue(borrow) > 0
-                          ? `${getDaysUntilDue(borrow)} days left`
-                          : `${Math.abs(getDaysUntilDue(borrow))} days overdue`
+                          ? t('adminBorrowing.list.daysLeft', { days: getDaysUntilDue(borrow) })
+                          : t('adminBorrowing.list.daysOverdue', { days: Math.abs(getDaysUntilDue(borrow)) })
                       }})
                     </span>
                   </div>
                   <div v-if="borrow.actualReturnTime" class="flex items-center gap-1">
                     <CheckCircle class="h-3 w-3" />
-                    Returned: {{ formatDate(borrow.actualReturnTime) }}
+                    {{ t('adminBorrowing.list.returned', { date: formatDate(borrow.actualReturnTime) }) }}
                   </div>
                 </div>
               </div>

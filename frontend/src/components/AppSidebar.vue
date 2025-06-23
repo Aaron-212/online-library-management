@@ -263,7 +263,7 @@ const handleLogout = () => {
                 <div class="flex flex-col items-start">
                   <span class="text-sm font-medium">{{
                     authStore.user?.username || t('sidebar.anonymous')
-                    }}</span>
+                  }}</span>
                   <span class="text-xs text-muted-foreground">{{ t('sidebar.viewProfile') }}</span>
                 </div>
               </SidebarMenuButton>
