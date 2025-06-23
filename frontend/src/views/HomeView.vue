@@ -283,16 +283,6 @@ onMounted(() => {
         </div>
       </section>
 
-      <!-- Category Navigation -->
-      <section v-if="categories.length" class="space-y-4">
-        <h2 class="text-xl font-semibold">{{ t('home.categories.title') }}</h2>
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          <Button variant="outline" class="shrink-0" v-for="cat in categories" :key="cat" @click="goToCategory(cat)">
-            {{ cat }}
-          </Button>
-        </div>
-      </section>
-
       <!-- Featured Books Section -->
       <section v-if="recommendedBooks.length > 0">
         <div class="flex items-center justify-between mb-6">
@@ -328,7 +318,7 @@ onMounted(() => {
             <CardContent>
               <div class="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} {{ t('home.status.available_count')
-                }}</span>
+                  }}</span>
               </div>
             </CardContent>
           </Card>
@@ -348,7 +338,7 @@ onMounted(() => {
                 <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
                 <CardDescription>{{
                   Array.isArray(book.authors) ? book.authors.join(', ') : t('home.status.unknownAuthor')
-                }}</CardDescription>
+                  }}</CardDescription>
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">
