@@ -673,6 +673,108 @@ export default {
       validationError: 'Please select both a user and a book copy'
     }
   },
+  bookForm: {
+    title: {
+      create: 'Add New Book',
+      edit: 'Edit Book'
+    },
+    description: {
+      create: 'Add a new book to the library',
+      edit: 'Update book information'
+    },
+    loading: {
+      book: 'Loading book data...',
+      saving: 'Saving...'
+    },
+    sections: {
+      basicInfo: {
+        title: 'Basic Information',
+        description: 'Enter the book\'s basic details'
+      },
+      authors: {
+        title: 'Authors',
+        description: 'Add the book\'s authors'
+      },
+      publishers: {
+        title: 'Publishers',
+        description: 'Add the book\'s publishers'
+      },
+      category: {
+        title: 'Category',
+        description: 'Specify the book\'s category'
+      }
+    },
+    fields: {
+      title: {
+        label: 'Title',
+        placeholder: 'Enter book title',
+        required: 'Title *'
+      },
+      isbn: {
+        label: 'ISBN',
+        placeholder: 'Enter ISBN',
+        required: 'ISBN *'
+      },
+      language: {
+        label: 'Language',
+        placeholder: 'e.g., English, Spanish, etc.',
+        required: 'Language *'
+      },
+      location: {
+        label: 'Location',
+        placeholder: 'e.g., LIBRARY, STORAGE, etc.'
+      },
+      totalQuantity: {
+        label: 'Total Quantity',
+        required: 'Total Quantity *'
+      },
+      description: {
+        label: 'Description',
+        placeholder: 'Enter book description (optional)'
+      },
+      coverURL: {
+        label: 'Cover Image URL',
+        placeholder: 'https://example.com/book-cover.jpg (optional)'
+      },
+      category: {
+        label: 'Category',
+        placeholder: 'Enter category name',
+        required: 'Category *'
+      },
+      newAuthor: {
+        placeholder: 'Enter author name'
+      },
+      newPublisher: {
+        placeholder: 'Enter publisher name'
+      }
+    },
+    buttons: {
+      back: 'Back',
+      cancel: 'Cancel',
+      save: 'Save',
+      create: 'Create Book',
+      update: 'Update Book',
+      creating: 'Creating...',
+      updating: 'Updating...',
+      add: 'Add',
+      remove: 'Remove'
+    },
+    validation: {
+      titleRequired: 'Title is required',
+      isbnRequired: 'ISBN is required',
+      languageRequired: 'Language is required',
+      authorsRequired: 'At least one author is required',
+      publishersRequired: 'At least one publisher is required',
+      categoryRequired: 'Category is required',
+      quantityMinimum: 'Total quantity must be at least 1'
+    },
+    messages: {
+      loadError: 'Failed to load book data',
+      saveError: 'Failed to save book',
+      createSuccess: 'Book created successfully!',
+      updateSuccess: 'Book updated successfully!'
+    }
+  },
   bookDetail: {
     title: 'Book Details',
     backToBooks: 'Back to Books',
