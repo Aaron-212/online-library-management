@@ -135,5 +135,101 @@ export default {
       "fees": "费用管理",
       "reports": "报表"
     }
+  },
+  books: {
+    title: '图书',
+    description: '浏览和管理图书馆图书',
+    addBook: '添加图书',
+    search: {
+      label: '搜索',
+      placeholder: '搜索图书标题、作者或ISBN...',
+      button: '搜索'
+    },
+    filters: {
+      category: {
+        label: '分类',
+        all: '所有分类'
+      },
+      language: {
+        label: '语言',
+        all: '所有语言'
+      },
+      sort: {
+        label: '排序方式',
+        titleAsc: '标题 (A-Z)',
+        titleDesc: '标题 (Z-A)',
+        availableFirst: '优先显示可借',
+        totalCopies: '总副本数'
+      }
+    },
+    results: {
+      showing: '显示 {total} 本图书中的 {count} 本',
+      loading: '正在加载图书...',
+      noResults: '未找到符合条件的图书。'
+    },
+    pagination: {
+      previous: '上一页',
+      next: '下一页',
+      page: '第 {current} 页，共 {total} 页'
+    },
+    form: {
+      title: '添加图书',
+      description: '填写新图书的详细信息',
+      fields: {
+        title: {
+          label: '标题',
+          placeholder: '请输入图书标题...'
+        },
+        isbn: {
+          label: 'ISBN',
+          placeholder: '请输入ISBN...'
+        },
+        language: {
+          label: '语言',
+          placeholder: '请输入语言...'
+        },
+        category: {
+          label: '分类',
+          placeholder: '请输入分类...'
+        },
+        authors: {
+          label: '作者',
+          placeholder: '请输入作者（用逗号分隔）...'
+        },
+        publisher: {
+          label: '出版社',
+          placeholder: '请输入出版社...'
+        },
+        publishedYear: {
+          label: '出版年份'
+        },
+        description: {
+          label: '描述',
+          placeholder: '请输入图书描述...'
+        },
+        coverURL: {
+          label: '封面图片URL',
+          placeholder: 'https://example.com/book-cover.jpg （可选）'
+        },
+        totalQuantity: {
+          label: '总数量'
+        }
+      },
+      buttons: {
+        cancel: '取消',
+        add: '添加图书',
+        adding: '正在添加...'
+      },
+      validation: {
+        requiredFields: '请填写所有必填字段'
+      },
+      messages: {
+        success: '图书添加成功！',
+        error: '添加图书失败'
+      }
+    },
+    errors: {
+      loadFailed: '加载图书失败'
+    }
   }
 }

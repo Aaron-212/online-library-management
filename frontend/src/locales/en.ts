@@ -135,5 +135,101 @@ export default {
       "fees": "Fee Management",
       "reports": "Reports"
     }
+  },
+  books: {
+    title: 'Books',
+    description: 'Browse and manage library books',
+    addBook: 'Add Book',
+    search: {
+      label: 'Search',
+      placeholder: 'Search books by title, author, or ISBN...',
+      button: 'Search'
+    },
+    filters: {
+      category: {
+        label: 'Category',
+        all: 'All Categories'
+      },
+      language: {
+        label: 'Language',
+        all: 'All Languages'
+      },
+      sort: {
+        label: 'Sort By',
+        titleAsc: 'Title (A-Z)',
+        titleDesc: 'Title (Z-A)',
+        availableFirst: 'Available First',
+        totalCopies: 'Total Copies'
+      }
+    },
+    results: {
+      showing: 'Showing {count} of {total} books',
+      loading: 'Loading books...',
+      noResults: 'No books found matching your criteria.'
+    },
+    pagination: {
+      previous: 'Previous',
+      next: 'Next',
+      page: 'Page {current} of {total}'
+    },
+    form: {
+      title: 'Add Book',
+      description: 'Fill in the details of the new book',
+      fields: {
+        title: {
+          label: 'Title',
+          placeholder: 'Enter book title...'
+        },
+        isbn: {
+          label: 'ISBN',
+          placeholder: 'Enter ISBN...'
+        },
+        language: {
+          label: 'Language',
+          placeholder: 'Enter language...'
+        },
+        category: {
+          label: 'Category',
+          placeholder: 'Enter category...'
+        },
+        authors: {
+          label: 'Authors',
+          placeholder: 'Enter authors (comma-separated)...'
+        },
+        publisher: {
+          label: 'Publisher',
+          placeholder: 'Enter publisher...'
+        },
+        publishedYear: {
+          label: 'Published Year'
+        },
+        description: {
+          label: 'Description',
+          placeholder: 'Enter book description...'
+        },
+        coverURL: {
+          label: 'Cover Image URL',
+          placeholder: 'https://example.com/book-cover.jpg (optional)'
+        },
+        totalQuantity: {
+          label: 'Total Quantity'
+        }
+      },
+      buttons: {
+        cancel: 'Cancel',
+        add: 'Add Book',
+        adding: 'Adding...'
+      },
+      validation: {
+        requiredFields: 'Please fill in all required fields'
+      },
+      messages: {
+        success: 'Book added successfully!',
+        error: 'Failed to add book'
+      }
+    },
+    errors: {
+      loadFailed: 'Failed to load books'
+    }
   }
 }
