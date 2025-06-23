@@ -302,14 +302,8 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="relative">
-              <Search
-                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              />
-              <Input
-                v-model="searchQuery"
-                placeholder="Search users by username or email..."
-                class="pl-10 w-64"
-              />
+              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input v-model="searchQuery" :placeholder="t('userManagement.search.placeholder')" class="pl-10 w-64" />
             </div>
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -352,18 +346,15 @@ onMounted(() => {
             <p>
               {{
                 searchQuery
-                  ? 'Try adjusting your search terms'
-                  : 'Get started by creating your first user'
+                  ? t('userManagement.empty.searchDescription')
+                  : t('userManagement.empty.defaultDescription')
               }}
             </p>
           </div>
 
           <div v-else>
-            <div
-              v-for="user in users"
-              :key="user.id"
-              class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center"
-            >
+            <div v-for="user in users" :key="user.id"
+              class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center">
               <!-- User Info -->
               <div class="flex items-center gap-3">
                 <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -377,7 +368,7 @@ onMounted(() => {
 
               <!-- Email -->
               <div class="text-sm">
-                {{ user.email || 'Not provided' }}
+                {{ user.email || t('userManagement.table.noEmail') }}
               </div>
 
               <!-- Role -->
@@ -429,10 +420,8 @@ onMounted(() => {
               {{ t('userManagement.previous') }}
             </Button>
             <div class="flex items-center gap-1">
-              <span class="text-sm"
-                >{{ t('userManagement.page') }} {{ currentPage + 1 }} {{ t('userManagement.of') }}
-                {{ totalPages }}</span
-              >
+              <span class="text-sm">{{ t('userManagement.page') }} {{ currentPage + 1 }} {{ t('userManagement.of') }}
+                {{ totalPages }}</span>
             </div>
             <Button variant="outline" size="sm" @click="nextPage" :disabled="!hasNextPage">
               {{ t('userManagement.next') }}
@@ -453,39 +442,28 @@ onMounted(() => {
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
             <Label for="create-username">{{ t('userManagement.username') }}</Label>
-            <Input
-              id="create-username"
-              v-model="createForm.username"
-              placeholder="Enter username"
-            />
+            <Input id="create-username" v-model="createForm.username"
+              :placeholder="t('userManagement.dialogs.create.fields.username.placeholder')" />
           </div>
           <div class="grid gap-2">
             <Label for="create-email">{{ t('userManagement.email') }}</Label>
-            <Input
-              id="create-email"
-              v-model="createForm.email"
-              type="email"
-              placeholder="Enter email address"
-            />
+            <Input id="create-email" v-model="createForm.email" type="email"
+              :placeholder="t('userManagement.dialogs.create.fields.email.placeholder')" />
           </div>
           <div class="grid gap-2">
             <Label for="create-password">{{ t('userManagement.password') }}</Label>
-            <Input
-              id="create-password"
-              v-model="createForm.password"
-              type="password"
-              placeholder="Enter password"
-            />
+            <Input id="create-password" v-model="createForm.password" type="password"
+              :placeholder="t('userManagement.dialogs.create.fields.password.placeholder')" />
           </div>
           <div class="grid gap-2">
             <Label for="create-role">{{ t('userManagement.role') }}</Label>
             <Select v-model="createForm.role">
               <SelectTrigger>
-                <SelectValue placeholder="Select role" />
+                <SelectValue :placeholder="t('userManagement.dialogs.create.fields.role.placeholder')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="USER">User</SelectItem>
-                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="USER">{{ t('userManagement.roles.user') }}</SelectItem>
+                <SelectItem value="ADMIN">{{ t('userManagement.roles.admin') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -514,16 +492,13 @@ onMounted(() => {
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
             <Label for="edit-username">{{ t('userManagement.username') }}</Label>
-            <Input id="edit-username" v-model="editForm.username" placeholder="Enter username" />
+            <Input id="edit-username" v-model="editForm.username"
+              :placeholder="t('userManagement.dialogs.edit.fields.username.placeholder')" />
           </div>
           <div class="grid gap-2">
             <Label for="edit-email">{{ t('userManagement.email') }}</Label>
-            <Input
-              id="edit-email"
-              v-model="editForm.email"
-              type="email"
-              placeholder="Enter email address"
-            />
+            <Input id="edit-email" v-model="editForm.email" type="email"
+              :placeholder="t('userManagement.dialogs.edit.fields.email.placeholder')" />
           </div>
         </div>
         <DialogFooter>
@@ -552,11 +527,11 @@ onMounted(() => {
             <Label for="new-role">{{ t('userManagement.newRole') }}</Label>
             <Select v-model="newRole">
               <SelectTrigger>
-                <SelectValue placeholder="Select new role" />
+                <SelectValue :placeholder="t('userManagement.dialogs.role.fields.newRole.placeholder')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="USER">User</SelectItem>
-                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="USER">{{ t('userManagement.roles.user') }}</SelectItem>
+                <SelectItem value="ADMIN">{{ t('userManagement.roles.admin') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
