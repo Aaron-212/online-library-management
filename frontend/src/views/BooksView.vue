@@ -485,9 +485,3 @@ onMounted(() => {
     </DialogContent>
   </Dialog>
 </template>
-
-<style scoped>
-.books-view {
-  padding: 0;
-}
-</style>

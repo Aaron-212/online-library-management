@@ -338,11 +338,7 @@ onMounted(() => {
       <div class="flex items-center gap-4">
         <div class="relative flex-1">
           <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            v-model="searchKeyword"
-            :placeholder="t('notices.search.placeholder')"
-            class="pl-10"
-          />
+          <Input v-model="searchKeyword" :placeholder="t('notices.search.placeholder')" class="pl-10" />
         </div>
         <div class="text-sm text-muted-foreground">
           {{ t('notices.search.showing', { count: filteredNotices.length, total: totalElements }) }}
@@ -373,11 +369,7 @@ onMounted(() => {
       </div>
 
       <div v-else class="space-y-4">
-        <Card
-          v-for="notice in filteredNotices"
-          :key="notice.id"
-          class="hover:shadow-md transition-shadow"
-        >
+        <Card v-for="notice in filteredNotices" :key="notice.id" class="hover:shadow-md transition-shadow">
           <CardHeader class="pb-3">
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -421,12 +413,7 @@ onMounted(() => {
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="currentPage === 0"
-          @click="handlePageChange(currentPage - 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
           <ChevronLeft class="h-4 w-4" />
           {{ t('notices.pagination.previous') }}
         </Button>
@@ -435,12 +422,8 @@ onMounted(() => {
           {{ t('notices.pagination.page', { current: currentPage + 1, total: totalPages }) }}
         </span>
 
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="currentPage === totalPages - 1"
-          @click="handlePageChange(currentPage + 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
+          @click="handlePageChange(currentPage + 1)">
           {{ t('notices.pagination.next') }}
           <ChevronRight class="h-4 w-4" />
         </Button>
@@ -458,23 +441,15 @@ onMounted(() => {
         <form @submit.prevent="handleCreateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="add-title">{{ t('notices.form.fields.title.label') }}</Label>
-            <Input
-              id="add-title"
-              v-model="noticeForm.title"
-              :placeholder="t('notices.form.fields.title.placeholder')"
-              required
-            />
+            <Input id="add-title" v-model="noticeForm.title" :placeholder="t('notices.form.fields.title.placeholder')"
+              required />
           </div>
 
           <div class="space-y-2">
             <Label for="add-content">{{ t('notices.form.fields.content.label') }}</Label>
-            <textarea
-              id="add-content"
-              v-model="noticeForm.content"
+            <textarea id="add-content" v-model="noticeForm.content"
               :placeholder="t('notices.form.fields.content.placeholder')"
-              class="w-full min-h-[200px] p-3 border rounded-md resize-none"
-              required
-            />
+              class="w-full min-h-[200px] p-3 border rounded-md resize-none" required />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -482,12 +457,7 @@ onMounted(() => {
               <Label for="add-publish-time">{{
                 t('notices.form.fields.publishTime.required')
               }}</Label>
-              <Input
-                id="add-publish-time"
-                v-model="noticeForm.publishTime"
-                type="datetime-local"
-                required
-              />
+              <Input id="add-publish-time" v-model="noticeForm.publishTime" type="datetime-local" required />
             </div>
 
             <div class="space-y-2">
@@ -534,23 +504,15 @@ onMounted(() => {
         <form @submit.prevent="handleUpdateNotice" class="space-y-4">
           <div class="space-y-2">
             <Label for="edit-title">{{ t('notices.form.fields.title.label') }}</Label>
-            <Input
-              id="edit-title"
-              v-model="noticeForm.title"
-              :placeholder="t('notices.form.fields.title.placeholder')"
-              required
-            />
+            <Input id="edit-title" v-model="noticeForm.title" :placeholder="t('notices.form.fields.title.placeholder')"
+              required />
           </div>
 
           <div class="space-y-2">
             <Label for="edit-content">{{ t('notices.form.fields.content.label') }}</Label>
-            <textarea
-              id="edit-content"
-              v-model="noticeForm.content"
+            <textarea id="edit-content" v-model="noticeForm.content"
               :placeholder="t('notices.form.fields.content.placeholder')"
-              class="w-full min-h-[200px] p-3 border rounded-md resize-none"
-              required
-            />
+              class="w-full min-h-[200px] p-3 border rounded-md resize-none" required />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -558,12 +520,7 @@ onMounted(() => {
               <Label for="edit-publish-time">{{
                 t('notices.form.fields.publishTime.required')
               }}</Label>
-              <Input
-                id="edit-publish-time"
-                v-model="noticeForm.publishTime"
-                type="datetime-local"
-                required
-              />
+              <Input id="edit-publish-time" v-model="noticeForm.publishTime" type="datetime-local" required />
             </div>
 
             <div class="space-y-2">
@@ -612,10 +569,7 @@ onMounted(() => {
           <AlertDialogCancel @click="closeDialogs">{{
             t('notices.delete.cancel')
           }}</AlertDialogCancel>
-          <AlertDialogAction
-            @click="handleDeleteNotice"
-            class="bg-destructive text-white hover:bg-destructive/90"
-          >
+          <AlertDialogAction @click="handleDeleteNotice" class="bg-destructive text-white hover:bg-destructive/90">
             {{ t('notices.delete.confirm') }}
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -625,11 +579,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.notices-view {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
 textarea {
   background: hsl(var(--background));
   border: 1px solid hsl(var(--border));

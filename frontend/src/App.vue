@@ -51,7 +51,7 @@ const pageTitle = computed(() => {
         <div class="py-2 w-px bg-sidebar-border" />
         <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
       </header>
-      <div class="flex flex-1 flex-col gap-4 p-4 pt-18 overflow-auto">
+      <div class="flex flex-1 flex-col gap-4 px-[5%] py-[5%] pt-[calc(5%+var(--spacing)*16)] overflow-auto">
         <RouterView v-slot="{ Component, route }">
           <Transition mode="out-in" name="fade">
             <div :key="route.name">
