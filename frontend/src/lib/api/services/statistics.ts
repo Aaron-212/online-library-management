@@ -1,5 +1,6 @@
 import { apiClient } from '../client'
 import type { BookStatisticsDto, LibraryStatisticsDto, TopBooksRequestDto, PagedResponse, UserAdmin } from '../types'
+import { usersService } from './users'
 
 export class StatisticsService {
   private basePath = '/statistics'
@@ -57,8 +58,13 @@ export class StatisticsService {
 
   // Helper method to get total user count (for admin dashboard)
   async getTotalUsers(): Promise<number> {
-    const response = await apiClient.get<PagedResponse<UserAdmin>>('/users/all', { page: 0, size: 1 })
-    return response.totalElements
+    try {
+      const response = await usersService.getAllUsers({ page: 0, size: 1 })
+      return response.totalElements || 0
+    } catch (error) {
+      console.error('Error fetching total users:', error)
+      return 0
+    }
   }
 }
 
