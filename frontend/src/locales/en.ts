@@ -248,5 +248,95 @@ export default {
     },
     authorPrefix: 'By: ',
     isbnPrefix: 'ISBN: '
+  },
+  notices: {
+    title: 'Library Notices',
+    description: 'Stay updated with library announcements and news',
+    addNotice: 'Add Notice',
+    search: {
+      placeholder: 'Search notices...',
+      showing: '{count} of {total} notices'
+    },
+    loading: 'Loading notices...',
+    empty: {
+      title: 'No Notices Yet',
+      description: 'There are no notices to display at the moment.',
+      createFirst: 'Create First Notice'
+    },
+    noResults: 'No notices found matching your search.',
+    status: {
+      new: 'New',
+      pinned: 'Pinned',
+      show: 'Show'
+    },
+    time: {
+      justNow: 'Just now',
+      minutesAgo: '{count} minute{plural} ago',
+      hoursAgo: '{count} hour{plural} ago',
+      daysAgo: '{count} day{plural} ago',
+      updated: 'Updated {time}'
+    },
+    form: {
+      create: {
+        title: 'Create New Notice',
+        description: 'Create a new announcement for library users.'
+      },
+      edit: {
+        title: 'Edit Notice',
+        description: 'Update the notice information.'
+      },
+      fields: {
+        title: {
+          label: 'Title',
+          placeholder: 'Enter notice title...'
+        },
+        content: {
+          label: 'Content',
+          placeholder: 'Enter notice content...'
+        },
+        publishTime: {
+          label: 'Publish Time',
+          required: 'Publish Time *'
+        },
+        expireTime: {
+          label: 'Expire Time (optional)'
+        },
+        status: {
+          label: 'Status',
+          required: 'Status *',
+          placeholder: 'Select status'
+        }
+      },
+      buttons: {
+        cancel: 'Cancel',
+        create: 'Create Notice',
+        creating: 'Creating...',
+        update: 'Update Notice',
+        updating: 'Updating...'
+      },
+      validation: {
+        requiredFields: 'Please fill in all required fields'
+      }
+    },
+    delete: {
+      title: 'Delete Notice',
+      description: 'Are you sure you want to delete this notice? This action cannot be undone.',
+      confirm: 'Delete',
+      cancel: 'Cancel'
+    },
+    pagination: {
+      previous: 'Previous',
+      next: 'Next',
+      page: 'Page {current} of {total}'
+    },
+    messages: {
+      createSuccess: 'Notice created successfully!',
+      createError: 'Failed to create notice',
+      updateSuccess: 'Notice updated successfully!',
+      updateError: 'Failed to update notice',
+      deleteSuccess: 'Notice deleted successfully!',
+      deleteError: 'Failed to delete notice',
+      loadError: 'Failed to load notices'
+    }
   }
 }

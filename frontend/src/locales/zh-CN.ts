@@ -248,5 +248,95 @@ export default {
     },
     authorPrefix: '作者：',
     isbnPrefix: 'ISBN：'
+  },
+  notices: {
+    title: '图书馆公告',
+    description: '了解图书馆公告和最新消息',
+    addNotice: '添加公告',
+    search: {
+      placeholder: '搜索公告...',
+      showing: '{total} 条公告中的 {count} 条'
+    },
+    loading: '正在加载公告...',
+    empty: {
+      title: '暂无公告',
+      description: '目前没有可显示的公告。',
+      createFirst: '创建第一条公告'
+    },
+    noResults: '未找到符合搜索条件的公告。',
+    status: {
+      new: '新',
+      pinned: '置顶',
+      show: '显示'
+    },
+    time: {
+      justNow: '刚刚',
+      minutesAgo: '{count} 分钟前',
+      hoursAgo: '{count} 小时前',
+      daysAgo: '{count} 天前',
+      updated: '更新于 {time}'
+    },
+    form: {
+      create: {
+        title: '创建新公告',
+        description: '为图书馆用户创建新的公告。'
+      },
+      edit: {
+        title: '编辑公告',
+        description: '更新公告信息。'
+      },
+      fields: {
+        title: {
+          label: '标题',
+          placeholder: '请输入公告标题...'
+        },
+        content: {
+          label: '内容',
+          placeholder: '请输入公告内容...'
+        },
+        publishTime: {
+          label: '发布时间',
+          required: '发布时间 *'
+        },
+        expireTime: {
+          label: '过期时间（可选）'
+        },
+        status: {
+          label: '状态',
+          required: '状态 *',
+          placeholder: '选择状态'
+        }
+      },
+      buttons: {
+        cancel: '取消',
+        create: '创建公告',
+        creating: '正在创建...',
+        update: '更新公告',
+        updating: '正在更新...'
+      },
+      validation: {
+        requiredFields: '请填写所有必填字段'
+      }
+    },
+    delete: {
+      title: '删除公告',
+      description: '您确定要删除此公告吗？此操作无法撤销。',
+      confirm: '删除',
+      cancel: '取消'
+    },
+    pagination: {
+      previous: '上一页',
+      next: '下一页',
+      page: '第 {current} 页，共 {total} 页'
+    },
+    messages: {
+      createSuccess: '公告创建成功！',
+      createError: '创建公告失败',
+      updateSuccess: '公告更新成功！',
+      updateError: '更新公告失败',
+      deleteSuccess: '公告删除成功！',
+      deleteError: '删除公告失败',
+      loadError: '加载公告失败'
+    }
   }
 }
