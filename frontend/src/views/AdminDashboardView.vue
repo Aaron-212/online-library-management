@@ -30,6 +30,7 @@ const statistics = ref<BookStatisticsDto | null>(null)
 const recentBooks = ref<Book[]>([])
 const recentBorrows = ref<Borrow[]>([])
 const recentNotices = ref<Notice[]>([])
+const inventoryStats = ref<{ [categoryName: string]: { totalCount: number; availableCount: number } }>({})
 const systemStats = ref({
   totalUsers: 0,
   newUsersThisMonth: 0,
@@ -74,6 +75,16 @@ const adminStats = computed(() => [
     bgColor: 'bg-purple-50',
   },
 ])
+
+const formattedInventoryStats = computed(() => {
+  return Object.entries(inventoryStats.value).map(([category, stats]) => ({
+    category,
+    total: stats.totalCount,
+    available: stats.availableCount,
+    borrowed: stats.totalCount - stats.availableCount,
+    availabilityRate: stats.totalCount > 0 ? Math.round((stats.availableCount / stats.totalCount) * 100) : 0,
+  }))
+})
 
 const adminActions = [
   {
@@ -132,18 +143,31 @@ const loadStatistics = async () => {
 
 const loadSystemStats = async () => {
   try {
-    // These would be actual API calls to get system-wide statistics
-    // For now, using mock data based on available statistics
+    // Fetch real system statistics from backend
+    const [userBehaviorStats, totalUsersCount] = await Promise.all([
+      statisticsService.getUserBehaviorAnalysis(),
+      statisticsService.getTotalUsers(),
+    ])
+
     systemStats.value = {
-      totalUsers: 150, // This would come from a real API
-      newUsersThisMonth: 12,
+      totalUsers: totalUsersCount,
+      newUsersThisMonth: userBehaviorStats.registrationCount,
       activeLoans: statistics.value?.activeBorrows || 0,
       overdueBooks: statistics.value?.overdueBorrows || 0,
-      totalRevenue: 2450,
-      pendingReturns: 8,
+      totalRevenue: 0, // TODO: Calculate from fees when fee statistics endpoint is available
+      pendingReturns: 0, // TODO: Add endpoint for pending returns count
     }
   } catch (error) {
     console.error('Error loading system stats:', error)
+    // Fallback to minimal stats using already loaded statistics
+    systemStats.value = {
+      totalUsers: 0,
+      newUsersThisMonth: 0,
+      activeLoans: statistics.value?.activeBorrows || 0,
+      overdueBooks: statistics.value?.overdueBorrows || 0,
+      totalRevenue: 0,
+      pendingReturns: 0,
+    }
   }
 }
 
@@ -178,6 +202,15 @@ const loadRecentNotices = async () => {
   }
 }
 
+const loadInventoryStats = async () => {
+  try {
+    inventoryStats.value = await statisticsService.getBookInventoryStatistics()
+  } catch (error) {
+    console.error('Error loading inventory statistics:', error)
+    inventoryStats.value = {}
+  }
+}
+
 const loadDashboardData = async () => {
   isLoading.value = true
   try {
@@ -186,6 +219,7 @@ const loadDashboardData = async () => {
       loadRecentBooks(),
       loadRecentBorrows(),
       loadRecentNotices(),
+      loadInventoryStats(),
     ])
     await loadSystemStats() // Load after statistics to use the data
   } finally {
@@ -437,6 +471,52 @@ onMounted(() => {
                   >
                     Edit
                   </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Book Inventory by Category -->
+        <Card class="lg:col-span-2">
+          <CardHeader class="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Book Inventory by Category</CardTitle>
+              <CardDescription>Book availability across different categories</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" @click="router.push('/admin/books')">
+              <Eye class="h-4 w-4 mr-2" />
+              Manage Inventory
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div
+              v-if="!formattedInventoryStats || formattedInventoryStats.length === 0"
+              class="text-center py-4 text-muted-foreground"
+            >
+              No inventory data available
+            </div>
+            <div v-else class="space-y-3">
+              <div
+                v-for="item in formattedInventoryStats"
+                :key="item.category"
+                class="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div class="flex-1">
+                  <h4 class="font-medium">{{ item.category }}</h4>
+                  <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                    <span>Total: {{ item.total }}</span>
+                    <span>Available: {{ item.available }}</span>
+                    <span>Borrowed: {{ item.borrowed }}</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <Badge
+                    :variant="item.availabilityRate >= 50 ? 'success' : item.availabilityRate >= 25 ? 'secondary' : 'destructive'"
+                    size="sm"
+                  >
+                    {{ item.availabilityRate }}% Available
+                  </Badge>
                 </div>
               </div>
             </div>
