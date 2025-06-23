@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { BookmarkPlus, BookOpen, Clock, Eye, Heart, History, Search, User } from 'lucide-vue-next'
 import { booksService, borrowService, noticesService, statisticsService } from '@/lib/api'
-import type { BookSummaryDto, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
+import type { BookSummaryDto, LibraryStatisticsDto, Borrow, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -15,7 +15,7 @@ const authStore = useAuthStore()
 
 // Data
 const isLoading = ref(false)
-const statistics = ref<BookStatisticsDto | null>(null)
+const statistics = ref<LibraryStatisticsDto | null>(null)
 const recentBooks = ref<BookSummaryDto[]>([])
 const userBorrows = ref<Borrow[]>([])
 const recentNotices = ref<Notice[]>([])

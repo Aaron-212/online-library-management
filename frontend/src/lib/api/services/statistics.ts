@@ -1,15 +1,15 @@
 import { apiClient } from '../client'
-import type { Book, BookStatisticsDto, TopBooksRequestDto, PagedResponse, UserAdmin } from '../types'
+import type { BookStatisticsDto, LibraryStatisticsDto, TopBooksRequestDto, PagedResponse, UserAdmin } from '../types'
 
 export class StatisticsService {
   private basePath = '/statistics'
 
-  async getBookStatistics(): Promise<BookStatisticsDto> {
-    return apiClient.get<BookStatisticsDto>(`${this.basePath}/books`)
+  async getBookStatistics(): Promise<LibraryStatisticsDto> {
+    return apiClient.get<LibraryStatisticsDto>(`${this.basePath}/books`)
   }
 
-  async getTopBooks(request: TopBooksRequestDto): Promise<Book[]> {
-    return apiClient.post<Book[]>(`${this.basePath}/top-books`, request)
+  async getTopBooks(request: TopBooksRequestDto): Promise<BookStatisticsDto[]> {
+    return apiClient.post<BookStatisticsDto[]>(`${this.basePath}/top-books`, request)
   }
 
   async getUserStatistics(): Promise<{

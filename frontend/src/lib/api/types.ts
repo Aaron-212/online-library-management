@@ -271,13 +271,22 @@ export interface BorrowingRuleUpdateDto {
 }
 
 // Statistics types
-export interface BookStatisticsDto {
+export interface LibraryStatisticsDto {
   totalBooks: number
   availableBooks: number
   borrowedBooks: number
   totalBorrows: number
   activeBorrows: number
   overdueBorrows: number
+}
+
+export interface BookStatisticsDto {
+  bookId: number
+  title: string
+  isbn: string
+  authors: string[]
+  publishers: string[]
+  borrowCount: number
 }
 
 export interface TopBooksRequestDto {

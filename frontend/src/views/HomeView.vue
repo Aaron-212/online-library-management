@@ -350,11 +350,8 @@ onMounted(() => {
               </div>
             </CardHeader>
             <CardContent>
-              <div v-if="book.description" class="text-sm text-muted-foreground line-clamp-3 mb-3">
-                {{ book.description }}
-              </div>
               <div class="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{{ book.indexCategory?.name || 'General' }}</span>
+                <span>General</span>
                 <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
               </div>
             </CardContent>
@@ -369,9 +366,9 @@ onMounted(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <Card
             v-for="(book, idx) in topBorrowBooks"
-            :key="book.id"
+            :key="book.bookId"
             class="cursor-pointer hover:shadow-md transition-shadow"
-            @click="goToBookDetail(book.id)"
+            @click="goToBookDetail(book.bookId)"
           >
             <CardHeader class="flex-row items-center gap-4">
               <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
@@ -381,8 +378,8 @@ onMounted(() => {
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">
-              <span>{{ book.indexCategory?.name || 'General' }}</span>
-              <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
+              <span>{{ book.borrowCount }} borrows</span>
+              <span>{{ book.isbn }}</span>
             </CardContent>
           </Card>
         </div>

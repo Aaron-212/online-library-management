@@ -18,7 +18,7 @@ import {
   Users,
 } from 'lucide-vue-next'
 import { booksService, borrowService, noticesService, statisticsService } from '@/lib/api'
-import type { BookSummaryDto, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
+import type { BookSummaryDto, LibraryStatisticsDto, Borrow, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -26,7 +26,7 @@ const authStore = useAuthStore()
 
 // Data
 const isLoading = ref(false)
-const statistics = ref<BookStatisticsDto | null>(null)
+const statistics = ref<LibraryStatisticsDto | null>(null)
 const recentBooks = ref<BookSummaryDto[]>([])
 const recentBorrows = ref<Borrow[]>([])
 const recentNotices = ref<Notice[]>([])
