@@ -1024,5 +1024,38 @@ export default {
       loadRecentNoticesError: 'Failed to load recent notices',
       loadInventoryStatsError: 'Failed to load inventory statistics'
     }
+  },
+  login: {
+    title: 'Sign in to your account',
+    subtitle: 'Welcome back to Library Management System',
+    form: {
+      fields: {
+        username: {
+          label: 'Username or Email',
+          placeholder: 'Enter your username or email'
+        },
+        password: {
+          label: 'Password',
+          placeholder: 'Enter your password'
+        }
+      },
+      buttons: {
+        signIn: 'Sign in',
+        signingIn: 'Signing in...'
+      },
+      validation: {
+        allFieldsRequired: 'Please fill in all fields'
+      },
+      messages: {
+        success: 'Login successful!',
+        successDescription: 'Welcome back {username}.',
+        loginFailed: 'Login failed. Please try again.',
+        unexpectedError: 'An unexpected error occurred. Please try again.'
+      }
+    },
+    register: {
+      text: "Don't have an account?",
+      link: 'Sign up here'
+    }
   }
 }

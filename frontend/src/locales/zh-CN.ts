@@ -136,6 +136,39 @@ export default {
       "reports": "报表"
     }
   },
+  login: {
+    title: '登录您的账户',
+    subtitle: '欢迎回到图书管理系统',
+    form: {
+      fields: {
+        username: {
+          label: '用户名或邮箱',
+          placeholder: '请输入用户名或邮箱'
+        },
+        password: {
+          label: '密码',
+          placeholder: '请输入密码'
+        }
+      },
+      buttons: {
+        signIn: '登录',
+        signingIn: '登录中...'
+      },
+      validation: {
+        allFieldsRequired: '请填写所有字段'
+      },
+      messages: {
+        success: '登录成功！',
+        successDescription: '欢迎回来，{username}。',
+        loginFailed: '登录失败，请重试。',
+        unexpectedError: '发生意外错误，请重试。'
+      }
+    },
+    register: {
+      text: '还没有账户？',
+      link: '在这里注册'
+    }
+  },
   books: {
     title: '图书',
     description: '浏览和管理图书馆图书',
