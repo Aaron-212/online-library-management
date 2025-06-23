@@ -142,7 +142,7 @@ const filteredBorrows = computed(() => {
 // Map ISBN to cover URL for displaying book covers
 const bookCoverMap = computed(() => {
   const map = new Map<string, string>()
-  books.value.forEach(book => {
+  books.value.forEach((book) => {
     if (book.coverURL) {
       map.set(book.isbn, book.coverURL)
     }
@@ -233,16 +233,14 @@ const formatDate = (dateString: string) => {
 // Function to preload missing book covers
 const preloadMissingCovers = async (borrowList: Borrow[]) => {
   const missingIsbns = borrowList
-    .map(borrow => borrow.isbn)
-    .filter(isbn => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
-  
+    .map((borrow) => borrow.isbn)
+    .filter((isbn) => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
+
   // Remove duplicates
   const uniqueIsbns = [...new Set(missingIsbns)]
-  
+
   // Load covers for missing ISBNs in parallel
-  await Promise.allSettled(
-    uniqueIsbns.map(isbn => getBookCoverUrl(isbn))
-  )
+  await Promise.allSettled(uniqueIsbns.map((isbn) => getBookCoverUrl(isbn)))
 }
 
 const loadBorrows = async () => {
@@ -250,7 +248,7 @@ const loadBorrows = async () => {
     isLoading.value = true
     const allBorrows = await borrowService.adminGetAllBorrows()
     borrows.value = allBorrows
-    
+
     // Preload any missing book covers
     await preloadMissingCovers(allBorrows)
   } catch (error) {
@@ -495,7 +493,9 @@ onMounted(() => {
                     @click="selectBook(book)"
                   >
                     <div class="flex items-start gap-3">
-                      <div class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <div
+                        class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0"
+                      >
                         <img
                           v-if="book.coverURL"
                           :src="book.coverURL"
@@ -503,10 +503,7 @@ onMounted(() => {
                           class="w-full h-full object-cover"
                           @error="($event.target as HTMLImageElement).style.display = 'none'"
                         />
-                        <Book 
-                          v-else
-                          class="h-4 w-4 text-muted-foreground" 
-                        />
+                        <Book v-else class="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div class="flex-1 space-y-1">
                         <div class="flex items-center gap-2">
@@ -526,7 +523,9 @@ onMounted(() => {
                 <div v-if="selectedBook" class="p-3 border rounded-lg bg-muted/50">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3 flex-1">
-                      <div class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <div
+                        class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0"
+                      >
                         <img
                           v-if="selectedBook.coverURL"
                           :src="selectedBook.coverURL"
@@ -534,10 +533,7 @@ onMounted(() => {
                           class="w-full h-full object-cover"
                           @error="($event.target as HTMLImageElement).style.display = 'none'"
                         />
-                        <Book 
-                          v-else
-                          class="h-4 w-4 text-muted-foreground" 
-                        />
+                        <Book v-else class="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div class="space-y-1">
                         <div class="flex items-center gap-2">
@@ -704,7 +700,9 @@ onMounted(() => {
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- User and Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
+                <div
+                  class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden"
+                >
                   <img
                     v-if="getBookCoverUrlSync(borrow.isbn)"
                     :src="getBookCoverUrlSync(borrow.isbn)"
@@ -712,10 +710,7 @@ onMounted(() => {
                     class="w-full h-full object-cover"
                     @error="($event.target as HTMLImageElement).style.display = 'none'"
                   />
-                  <BookOpen 
-                    v-else
-                    class="h-6 w-6 text-muted-foreground" 
-                  />
+                  <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
                 <div class="flex-1 min-w-0 space-y-2">

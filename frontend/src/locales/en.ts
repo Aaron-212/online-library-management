@@ -20,10 +20,9 @@ export default {
     feeManagement: 'Fee Management',
     reports: 'Reports',
     profile: 'Profile',
-    adminPanel: 'Admin Panel',
     logout: 'Logout',
     anonymous: 'Anonymous',
     viewProfile: 'View Profile',
-    clickToLogin: 'Click here to login'
-  }
-} 
+    clickToLogin: 'Click here to login',
+  },
+}

@@ -374,7 +374,9 @@ onMounted(() => {
               <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
               <div class="flex-1 min-w-0">
                 <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
-                <CardDescription>{{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}</CardDescription>
+                <CardDescription>{{
+                  Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author'
+                }}</CardDescription>
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">

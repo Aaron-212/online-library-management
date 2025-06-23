@@ -234,23 +234,20 @@ const handleLogout = () => {
       <SidebarMenu>
         <!-- Language Selector -->
         <SidebarMenuItem>
-          <div class="px-2 py-2">
-            <div class="flex items-center gap-2 mb-2">
-              <Languages class="h-4 w-4" />
-              <span class="text-sm font-medium">{{ t('sidebar.language') }}</span>
-            </div>
-            <Select :model-value="currentLanguage"
-              @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)">
-              <SelectTrigger class="w-full">
-                <SelectValue>{{ currentLanguageLabel }}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="lang in availableLanguages" :key="lang.value" :value="lang.value">
-                  {{ lang.label }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select :model-value="currentLanguage"
+            @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)">
+            <SelectTrigger class="w-full">
+              <SelectValue>
+                <Languages class="h-4 w-4" />
+                {{ currentLanguageLabel }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="lang in availableLanguages" :key="lang.value" :value="lang.value">
+                {{ lang.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </SidebarMenuItem>
 
         <SidebarMenuItem>
@@ -288,7 +285,7 @@ const handleLogout = () => {
               <DropdownMenuItem v-if="isAdmin" as-child>
                 <RouterLink class="flex items-center gap-2" to="/admin/dashboard">
                   <Shield class="h-4 w-4" />
-                  <span>{{ t('sidebar.adminPanel') }}</span>
+                  <span>{{ t('sidebar.adminDashboard') }}</span>
                 </RouterLink>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

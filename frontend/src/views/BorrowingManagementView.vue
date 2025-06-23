@@ -97,7 +97,7 @@ const totalFees = computed(() =>
 // Map ISBN to cover URL for displaying book covers
 const bookCoverMap = computed(() => {
   const map = new Map<string, string>()
-  books.value.forEach(book => {
+  books.value.forEach((book) => {
     if (book.coverURL) {
       map.set(book.isbn, book.coverURL)
     }
@@ -177,16 +177,14 @@ const formatDate = (dateString: string) => {
 // Function to preload missing book covers
 const preloadMissingCovers = async (borrowList: Borrow[]) => {
   const missingIsbns = borrowList
-    .map(borrow => borrow.isbn)
-    .filter(isbn => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
+    .map((borrow) => borrow.isbn)
+    .filter((isbn) => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
 
   // Remove duplicates
   const uniqueIsbns = [...new Set(missingIsbns)]
 
   // Load covers for missing ISBNs in parallel
-  await Promise.allSettled(
-    uniqueIsbns.map(isbn => getBookCoverUrl(isbn))
-  )
+  await Promise.allSettled(uniqueIsbns.map((isbn) => getBookCoverUrl(isbn)))
 }
 
 const loadBorrows = async () => {
@@ -362,9 +360,15 @@ onMounted(() => {
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
           <Label for="search">Search Books</Label>
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="search" v-model="searchKeyword" placeholder="Search by title, author, or ISBN..."
-              class="pl-10" />
+            <Search
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              id="search"
+              v-model="searchKeyword"
+              placeholder="Search by title, author, or ISBN..."
+              class="pl-10"
+            />
           </div>
         </div>
 
@@ -381,8 +385,11 @@ onMounted(() => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem v-for="option in statusOptions" :key="option.value"
-                @click="statusFilter = option.value">
+              <DropdownMenuItem
+                v-for="option in statusOptions"
+                :key="option.value"
+                @click="statusFilter = option.value"
+              >
                 {{ option.label }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -409,8 +416,11 @@ onMounted(() => {
       </CardHeader>
       <CardContent>
         <div class="space-y-3">
-          <div v-for="fee in fees.filter((f) => !f.paid)" :key="fee.id"
-            class="flex items-center justify-between p-3 border rounded-lg">
+          <div
+            v-for="fee in fees.filter((f) => !f.paid)"
+            :key="fee.id"
+            class="flex items-center justify-between p-3 border rounded-lg"
+          >
             <div>
               <p class="font-medium">Borrow ID: {{ fee.borrowId }}</p>
               <p class="text-sm text-muted-foreground">
@@ -437,20 +447,32 @@ onMounted(() => {
       <CardContent>
         <div v-if="isLoading" class="text-center py-8">Loading your borrowing history...</div>
 
-        <div v-else-if="filteredBorrows.length === 0" class="text-center py-8 text-muted-foreground">
+        <div
+          v-else-if="filteredBorrows.length === 0"
+          class="text-center py-8 text-muted-foreground"
+        >
           No borrows found matching your criteria
         </div>
 
         <div v-else class="space-y-4">
-          <div v-for="borrow in filteredBorrows" :key="borrow.borrowId"
-            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+          <div
+            v-for="borrow in filteredBorrows"
+            :key="borrow.borrowId"
+            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+          >
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
-                  <img v-if="getBookCoverUrlSync(borrow.isbn)" :src="getBookCoverUrlSync(borrow.isbn)"
-                    :alt="borrow.bookTitle" class="w-full h-full object-cover"
-                    @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                <div
+                  class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    v-if="getBookCoverUrlSync(borrow.isbn)"
+                    :src="getBookCoverUrlSync(borrow.isbn)"
+                    :alt="borrow.bookTitle"
+                    class="w-full h-full object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'"
+                  />
                   <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
@@ -498,8 +520,11 @@ onMounted(() => {
                   <RefreshCw class="h-3 w-3 mr-1" />
                   Renew
                 </Button>
-                <Button size="sm" @click="handleReturnBook(borrow.borrowId)"
-                  :disabled="isReturning === borrow.borrowId">
+                <Button
+                  size="sm"
+                  @click="handleReturnBook(borrow.borrowId)"
+                  :disabled="isReturning === borrow.borrowId"
+                >
                   <CheckCircle class="h-3 w-3 mr-1" />
                   {{ isReturning === borrow.borrowId ? 'Returning...' : 'Return' }}
                 </Button>
@@ -510,7 +535,12 @@ onMounted(() => {
 
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-6">
-          <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="currentPage === 0"
+            @click="handlePageChange(currentPage - 1)"
+          >
             <ArrowLeft class="h-4 w-4" />
             Previous
           </Button>
@@ -519,8 +549,12 @@ onMounted(() => {
             Page {{ currentPage + 1 }} of {{ totalPages }}
           </span>
 
-          <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
-            @click="handlePageChange(currentPage + 1)">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="currentPage === totalPages - 1"
+            @click="handlePageChange(currentPage + 1)"
+          >
             Next
             <ArrowLeft class="h-4 w-4 rotate-180" />
           </Button>

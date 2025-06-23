@@ -17,7 +17,7 @@ async function initializeApp() {
     legacy: false,
     locale: 'en',
     fallbackLocale: 'en',
-    messages
+    messages,
   })
 
   app.use(i18n)

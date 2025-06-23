@@ -3,7 +3,7 @@ import zhCN from './zh-CN'
 
 export const messages = {
   en,
-  'zh-CN': zhCN
+  'zh-CN': zhCN,
 }
 
-export { en, zhCN } 
+export { en, zhCN }

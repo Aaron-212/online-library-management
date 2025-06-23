@@ -20,10 +20,9 @@ export default {
     feeManagement: '费用管理',
     reports: '报表',
     profile: '个人资料',
-    adminPanel: '管理员面板',
     logout: '退出登录',
     anonymous: '匿名用户',
     viewProfile: '查看个人资料',
-    clickToLogin: '点击此处登录'
-  }
-} 
+    clickToLogin: '点击此处登录',
+  },
+}
