@@ -4,23 +4,20 @@ import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { useDarkMode } from '@/composables/useDarkMode'
-import { toTitleCase } from '@/lib/utils.ts'
 import { Toaster } from '@/components/ui/sonner'
+import { useI18n } from 'vue-i18n'
 import 'vue-sonner/style.css'
 
 // Initialize automatic dark mode detection
 useDarkMode()
 
 const route = useRoute()
+const { t } = useI18n()
 
 // Define page titles for each route
 const pageTitle = computed(() => {
-  const routeTitles: Record<string, string> = {
-    borrow: 'Borrow Books',
-  }
-
   const routeName = route.name?.toString()
-  return routeTitles[routeName || ''] || (routeName ? toTitleCase(routeName) : 'Unknown Page')
+  return t(`routes.${routeName}`)
 })
 </script>
 

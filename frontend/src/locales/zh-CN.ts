@@ -25,4 +25,38 @@ export default {
     viewProfile: '查看个人资料',
     clickToLogin: '点击此处登录',
   },
+  "routes": {
+    "home": "首页",
+    "dashboard": "仪表板",
+    "login": "登录",
+    "register": "注册",
+    "profile": "个人资料",
+    "notices": "公告",
+    "reservations": "预约",
+    "favorites": "收藏", 
+    "billing": "计费中心",
+    "api-test": "API 测试",
+    "not-found": "页面未找到",
+    "books": "图书",
+    "book-detail": "图书详情",
+    "book": {
+      "index": "图书",
+      "detail": "图书详情",
+      "copies": "图书副本",
+      "create": "创建图书",
+      "edit": "编辑图书"
+    },
+    "borrows": "我的借阅",
+    "admin": {
+      "dashboard": "管理员仪表板",
+      "books": "图书管理",
+      "book-create": "创建图书",
+      "book-edit": "编辑图书", 
+      "users": "用户管理",
+      "borrowing": "借阅管理",
+      "borrowing-rules": "借阅规则",
+      "fees": "费用管理",
+      "reports": "报表"
+    }
+  }
 }

@@ -25,4 +25,38 @@ export default {
     viewProfile: 'View Profile',
     clickToLogin: 'Click here to login',
   },
+  "routes": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "register": "Register",
+    "profile": "Profile",
+    "notices": "Notices",
+    "reservations": "Reservations",
+    "favorites": "Favorites", 
+    "billing": "Billing",
+    "api-test": "API Test",
+    "not-found": "Page Not Found",
+    "books": "Books",
+    "book-detail": "Book Details",
+    "book": {
+      "index": "Books",
+      "detail": "Book Details",
+      "copies": "Book Copies",
+      "create": "Create Book",
+      "edit": "Edit Book"
+    },
+    "borrows": "My Borrowing",
+    "admin": {
+      "dashboard": "Admin Dashboard",
+      "books": "Manage Books",
+      "book-create": "Create Book",
+      "book-edit": "Edit Book", 
+      "users": "User Management",
+      "borrowing": "Borrowing Management",
+      "borrowing-rules": "Borrowing Rules",
+      "fees": "Fee Management",
+      "reports": "Reports"
+    }
+  }
 }
