@@ -167,8 +167,7 @@ const getBookCoverUrl = async (isbn: string): Promise<string | undefined> => {
 
   // Try to find the book by ISBN and load its cover
   try {
-    const response = await booksService.getAll({ keyword: isbn, page: 0, size: 1 })
-    const book = response.content.find(b => b.isbn === isbn)
+    const book = await booksService.getByIsbn(isbn)
     if (book?.coverURL) {
       coverCache.value.set(isbn, book.coverURL)
       return book.coverURL
