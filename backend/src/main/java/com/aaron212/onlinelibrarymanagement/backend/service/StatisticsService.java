@@ -106,6 +106,7 @@ public class StatisticsService {
         LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
 
         List<User> allUsers = userRepository.findAll();
+        long totalUserCount = allUsers.size();
         long registrationCount = allUsers.stream()
                 .filter(user ->
                         user.getCreatedTime().toLocalDateTime().toLocalDate().isAfter(startOfMonth))
@@ -117,6 +118,7 @@ public class StatisticsService {
                 .count();
 
         Map<String, Long> analysis = new HashMap<>();
+        analysis.put("totalUserCount", totalUserCount);
         analysis.put("registrationCount", registrationCount);
         analysis.put("activeUserCount", activeUserCount);
         return analysis;
