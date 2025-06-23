@@ -237,7 +237,7 @@ const handleLogout = () => {
               <Languages class="h-4 w-4" />
               <span class="text-sm font-medium">Language</span>
             </div>
-            <Select :model-value="currentLanguage" @update:model-value="(value) => value && changeLanguage(value)">
+            <Select :model-value="currentLanguage" @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)">
               <SelectTrigger class="w-full">
                 <SelectValue>{{ currentLanguageLabel }}</SelectValue>
               </SelectTrigger>
