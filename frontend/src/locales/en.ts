@@ -1,0 +1,29 @@
+export default {
+  sidebar: {
+    title: 'Library System',
+    navigation: 'Navigation',
+    libraryManagement: 'Library Management',
+    administration: 'Administration',
+    language: 'Language',
+    home: 'Home',
+    dashboard: 'Dashboard',
+    books: 'Books',
+    notices: 'Notices',
+    favorites: 'Favorites',
+    billingCenter: 'Billing Center',
+    myBorrowing: 'My Borrowing',
+    adminDashboard: 'Admin Dashboard',
+    manageBooks: 'Manage Books',
+    userManagement: 'User Management',
+    borrowingManagement: 'Borrowing Management',
+    borrowingRules: 'Borrowing Rules',
+    feeManagement: 'Fee Management',
+    reports: 'Reports',
+    profile: 'Profile',
+    adminPanel: 'Admin Panel',
+    logout: 'Logout',
+    anonymous: 'Anonymous',
+    viewProfile: 'View Profile',
+    clickToLogin: 'Click here to login'
+  }
+} 
