@@ -328,7 +328,7 @@ onMounted(() => {
             <CardContent>
               <div class="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} {{ t('home.status.available_count')
-                  }}</span>
+                }}</span>
               </div>
             </CardContent>
           </Card>
@@ -343,12 +343,12 @@ onMounted(() => {
           <Card v-for="(book, idx) in topBorrowBooks" :key="book.bookId"
             class="cursor-pointer hover:shadow-md transition-shadow" @click="goToBookDetail(book.bookId)">
             <CardHeader class="flex-row items-center gap-4">
-              <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
+              <div class="text-2xl font-bold w-8">#{{ idx + 1 }}</div>
               <div class="flex-1 min-w-0">
                 <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
                 <CardDescription>{{
                   Array.isArray(book.authors) ? book.authors.join(', ') : t('home.status.unknownAuthor')
-                  }}</CardDescription>
+                }}</CardDescription>
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">
