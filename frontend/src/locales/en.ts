@@ -96,7 +96,6 @@ export default {
       unknownAuthor: 'Unknown author',
       available_count: 'available',
       borrows: 'borrows',
-      general: 'General'
     },
     loading: {
       content: 'Loading library content...',

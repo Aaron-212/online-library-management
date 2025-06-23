@@ -6,7 +6,7 @@ export default {
     administration: '系统管理',
     language: '语言',
     home: '首页',
-    dashboard: '仪表板',
+    dashboard: '面板',
     books: '图书',
     notices: '公告',
     favorites: '收藏',
@@ -46,7 +46,7 @@ export default {
         description: '查看已借图书'
       },
       dashboard: {
-        title: '仪表板',
+        title: '面板',
         description: '您的阅读统计'
       },
       signIn: {
@@ -96,7 +96,6 @@ export default {
       unknownAuthor: '未知作者',
       available_count: '可借',
       borrows: '次借阅',
-      general: '综合'
     },
     loading: {
       content: '正在加载图书馆内容...',
@@ -105,7 +104,7 @@ export default {
   },
   "routes": {
     "home": "首页",
-    "dashboard": "仪表板",
+    "dashboard": "面板",
     "login": "登录",
     "register": "注册",
     "profile": "个人资料",
