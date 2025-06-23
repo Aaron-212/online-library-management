@@ -169,6 +169,49 @@ export default {
       link: '在这里注册'
     }
   },
+  register: {
+    title: '创建您的账户',
+    subtitle: '加入图书管理系统',
+    form: {
+      fields: {
+        username: {
+          label: '用户名',
+          placeholder: '请输入用户名'
+        },
+        email: {
+          label: '邮箱地址',
+          placeholder: '请输入邮箱'
+        },
+        password: {
+          label: '密码',
+          placeholder: '创建密码'
+        },
+        confirmPassword: {
+          label: '确认密码',
+          placeholder: '确认您的密码'
+        }
+      },
+      buttons: {
+        createAccount: '创建账户',
+        creatingAccount: '正在创建账户...'
+      },
+      validation: {
+        allFieldsRequired: '请填写所有字段',
+        validEmail: '请输入有效的邮箱地址',
+        passwordLength: '密码长度至少为6个字符',
+        passwordMatch: '密码不匹配'
+      },
+      messages: {
+        success: '注册成功！请登录。',
+        registrationFailed: '注册失败，请重试。',
+        unexpectedError: '发生意外错误，请重试。'
+      }
+    },
+    login: {
+      text: '已有账户？',
+      link: '在这里登录'
+    }
+  },
   books: {
     title: '图书',
     description: '浏览和管理图书馆图书',

@@ -1066,5 +1066,48 @@ export default {
       text: "Don't have an account?",
       link: 'Sign up here'
     }
+  },
+  register: {
+    title: 'Create your account',
+    subtitle: 'Join the Library Management System',
+    form: {
+      fields: {
+        username: {
+          label: 'Username',
+          placeholder: 'Enter your username'
+        },
+        email: {
+          label: 'Email Address',
+          placeholder: 'Enter your email'
+        },
+        password: {
+          label: 'Password',
+          placeholder: 'Create a password'
+        },
+        confirmPassword: {
+          label: 'Confirm Password',
+          placeholder: 'Confirm your password'
+        }
+      },
+      buttons: {
+        createAccount: 'Create account',
+        creatingAccount: 'Creating account...'
+      },
+      validation: {
+        allFieldsRequired: 'Please fill in all fields',
+        validEmail: 'Please enter a valid email address',
+        passwordLength: 'Password must be at least 6 characters long',
+        passwordMatch: 'Passwords do not match'
+      },
+      messages: {
+        success: 'Registration successful! Please log in.',
+        registrationFailed: 'Registration failed. Please try again.',
+        unexpectedError: 'An unexpected error occurred. Please try again.'
+      }
+    },
+    login: {
+      text: 'Already have an account?',
+      link: 'Sign in here'
+    }
   }
 }
