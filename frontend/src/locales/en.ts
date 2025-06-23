@@ -376,5 +376,51 @@ export default {
       removeError: 'Failed to remove favorite. Please try again.',
       loadError: 'Failed to load favorites'
     }
+  },
+  billing: {
+    title: 'Billing Center',
+    description: 'Manage your fees and payments',
+    loading: 'Loading billing information...',
+    sections: {
+      overdueFees: {
+        title: 'Overdue Fees',
+        description: 'Fees for late book returns'
+      },
+      paymentSummary: {
+        title: 'Payment Summary'
+      }
+    },
+    table: {
+      headers: {
+        borrowRecordId: 'Borrow Record ID',
+        feeAmount: 'Fee Amount',
+        status: 'Status',
+        actions: 'Actions'
+      }
+    },
+    status: {
+      paid: 'Paid',
+      unpaid: 'Unpaid'
+    },
+    actions: {
+      payFee: 'Pay Fee',
+      processing: 'Processing...'
+    },
+    summary: {
+      unpaidFees: 'Unpaid Fees',
+      totalUnpaidAmount: 'Total Unpaid Amount',
+      paidFees: 'Paid Fees'
+    },
+    empty: {
+      noOverdueFees: 'No overdue fees found'
+    },
+    dialogs: {
+      payConfirm: 'Are you sure you want to pay this fee?'
+    },
+    messages: {
+      loadError: 'Failed to load billing information',
+      paySuccess: 'Fee paid successfully!',
+      payError: 'Failed to pay fee. Please try again.'
+    }
   }
 }

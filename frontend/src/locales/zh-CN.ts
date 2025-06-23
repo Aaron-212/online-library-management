@@ -376,5 +376,51 @@ export default {
       removeError: '移除收藏失败，请重试。',
       loadError: '加载收藏失败'
     }
+  },
+  billing: {
+    title: '缴费中心',
+    description: '管理您的费用和付款',
+    loading: '正在加载缴费信息...',
+    sections: {
+      overdueFees: {
+        title: '逾期费用',
+        description: '图书逾期归还费用'
+      },
+      paymentSummary: {
+        title: '付款汇总'
+      }
+    },
+    table: {
+      headers: {
+        borrowRecordId: '借阅记录ID',
+        feeAmount: '费用金额',
+        status: '状态',
+        actions: '操作'
+      }
+    },
+    status: {
+      paid: '已付款',
+      unpaid: '未付款'
+    },
+    actions: {
+      payFee: '缴费',
+      processing: '处理中...'
+    },
+    summary: {
+      unpaidFees: '未付费用',
+      totalUnpaidAmount: '总未付金额',
+      paidFees: '已付费用'
+    },
+    empty: {
+      noOverdueFees: '未发现逾期费用'
+    },
+    dialogs: {
+      payConfirm: '您确定要支付此费用吗？'
+    },
+    messages: {
+      loadError: '加载缴费信息失败',
+      paySuccess: '费用支付成功！',
+      payError: '费用支付失败，请重试。'
+    }
   }
 }
