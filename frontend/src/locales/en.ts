@@ -422,5 +422,85 @@ export default {
       paySuccess: 'Fee paid successfully!',
       payError: 'Failed to pay fee. Please try again.'
     }
+  },
+  borrowing: {
+    title: 'My Borrowing',
+    description: 'Manage your borrowed books and fees',
+    loading: 'Loading your borrowing history...',
+    buttons: {
+      browseBooks: 'Browse Books',
+      refresh: 'Refresh',
+      renew: 'Renew',
+      return: 'Return',
+      returning: 'Returning...',
+      payNow: 'Pay Now'
+    },
+    summary: {
+      activeBorrows: {
+        title: 'Active Borrows',
+        description: 'Currently borrowed'
+      },
+      overdueBooks: {
+        title: 'Overdue Books',
+        description: 'Need immediate attention'
+      },
+      outstandingFees: {
+        title: 'Outstanding Fees',
+        description: 'Unpaid late fees'
+      }
+    },
+    filters: {
+      search: {
+        label: 'Search Books',
+        placeholder: 'Search by title, author, or ISBN...'
+      },
+      status: {
+        label: 'Status',
+        all: 'All Borrows',
+        active: 'Active',
+        returned: 'Returned',
+        overdue: 'Overdue'
+      }
+    },
+    status: {
+      returned: 'Returned',
+      overdue: 'Overdue',
+      dueSoon: 'Due Soon',
+      active: 'Active'
+    },
+    fees: {
+      title: 'Outstanding Fees',
+      description: 'Please pay your late fees to continue borrowing',
+      borrowId: 'Borrow ID: {id}',
+      feeDate: 'Fee Date: {date}'
+    },
+    history: {
+      title: 'Borrowing History',
+      showing: 'Showing {count} of {total} borrows',
+      isbn: 'ISBN: {isbn}',
+      borrowed: 'Borrowed: {date}',
+      due: 'Due: {date}',
+      returned: 'Returned: {date}',
+      daysLeft: '{days} days left',
+      daysOverdue: '{days} days overdue'
+    },
+    empty: {
+      noBorrows: 'No borrows found matching your criteria',
+      noFees: 'No outstanding fees'
+    },
+    pagination: {
+      previous: 'Previous',
+      next: 'Next',
+      page: 'Page {current} of {total}'
+    },
+    messages: {
+      loadError: 'Failed to load borrowing history',
+      returnSuccess: 'Book returned successfully!',
+      returnError: 'Failed to return book',
+      renewSuccess: 'Book renewed successfully!',
+      renewError: 'Failed to renew book',
+      paySuccess: 'Fee paid successfully!',
+      payError: 'Failed to pay fee'
+    }
   }
 }

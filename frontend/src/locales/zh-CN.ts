@@ -422,5 +422,85 @@ export default {
       paySuccess: '费用支付成功！',
       payError: '费用支付失败，请重试。'
     }
+  },
+  borrowing: {
+    title: '我的借阅',
+    description: '管理您的借阅图书和费用',
+    loading: '正在加载您的借阅历史...',
+    buttons: {
+      browseBooks: '浏览图书',
+      refresh: '刷新',
+      renew: '续借',
+      return: '归还',
+      returning: '正在归还...',
+      payNow: '立即支付'
+    },
+    summary: {
+      activeBorrows: {
+        title: '正在借阅',
+        description: '当前借阅中'
+      },
+      overdueBooks: {
+        title: '逾期图书',
+        description: '需要立即处理'
+      },
+      outstandingFees: {
+        title: '未付费用',
+        description: '未支付的逾期费用'
+      }
+    },
+    filters: {
+      search: {
+        label: '搜索图书',
+        placeholder: '按标题、作者或ISBN搜索...'
+      },
+      status: {
+        label: '状态',
+        all: '所有借阅',
+        active: '借阅中',
+        returned: '已归还',
+        overdue: '逾期'
+      }
+    },
+    status: {
+      returned: '已归还',
+      overdue: '逾期',
+      dueSoon: '即将到期',
+      active: '借阅中'
+    },
+    fees: {
+      title: '未付费用',
+      description: '请支付逾期费用以继续借阅',
+      borrowId: '借阅ID：{id}',
+      feeDate: '费用日期：{date}'
+    },
+    history: {
+      title: '借阅历史',
+      showing: '显示 {total} 条借阅记录中的 {count} 条',
+      isbn: 'ISBN：{isbn}',
+      borrowed: '借阅时间：{date}',
+      due: '到期时间：{date}',
+      returned: '归还时间：{date}',
+      daysLeft: '还有 {days} 天',
+      daysOverdue: '逾期 {days} 天'
+    },
+    empty: {
+      noBorrows: '未找到符合条件的借阅记录',
+      noFees: '无未付费用'
+    },
+    pagination: {
+      previous: '上一页',
+      next: '下一页',
+      page: '第 {current} 页，共 {total} 页'
+    },
+    messages: {
+      loadError: '加载借阅历史失败',
+      returnSuccess: '图书归还成功！',
+      returnError: '图书归还失败',
+      renewSuccess: '图书续借成功！',
+      renewError: '图书续借失败',
+      paySuccess: '费用支付成功！',
+      payError: '费用支付失败'
+    }
   }
 }
