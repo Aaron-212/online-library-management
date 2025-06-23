@@ -151,8 +151,8 @@ const bookCoverMap = computed(() => {
 })
 
 // Get book cover URL by ISBN
-const getBookCoverUrl = (isbn: string): string | null => {
-  return bookCoverMap.value.get(isbn) || null
+const getBookCoverUrl = (isbn: string): string | undefined => {
+  return bookCoverMap.value.get(isbn)
 }
 
 const activeBorrows = computed(() => borrows.value.filter((borrow) => borrow.status === 'BORROWED'))
