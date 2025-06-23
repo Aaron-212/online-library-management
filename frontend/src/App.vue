@@ -33,7 +33,7 @@ const pageTitle = computed(() => {
     // Fallback to title-cased route name
     return routeName
       .split(/[-_]/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ')
   }
 
@@ -46,12 +46,16 @@ const pageTitle = computed(() => {
   <SidebarProvider class="flex min-h-screen w-full">
     <AppSidebar />
     <main class="flex flex-1 flex-col overflow-hidden relative">
-      <header class="absolute inset-x-0 top-0 z-50 flex h-16 items-center gap-2 px-4 backdrop-blur-lg border-b">
+      <header
+        class="absolute inset-x-0 top-0 z-50 flex h-16 items-center gap-2 px-4 backdrop-blur-lg border-b"
+      >
         <SidebarTrigger class="-ml-1" />
         <div class="py-2 w-px bg-sidebar-border" />
         <h1 class="text-lg font-semibold">{{ pageTitle }}</h1>
       </header>
-      <div class="flex flex-1 flex-col gap-4 p-4 pt-18 overflow-auto">
+      <div
+        class="flex flex-1 flex-col gap-4 px-[5%] py-[5%] pt-[calc(5%+var(--spacing)*16)] overflow-auto"
+      >
         <RouterView v-slot="{ Component, route }">
           <Transition mode="out-in" name="fade">
             <div :key="route.name">

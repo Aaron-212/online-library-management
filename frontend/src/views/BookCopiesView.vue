@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="space-y-6">
     <!-- Header -->
     <div class="mb-6">
       <nav class="flex items-center gap-2 text-sm text-gray-600 mb-4">

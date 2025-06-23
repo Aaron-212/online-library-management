@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -302,8 +302,14 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="relative">
-              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input v-model="searchQuery" :placeholder="t('userManagement.search.placeholder')" class="pl-10 w-64" />
+              <Search
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                v-model="searchQuery"
+                :placeholder="t('userManagement.search.placeholder')"
+                class="pl-10 w-64"
+              />
             </div>
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -315,122 +321,123 @@ onMounted(() => {
     </Card>
 
     <!-- Users Table -->
-    <Card>
-      <CardContent class="p-0">
-        <div class="border rounded-lg">
-          <!-- Table Header -->
-          <div class="grid grid-cols-6 gap-4 p-4 border-b bg-muted/50 font-medium">
-            <div>{{ t('userManagement.user') }}</div>
-            <div>{{ t('userManagement.email') }}</div>
-            <div>{{ t('userManagement.role') }}</div>
-            <div>{{ t('userManagement.created') }}</div>
-            <div>{{ t('userManagement.lastUpdated') }}</div>
-            <div class="text-right">{{ t('userManagement.actions') }}</div>
-          </div>
+    <div class="border rounded-lg">
+      <!-- Table Header -->
+      <div class="grid grid-cols-6 gap-4 p-4 border-b bg-muted/50 font-medium">
+        <div>{{ t('userManagement.user') }}</div>
+        <div>{{ t('userManagement.email') }}</div>
+        <div>{{ t('userManagement.role') }}</div>
+        <div>{{ t('userManagement.created') }}</div>
+        <div>{{ t('userManagement.lastUpdated') }}</div>
+        <div class="text-right">{{ t('userManagement.actions') }}</div>
+      </div>
 
-          <!-- Table Body -->
-          <div v-if="isLoading" class="space-y-2 p-4">
-            <div v-for="i in pageSize" :key="i" class="grid grid-cols-6 gap-4 items-center">
-              <Skeleton class="h-4 w-full" />
-              <Skeleton class="h-4 w-full" />
-              <Skeleton class="h-4 w-16" />
-              <Skeleton class="h-4 w-20" />
-              <Skeleton class="h-4 w-20" />
-              <Skeleton class="h-4 w-20" />
-            </div>
-          </div>
-
-          <div v-else-if="users.length === 0" class="p-8 text-center text-muted-foreground">
-            <Users class="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p class="text-lg font-medium mb-2">{{ t('userManagement.noUsersFound') }}</p>
-            <p>
-              {{
-                searchQuery
-                  ? t('userManagement.empty.searchDescription')
-                  : t('userManagement.empty.defaultDescription')
-              }}
-            </p>
-          </div>
-
-          <div v-else>
-            <div v-for="user in users" :key="user.id"
-              class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center">
-              <!-- User Info -->
-              <div class="flex items-center gap-3">
-                <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User class="h-4 w-4" />
-                </div>
-                <div>
-                  <div class="font-medium">{{ user.username }}</div>
-                  <div class="text-sm text-muted-foreground">ID: {{ user.id }}</div>
-                </div>
-              </div>
-
-              <!-- Email -->
-              <div class="text-sm">
-                {{ user.email || t('userManagement.table.noEmail') }}
-              </div>
-
-              <!-- Role -->
-              <div>
-                <Badge :variant="getRoleBadge(user.role || 'USER').variant" class="gap-1">
-                  <component :is="getRoleBadge(user.role || 'USER').icon" class="h-3 w-3" />
-                  {{ user.role || 'USER' }}
-                </Badge>
-              </div>
-
-              <!-- Created Date -->
-              <div class="text-sm text-muted-foreground">
-                {{ formatDate(user.createdTime) }}
-              </div>
-
-              <!-- Last Updated -->
-              <div class="text-sm text-muted-foreground">
-                {{ formatDate(user.lastUpdateTime || user.createdTime) }}
-              </div>
-
-              <!-- Actions -->
-              <div class="flex items-center justify-end gap-2">
-                <Button variant="ghost" size="sm" @click="openEditDialog(user)">
-                  <Edit class="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" @click="openRoleDialog(user)">
-                  <Shield class="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" @click="openDeleteDialog(user)">
-                  <Trash2 class="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+      <!-- Table Body -->
+      <div v-if="isLoading" class="space-y-2 p-4">
+        <div v-for="i in pageSize" :key="i" class="grid grid-cols-6 gap-4 items-center">
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-16" />
+          <Skeleton class="h-4 w-20" />
+          <Skeleton class="h-4 w-20" />
+          <Skeleton class="h-4 w-20" />
         </div>
+      </div>
 
-        <!-- Pagination -->
-        <div v-if="totalPages > 1" class="flex items-center justify-between p-4 border-t">
+      <div v-else-if="users.length === 0" class="p-8 text-center text-muted-foreground">
+        <Users class="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <p class="text-lg font-medium mb-2">{{ t('userManagement.noUsersFound') }}</p>
+        <p>
+          {{
+            searchQuery
+              ? t('userManagement.empty.searchDescription')
+              : t('userManagement.empty.defaultDescription')
+          }}
+        </p>
+      </div>
+
+      <div v-else>
+        <div
+          v-for="user in users"
+          :key="user.id"
+          class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center"
+        >
+          <!-- User Info -->
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <User class="h-4 w-4" />
+            </div>
+            <div>
+              <div class="font-medium">{{ user.username }}</div>
+              <div class="text-sm text-muted-foreground">ID: {{ user.id }}</div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="text-sm">
+            {{ user.email || t('userManagement.table.noEmail') }}
+          </div>
+
+          <!-- Role -->
+          <div>
+            <Badge :variant="getRoleBadge(user.role || 'USER').variant" class="gap-1">
+              <component :is="getRoleBadge(user.role || 'USER').icon" class="h-3 w-3" />
+              {{ user.role || 'USER' }}
+            </Badge>
+          </div>
+
+          <!-- Created Date -->
           <div class="text-sm text-muted-foreground">
-            {{ t('userManagement.showing') }} {{ currentPage * pageSize + 1 }}
-            {{ t('userManagement.to') }}
-            {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
-            {{ t('userManagement.of') }} {{ totalElements }}
-            {{ t('userManagement.users') }}
+            {{ formatDate(user.createdTime) }}
           </div>
-          <div class="flex items-center gap-2">
-            <Button variant="outline" size="sm" @click="prevPage" :disabled="!hasPrevPage">
-              <ChevronLeft class="h-4 w-4" />
-              {{ t('userManagement.previous') }}
+
+          <!-- Last Updated -->
+          <div class="text-sm text-muted-foreground">
+            {{ formatDate(user.lastUpdateTime || user.createdTime) }}
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-2">
+            <Button variant="ghost" size="sm" @click="openEditDialog(user)">
+              <Edit class="h-4 w-4" />
             </Button>
-            <div class="flex items-center gap-1">
-              <span class="text-sm">{{ t('userManagement.page') }} {{ currentPage + 1 }} {{ t('userManagement.of') }}
-                {{ totalPages }}</span>
-            </div>
-            <Button variant="outline" size="sm" @click="nextPage" :disabled="!hasNextPage">
-              {{ t('userManagement.next') }}
-              <ChevronRight class="h-4 w-4" />
+            <Button variant="ghost" size="sm" @click="openRoleDialog(user)">
+              <Shield class="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" @click="openDeleteDialog(user)">
+              <Trash2 class="h-4 w-4" />
             </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="flex items-center justify-between p-4 border-t">
+        <div class="text-sm text-muted-foreground">
+          {{ t('userManagement.showing') }} {{ currentPage * pageSize + 1 }}
+          {{ t('userManagement.to') }}
+          {{ Math.min((currentPage + 1) * pageSize, totalElements) }}
+          {{ t('userManagement.of') }} {{ totalElements }}
+          {{ t('userManagement.users') }}
+        </div>
+        <div class="flex items-center gap-2">
+          <Button variant="outline" size="sm" @click="prevPage" :disabled="!hasPrevPage">
+            <ChevronLeft class="h-4 w-4" />
+            {{ t('userManagement.previous') }}
+          </Button>
+          <div class="flex items-center gap-1">
+            <span class="text-sm"
+              >{{ t('userManagement.page') }} {{ currentPage + 1 }} {{ t('userManagement.of') }}
+              {{ totalPages }}</span
+            >
+          </div>
+          <Button variant="outline" size="sm" @click="nextPage" :disabled="!hasNextPage">
+            {{ t('userManagement.next') }}
+            <ChevronRight class="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
 
     <!-- Create User Dialog -->
     <Dialog v-model:open="isCreateDialogOpen">
@@ -442,24 +449,37 @@ onMounted(() => {
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
             <Label for="create-username">{{ t('userManagement.username') }}</Label>
-            <Input id="create-username" v-model="createForm.username"
-              :placeholder="t('userManagement.dialogs.create.fields.username.placeholder')" />
+            <Input
+              id="create-username"
+              v-model="createForm.username"
+              :placeholder="t('userManagement.dialogs.create.fields.username.placeholder')"
+            />
           </div>
           <div class="grid gap-2">
             <Label for="create-email">{{ t('userManagement.email') }}</Label>
-            <Input id="create-email" v-model="createForm.email" type="email"
-              :placeholder="t('userManagement.dialogs.create.fields.email.placeholder')" />
+            <Input
+              id="create-email"
+              v-model="createForm.email"
+              type="email"
+              :placeholder="t('userManagement.dialogs.create.fields.email.placeholder')"
+            />
           </div>
           <div class="grid gap-2">
             <Label for="create-password">{{ t('userManagement.password') }}</Label>
-            <Input id="create-password" v-model="createForm.password" type="password"
-              :placeholder="t('userManagement.dialogs.create.fields.password.placeholder')" />
+            <Input
+              id="create-password"
+              v-model="createForm.password"
+              type="password"
+              :placeholder="t('userManagement.dialogs.create.fields.password.placeholder')"
+            />
           </div>
           <div class="grid gap-2">
             <Label for="create-role">{{ t('userManagement.role') }}</Label>
             <Select v-model="createForm.role">
               <SelectTrigger>
-                <SelectValue :placeholder="t('userManagement.dialogs.create.fields.role.placeholder')" />
+                <SelectValue
+                  :placeholder="t('userManagement.dialogs.create.fields.role.placeholder')"
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="USER">{{ t('userManagement.roles.user') }}</SelectItem>
@@ -492,13 +512,20 @@ onMounted(() => {
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
             <Label for="edit-username">{{ t('userManagement.username') }}</Label>
-            <Input id="edit-username" v-model="editForm.username"
-              :placeholder="t('userManagement.dialogs.edit.fields.username.placeholder')" />
+            <Input
+              id="edit-username"
+              v-model="editForm.username"
+              :placeholder="t('userManagement.dialogs.edit.fields.username.placeholder')"
+            />
           </div>
           <div class="grid gap-2">
             <Label for="edit-email">{{ t('userManagement.email') }}</Label>
-            <Input id="edit-email" v-model="editForm.email" type="email"
-              :placeholder="t('userManagement.dialogs.edit.fields.email.placeholder')" />
+            <Input
+              id="edit-email"
+              v-model="editForm.email"
+              type="email"
+              :placeholder="t('userManagement.dialogs.edit.fields.email.placeholder')"
+            />
           </div>
         </div>
         <DialogFooter>
@@ -527,7 +554,9 @@ onMounted(() => {
             <Label for="new-role">{{ t('userManagement.newRole') }}</Label>
             <Select v-model="newRole">
               <SelectTrigger>
-                <SelectValue :placeholder="t('userManagement.dialogs.role.fields.newRole.placeholder')" />
+                <SelectValue
+                  :placeholder="t('userManagement.dialogs.role.fields.newRole.placeholder')"
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="USER">{{ t('userManagement.roles.user') }}</SelectItem>

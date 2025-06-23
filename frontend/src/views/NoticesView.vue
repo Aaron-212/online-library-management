@@ -625,11 +625,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.notices-view {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
 textarea {
   background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
