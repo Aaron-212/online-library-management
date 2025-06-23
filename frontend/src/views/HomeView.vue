@@ -19,7 +19,7 @@ import {
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { booksService, categoriesService, noticesService, statisticsService } from '@/lib/api'
-import type { Book, Notice } from '@/lib/api/types'
+import type { BookSummaryDto, BookStatisticsDto, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -28,9 +28,9 @@ const authStore = useAuthStore()
 // Data
 const isLoading = ref(false)
 // 推荐图书
-const recommendedBooks = ref<Book[]>([])
+const recommendedBooks = ref<BookSummaryDto[]>([])
 // 热门借阅榜
-const topBorrowBooks = ref<Book[]>([])
+const topBorrowBooks = ref<BookStatisticsDto[]>([])
 // 公告轮播
 const recentNotices = ref<Notice[]>([])
 // 分类导航
@@ -146,7 +146,7 @@ const libraryFeatures = [
 // 加载推荐图书（最新上架）
 const loadRecommendedBooks = async () => {
   try {
-    const res = await booksService.getAll({ page: 0, size: 8, sort: 'id,desc' })
+    const res = await booksService.getAllSummary({ page: 0, size: 8, sort: 'id,desc' })
     recommendedBooks.value = res.content
   } catch (e) {
     console.error(e)
@@ -338,7 +338,7 @@ onMounted(() => {
                     {{ book.title }}
                   </CardTitle>
                   <CardDescription class="mt-1">
-                    {{ book.authors.map((a) => a.name).join(', ') }}
+                    {{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}
                   </CardDescription>
                 </div>
                 <Badge
@@ -377,7 +377,7 @@ onMounted(() => {
               <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
               <div class="flex-1 min-w-0">
                 <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
-                <CardDescription>{{ book.authors.map((a) => a.name).join(', ') }}</CardDescription>
+                <CardDescription>{{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}</CardDescription>
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">

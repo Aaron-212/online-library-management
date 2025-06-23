@@ -18,7 +18,7 @@ import {
   Users,
 } from 'lucide-vue-next'
 import { booksService, borrowService, noticesService, statisticsService } from '@/lib/api'
-import type { Book, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
+import type { BookSummaryDto, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -27,7 +27,7 @@ const authStore = useAuthStore()
 // Data
 const isLoading = ref(false)
 const statistics = ref<BookStatisticsDto | null>(null)
-const recentBooks = ref<Book[]>([])
+const recentBooks = ref<BookSummaryDto[]>([])
 const recentBorrows = ref<Borrow[]>([])
 const recentNotices = ref<Notice[]>([])
 const inventoryStats = ref<{ [categoryName: string]: { totalCount: number; availableCount: number } }>({})
@@ -173,7 +173,7 @@ const loadSystemStats = async () => {
 
 const loadRecentBooks = async () => {
   try {
-    const response = await booksService.getAll({ page: 0, size: 5, sort: 'id,desc' })
+    const response = await booksService.getAllSummary({ page: 0, size: 5, sort: 'id,desc' })
     recentBooks.value = response.content || []
   } catch (error) {
     console.error('Error loading recent books:', error)
@@ -362,8 +362,8 @@ onMounted(() => {
                   <p class="text-sm font-medium truncate">{{ book.title || 'Unknown' }}</p>
                   <p class="text-xs text-muted-foreground truncate">
                     {{
-                      Array.isArray(book.authors)
-                        ? book.authors.map((a) => a?.name || 'Unknown').join(', ')
+                      Array.isArray(book.authors) && book.authors.length > 0
+                        ? book.authors.join(', ')
                         : 'Unknown author'
                     }}
                   </p>
