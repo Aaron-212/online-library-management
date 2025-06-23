@@ -22,6 +22,7 @@ public class BorrowMapper {
                 borrow.getCopy().getId(),
                 borrow.getCopy().getBook().getTitle(),
                 borrow.getCopy().getBook().getIsbn(),
+                borrow.getCopy().getBook().getCoverURL(),
                 borrow.getBorrowTime(),
                 borrow.getReturnTime(),
                 borrow.getActualReturnTime(),

@@ -11,6 +11,7 @@ public record BorrowDto(
         Long copyId,
         String bookTitle,
         String isbn,
+        String coverURL,
         LocalDateTime borrowTime,
         LocalDateTime returnTime,
         LocalDateTime actualReturnTime,
