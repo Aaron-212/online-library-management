@@ -503,6 +503,90 @@ export default {
       payError: 'Failed to pay fee'
     }
   },
+  bookCopies: {
+    title: 'Book Copies',
+    breadcrumb: {
+      books: 'Books',
+      copies: 'Copies'
+    },
+    header: {
+      title: 'Book Copies',
+      addCopy: 'Add Copy'
+    },
+    loading: {
+      bookDetails: 'Loading book details...',
+      error: 'Error Loading Book',
+      tryAgain: 'Try Again'
+    },
+    dialogs: {
+      create: {
+        title: 'Add New Copy',
+        description: 'Create a new copy of "{title}"',
+        fields: {
+          barcode: {
+            label: 'Barcode',
+            placeholder: 'Enter barcode...'
+          },
+          status: {
+            label: 'Status',
+            placeholder: 'Select status'
+          },
+          purchasePrice: {
+            label: 'Purchase Price (Optional)',
+            placeholder: '0.00'
+          }
+        },
+        buttons: {
+          cancel: 'Cancel',
+          create: 'Create Copy'
+        }
+      },
+      edit: {
+        title: 'Edit Copy',
+        description: 'Update copy details',
+        fields: {
+          barcode: {
+            label: 'Barcode',
+            placeholder: 'Enter barcode...'
+          },
+          status: {
+            label: 'Status',
+            placeholder: 'Select status'
+          },
+          purchasePrice: {
+            label: 'Purchase Price',
+            placeholder: '0.00'
+          }
+        },
+        buttons: {
+          cancel: 'Cancel',
+          update: 'Update Copy'
+        }
+      }
+    },
+    status: {
+      available: 'Available',
+      borrowed: 'Borrowed',
+      maintenance: 'Maintenance',
+      scrapped: 'Scrapped',
+      discarded: 'Discarded'
+    },
+    messages: {
+      createSuccess: 'Copy created successfully',
+      createError: 'Failed to create copy',
+      updateSuccess: 'Copy updated successfully',
+      updateError: 'Failed to update copy',
+      borrowSuccess: 'Book borrowed successfully',
+      borrowError: 'Failed to borrow book',
+      returnSuccess: 'Book returned successfully',
+      returnError: 'Failed to return book',
+      maintenanceSuccess: 'Copy status updated to maintenance',
+      maintenanceError: 'Failed to update copy status',
+      loginRequired: 'Please login to borrow books',
+      loginRequiredReturn: 'Please login to return books',
+      noBorrowRecord: 'No active borrow record found for this book copy'
+    }
+  },
   adminBorrowing: {
     title: 'Admin Borrowing Management',
     description: 'Register and manage book borrowing for users',

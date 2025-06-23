@@ -502,5 +502,89 @@ export default {
       paySuccess: '费用支付成功！',
       payError: '费用支付失败'
     }
+  },
+  bookCopies: {
+    title: '图书副本',
+    breadcrumb: {
+      books: '图书',
+      copies: '副本'
+    },
+    header: {
+      title: '图书副本',
+      addCopy: '添加副本'
+    },
+    loading: {
+      bookDetails: '正在加载图书详情...',
+      error: '加载图书错误',
+      tryAgain: '重试'
+    },
+    dialogs: {
+      create: {
+        title: '添加新副本',
+        description: '创建《{title}》的新副本',
+        fields: {
+          barcode: {
+            label: '条形码',
+            placeholder: '请输入条形码...'
+          },
+          status: {
+            label: '状态',
+            placeholder: '选择状态'
+          },
+          purchasePrice: {
+            label: '购买价格（可选）',
+            placeholder: '0.00'
+          }
+        },
+        buttons: {
+          cancel: '取消',
+          create: '创建副本'
+        }
+      },
+      edit: {
+        title: '编辑副本',
+        description: '更新副本详情',
+        fields: {
+          barcode: {
+            label: '条形码',
+            placeholder: '请输入条形码...'
+          },
+          status: {
+            label: '状态',
+            placeholder: '选择状态'
+          },
+          purchasePrice: {
+            label: '购买价格',
+            placeholder: '0.00'
+          }
+        },
+        buttons: {
+          cancel: '取消',
+          update: '更新副本'
+        }
+      }
+    },
+    status: {
+      available: '可借阅',
+      borrowed: '已借出',
+      maintenance: '维护中',
+      scrapped: '已报废',
+      discarded: '已丢弃'
+    },
+    messages: {
+      createSuccess: '副本创建成功',
+      createError: '创建副本失败',
+      updateSuccess: '副本更新成功',
+      updateError: '更新副本失败',
+      borrowSuccess: '图书借阅成功',
+      borrowError: '图书借阅失败',
+      returnSuccess: '图书归还成功',
+      returnError: '图书归还失败',
+      maintenanceSuccess: '副本状态已更新为维护中',
+      maintenanceError: '更新副本状态失败',
+      loginRequired: '请登录后借阅图书',
+      loginRequiredReturn: '请登录后归还图书',
+      noBorrowRecord: '未找到此图书副本的有效借阅记录'
+    }
   }
 }
