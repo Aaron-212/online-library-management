@@ -25,8 +25,8 @@ import {
   RefreshCw,
   Search,
 } from 'lucide-vue-next'
-import { borrowService, feesService } from '@/lib/api'
-import type { Borrow, FeeResponseDto, PagedResponse } from '@/lib/api/types'
+import { booksService, borrowService, feesService } from '@/lib/api'
+import type { Book as BookType, Borrow, FeeResponseDto, PagedResponse } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -35,6 +35,7 @@ const authStore = useAuthStore()
 // Data
 const borrows = ref<Borrow[]>([])
 const fees = ref<FeeResponseDto[]>([])
+const books = ref<BookType[]>([])
 const isLoading = ref(false)
 const isReturning = ref<number | null>(null)
 const searchKeyword = ref('')
@@ -93,6 +94,51 @@ const totalFees = computed(() =>
   fees.value.reduce((sum, fee) => sum + (fee.paid ? 0 : fee.amount), 0),
 )
 
+// Map ISBN to cover URL for displaying book covers
+const bookCoverMap = computed(() => {
+  const map = new Map<string, string>()
+  books.value.forEach(book => {
+    if (book.coverURL) {
+      map.set(book.isbn, book.coverURL)
+    }
+  })
+  return map
+})
+
+// Cache for on-demand loaded book covers
+const coverCache = ref(new Map<string, string>())
+
+// Get book cover URL by ISBN with on-demand loading
+const getBookCoverUrl = async (isbn: string): Promise<string | undefined> => {
+  // Check if we already have it in the main book map
+  if (bookCoverMap.value.has(isbn)) {
+    return bookCoverMap.value.get(isbn)
+  }
+
+  // Check if we already cached it
+  if (coverCache.value.has(isbn)) {
+    return coverCache.value.get(isbn)
+  }
+
+  // Try to find the book by ISBN and load its cover
+  try {
+    const book = await booksService.getByIsbn(isbn)
+    if (book?.coverURL) {
+      coverCache.value.set(isbn, book.coverURL)
+      return book.coverURL
+    }
+  } catch (error) {
+    console.error('Error loading book cover for ISBN:', isbn, error)
+  }
+
+  return undefined
+}
+
+// Synchronous version for template usage (uses cached values only)
+const getBookCoverUrlSync = (isbn: string): string | undefined => {
+  return bookCoverMap.value.get(isbn) || coverCache.value.get(isbn)
+}
+
 // Methods
 const isOverdue = (borrow: Borrow) => {
   return new Date(borrow.returnTime) < new Date()
@@ -128,6 +174,21 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+// Function to preload missing book covers
+const preloadMissingCovers = async (borrowList: Borrow[]) => {
+  const missingIsbns = borrowList
+    .map(borrow => borrow.isbn)
+    .filter(isbn => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
+
+  // Remove duplicates
+  const uniqueIsbns = [...new Set(missingIsbns)]
+
+  // Load covers for missing ISBNs in parallel
+  await Promise.allSettled(
+    uniqueIsbns.map(isbn => getBookCoverUrl(isbn))
+  )
+}
+
 const loadBorrows = async () => {
   try {
     isLoading.value = true
@@ -138,11 +199,36 @@ const loadBorrows = async () => {
     borrows.value = response.content
     totalPages.value = response.totalPages
     totalElements.value = response.totalElements
+
+    // Preload any missing book covers
+    await preloadMissingCovers(response.content)
   } catch (error) {
     console.error('Error loading borrows:', error)
     toast.error('Failed to load borrowing history')
   } finally {
     isLoading.value = false
+  }
+}
+
+const loadBooks = async () => {
+  try {
+    // Load books to ensure we have cover URLs for borrow records
+    let allBooks: BookType[] = []
+    let page = 0
+    const size = 100
+    let hasMore = true
+
+    while (hasMore) {
+      const response = await booksService.getAll({ page, size })
+      allBooks = [...allBooks, ...response.content]
+      hasMore = response.content.length === size && !response.last
+      page++
+    }
+
+    books.value = allBooks
+  } catch (error) {
+    console.error('Error loading books:', error)
+    // Don't show toast error for this as it's not critical for the user
   }
 }
 
@@ -211,6 +297,7 @@ onMounted(() => {
     return
   }
 
+  loadBooks()
   loadBorrows()
   loadFees()
 })
@@ -275,15 +362,9 @@ onMounted(() => {
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
           <Label for="search">Search Books</Label>
           <div class="relative">
-            <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              id="search"
-              v-model="searchKeyword"
-              placeholder="Search by title, author, or ISBN..."
-              class="pl-10"
-            />
+            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="search" v-model="searchKeyword" placeholder="Search by title, author, or ISBN..."
+              class="pl-10" />
           </div>
         </div>
 
@@ -300,11 +381,8 @@ onMounted(() => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem
-                v-for="option in statusOptions"
-                :key="option.value"
-                @click="statusFilter = option.value"
-              >
+              <DropdownMenuItem v-for="option in statusOptions" :key="option.value"
+                @click="statusFilter = option.value">
                 {{ option.label }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -331,11 +409,8 @@ onMounted(() => {
       </CardHeader>
       <CardContent>
         <div class="space-y-3">
-          <div
-            v-for="fee in fees.filter((f) => !f.paid)"
-            :key="fee.id"
-            class="flex items-center justify-between p-3 border rounded-lg"
-          >
+          <div v-for="fee in fees.filter((f) => !f.paid)" :key="fee.id"
+            class="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p class="font-medium">Borrow ID: {{ fee.borrowId }}</p>
               <p class="text-sm text-muted-foreground">
@@ -362,24 +437,21 @@ onMounted(() => {
       <CardContent>
         <div v-if="isLoading" class="text-center py-8">Loading your borrowing history...</div>
 
-        <div
-          v-else-if="filteredBorrows.length === 0"
-          class="text-center py-8 text-muted-foreground"
-        >
+        <div v-else-if="filteredBorrows.length === 0" class="text-center py-8 text-muted-foreground">
           No borrows found matching your criteria
         </div>
 
         <div v-else class="space-y-4">
-          <div
-            v-for="borrow in filteredBorrows"
-            :key="borrow.borrowId"
-            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
-          >
+          <div v-for="borrow in filteredBorrows" :key="borrow.borrowId"
+            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center">
-                  <BookOpen class="h-6 w-6 text-muted-foreground" />
+                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
+                  <img v-if="getBookCoverUrlSync(borrow.isbn)" :src="getBookCoverUrlSync(borrow.isbn)"
+                    :alt="borrow.bookTitle" class="w-full h-full object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                  <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
                 <div class="flex-1 min-w-0">
@@ -426,11 +498,8 @@ onMounted(() => {
                   <RefreshCw class="h-3 w-3 mr-1" />
                   Renew
                 </Button>
-                <Button
-                  size="sm"
-                  @click="handleReturnBook(borrow.borrowId)"
-                  :disabled="isReturning === borrow.borrowId"
-                >
+                <Button size="sm" @click="handleReturnBook(borrow.borrowId)"
+                  :disabled="isReturning === borrow.borrowId">
                   <CheckCircle class="h-3 w-3 mr-1" />
                   {{ isReturning === borrow.borrowId ? 'Returning...' : 'Return' }}
                 </Button>
@@ -441,12 +510,7 @@ onMounted(() => {
 
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="currentPage === 0"
-            @click="handlePageChange(currentPage - 1)"
-          >
+          <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
             <ArrowLeft class="h-4 w-4" />
             Previous
           </Button>
@@ -455,12 +519,8 @@ onMounted(() => {
             Page {{ currentPage + 1 }} of {{ totalPages }}
           </span>
 
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="currentPage === totalPages - 1"
-            @click="handlePageChange(currentPage + 1)"
-          >
+          <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
+            @click="handlePageChange(currentPage + 1)">
             Next
             <ArrowLeft class="h-4 w-4 rotate-180" />
           </Button>
