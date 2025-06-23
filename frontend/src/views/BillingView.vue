@@ -15,7 +15,9 @@
       <div class="bg-background border rounded-lg shadow-sm">
         <div class="p-4 border-b">
           <h2 class="text-xl font-semibold">{{ $t('billing.sections.overdueFees.title') }}</h2>
-          <p class="text-sm text-muted-foreground">{{ $t('billing.sections.overdueFees.description') }}</p>
+          <p class="text-sm text-muted-foreground">
+            {{ $t('billing.sections.overdueFees.description') }}
+          </p>
         </div>
         <div class="p-4">
           <div v-if="overdueFees.length === 0" class="text-center py-8 text-muted-foreground">
@@ -36,20 +38,31 @@
                   <td class="p-3">{{ fee.borrowId }}</td>
                   <td class="p-3">${{ fee.amount.toFixed(2) }}</td>
                   <td class="p-3">
-                    <span v-if="fee.paid"
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span
+                      v-if="fee.paid"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                    >
                       {{ $t('billing.status.paid') }}
                     </span>
-                    <span v-else
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <span
+                      v-else
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                    >
                       {{ $t('billing.status.unpaid') }}
                     </span>
                   </td>
                   <td class="p-3">
-                    <button v-if="!fee.paid"
+                    <button
+                      v-if="!fee.paid"
                       class="px-3 py-1 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors"
-                      @click="payFee(fee.id)" :disabled="isPayingFee">
-                      {{ isPayingFee ? $t('billing.actions.processing') : $t('billing.actions.payFee') }}
+                      @click="payFee(fee.id)"
+                      :disabled="isPayingFee"
+                    >
+                      {{
+                        isPayingFee
+                          ? $t('billing.actions.processing')
+                          : $t('billing.actions.payFee')
+                      }}
                     </button>
                   </td>
                 </tr>
@@ -68,13 +81,17 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="text-center">
               <div class="text-2xl font-bold text-primary">{{ totalUnpaidFees }}</div>
-              <div class="text-sm text-muted-foreground">{{ $t('billing.summary.unpaidFees') }}</div>
+              <div class="text-sm text-muted-foreground">
+                {{ $t('billing.summary.unpaidFees') }}
+              </div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-green-600">
                 ${{ totalUnpaidAmount.toFixed(2) }}
               </div>
-              <div class="text-sm text-muted-foreground">{{ $t('billing.summary.totalUnpaidAmount') }}</div>
+              <div class="text-sm text-muted-foreground">
+                {{ $t('billing.summary.totalUnpaidAmount') }}
+              </div>
             </div>
             <div class="text-center">
               <div class="text-2xl font-bold text-blue-600">{{ totalPaidFees }}</div>

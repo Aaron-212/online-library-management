@@ -158,7 +158,11 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
   }
 
   if (borrow.status === 'OVERDUE' || (borrow.status === 'BORROWED' && isOverdue(borrow))) {
-    return { variant: 'destructive' as const, text: t('borrowing.status.overdue'), icon: AlertTriangle }
+    return {
+      variant: 'destructive' as const,
+      text: t('borrowing.status.overdue'),
+      icon: AlertTriangle,
+    }
   }
 
   if (borrow.status === 'BORROWED') {
@@ -321,36 +325,48 @@ onMounted(() => {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">{{ t('borrowing.summary.activeBorrows.title') }}</CardTitle>
+          <CardTitle class="text-sm font-medium">{{
+            t('borrowing.summary.activeBorrows.title')
+          }}</CardTitle>
           <BookOpen class="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold">{{ activeBorrows.length }}</div>
-          <p class="text-xs text-muted-foreground">{{ t('borrowing.summary.activeBorrows.description') }}</p>
+          <p class="text-xs text-muted-foreground">
+            {{ t('borrowing.summary.activeBorrows.description') }}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">{{ t('borrowing.summary.overdueBooks.title') }}</CardTitle>
+          <CardTitle class="text-sm font-medium">{{
+            t('borrowing.summary.overdueBooks.title')
+          }}</CardTitle>
           <AlertTriangle class="h-4 w-4 text-red-500" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-red-600">{{ overdueBorrows.length }}</div>
-          <p class="text-xs text-muted-foreground">{{ t('borrowing.summary.overdueBooks.description') }}</p>
+          <p class="text-xs text-muted-foreground">
+            {{ t('borrowing.summary.overdueBooks.description') }}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">{{ t('borrowing.summary.outstandingFees.title') }}</CardTitle>
+          <CardTitle class="text-sm font-medium">{{
+            t('borrowing.summary.outstandingFees.title')
+          }}</CardTitle>
           <CreditCard class="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold">
             {{ totalFees > 0 ? `$${totalFees.toFixed(2)}` : '$0.00' }}
           </div>
-          <p class="text-xs text-muted-foreground">{{ t('borrowing.summary.outstandingFees.description') }}</p>
+          <p class="text-xs text-muted-foreground">
+            {{ t('borrowing.summary.outstandingFees.description') }}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -362,9 +378,15 @@ onMounted(() => {
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
           <Label for="search">{{ t('borrowing.filters.search.label') }}</Label>
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="search" v-model="searchKeyword" :placeholder="t('borrowing.filters.search.placeholder')"
-              class="pl-10" />
+            <Search
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              id="search"
+              v-model="searchKeyword"
+              :placeholder="t('borrowing.filters.search.placeholder')"
+              class="pl-10"
+            />
           </div>
         </div>
 
@@ -375,14 +397,18 @@ onMounted(() => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
                 {{
-                  statusOptions.find((opt) => opt.value === statusFilter)?.label || t('borrowing.filters.status.all')
+                  statusOptions.find((opt) => opt.value === statusFilter)?.label ||
+                  t('borrowing.filters.status.all')
                 }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem v-for="option in statusOptions" :key="option.value"
-                @click="statusFilter = option.value">
+              <DropdownMenuItem
+                v-for="option in statusOptions"
+                :key="option.value"
+                @click="statusFilter = option.value"
+              >
                 {{ option.label }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -409,8 +435,11 @@ onMounted(() => {
       </CardHeader>
       <CardContent>
         <div class="space-y-3">
-          <div v-for="fee in fees.filter((f) => !f.paid)" :key="fee.id"
-            class="flex items-center justify-between p-3 border rounded-lg">
+          <div
+            v-for="fee in fees.filter((f) => !f.paid)"
+            :key="fee.id"
+            class="flex items-center justify-between p-3 border rounded-lg"
+          >
             <div>
               <p class="font-medium">{{ t('borrowing.fees.borrowId', { id: fee.borrowId }) }}</p>
               <p class="text-sm text-muted-foreground">
@@ -419,7 +448,9 @@ onMounted(() => {
             </div>
             <div class="flex items-center gap-3">
               <span class="font-bold text-red-600">${{ fee.amount.toFixed(2) }}</span>
-              <Button size="sm" @click="handlePayFee(fee.id)">{{ t('borrowing.buttons.payNow') }}</Button>
+              <Button size="sm" @click="handlePayFee(fee.id)">{{
+                t('borrowing.buttons.payNow')
+              }}</Button>
             </div>
           </div>
         </div>
@@ -431,26 +462,40 @@ onMounted(() => {
       <CardHeader>
         <CardTitle>{{ t('borrowing.history.title') }}</CardTitle>
         <CardDescription>
-          {{ t('borrowing.history.showing', { count: filteredBorrows.length, total: totalElements }) }}
+          {{
+            t('borrowing.history.showing', { count: filteredBorrows.length, total: totalElements })
+          }}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div v-if="isLoading" class="text-center py-8">{{ t('borrowing.loading') }}</div>
 
-        <div v-else-if="filteredBorrows.length === 0" class="text-center py-8 text-muted-foreground">
+        <div
+          v-else-if="filteredBorrows.length === 0"
+          class="text-center py-8 text-muted-foreground"
+        >
           {{ t('borrowing.empty.noBorrows') }}
         </div>
 
         <div v-else class="space-y-4">
-          <div v-for="borrow in filteredBorrows" :key="borrow.borrowId"
-            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+          <div
+            v-for="borrow in filteredBorrows"
+            :key="borrow.borrowId"
+            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+          >
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
-                  <img v-if="getBookCoverUrlSync(borrow.isbn)" :src="getBookCoverUrlSync(borrow.isbn)"
-                    :alt="borrow.bookTitle" class="w-full h-full object-cover"
-                    @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                <div
+                  class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    v-if="getBookCoverUrlSync(borrow.isbn)"
+                    :src="getBookCoverUrlSync(borrow.isbn)"
+                    :alt="borrow.bookTitle"
+                    class="w-full h-full object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'"
+                  />
                   <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
@@ -458,7 +503,9 @@ onMounted(() => {
                   <h3 class="font-medium truncate">
                     {{ borrow.bookTitle }}
                   </h3>
-                  <p class="text-xs text-muted-foreground">{{ t('borrowing.history.isbn', { isbn: borrow.isbn }) }}</p>
+                  <p class="text-xs text-muted-foreground">
+                    {{ t('borrowing.history.isbn', { isbn: borrow.isbn }) }}
+                  </p>
                 </div>
               </div>
 
@@ -481,13 +528,17 @@ onMounted(() => {
                       ({{
                         getDaysUntilDue(borrow) > 0
                           ? t('borrowing.history.daysLeft', { days: getDaysUntilDue(borrow) })
-                          : t('borrowing.history.daysOverdue', { days: Math.abs(getDaysUntilDue(borrow)) })
+                          : t('borrowing.history.daysOverdue', {
+                              days: Math.abs(getDaysUntilDue(borrow)),
+                            })
                       }})
                     </span>
                   </div>
                   <div v-if="borrow.actualReturnTime" class="flex items-center gap-1">
                     <CheckCircle class="h-3 w-3" />
-                    {{ t('borrowing.history.returned', { date: formatDate(borrow.actualReturnTime) }) }}
+                    {{
+                      t('borrowing.history.returned', { date: formatDate(borrow.actualReturnTime) })
+                    }}
                   </div>
                 </div>
               </div>
@@ -498,10 +549,16 @@ onMounted(() => {
                   <RefreshCw class="h-3 w-3 mr-1" />
                   {{ t('borrowing.buttons.renew') }}
                 </Button>
-                <Button size="sm" @click="handleReturnBook(borrow.borrowId)"
-                  :disabled="isReturning === borrow.borrowId">
+                <Button
+                  size="sm"
+                  @click="handleReturnBook(borrow.borrowId)"
+                  :disabled="isReturning === borrow.borrowId"
+                >
                   <CheckCircle class="h-3 w-3 mr-1" />
-                  {{ isReturning === borrow.borrowId ? t('borrowing.buttons.returning') : t('borrowing.buttons.return')
+                  {{
+                    isReturning === borrow.borrowId
+                      ? t('borrowing.buttons.returning')
+                      : t('borrowing.buttons.return')
                   }}
                 </Button>
               </div>
@@ -511,7 +568,12 @@ onMounted(() => {
 
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-6">
-          <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="currentPage === 0"
+            @click="handlePageChange(currentPage - 1)"
+          >
             <ArrowLeft class="h-4 w-4" />
             {{ t('borrowing.pagination.previous') }}
           </Button>
@@ -520,8 +582,12 @@ onMounted(() => {
             {{ t('borrowing.pagination.page', { current: currentPage + 1, total: totalPages }) }}
           </span>
 
-          <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
-            @click="handlePageChange(currentPage + 1)">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="currentPage === totalPages - 1"
+            @click="handlePageChange(currentPage + 1)"
+          >
             {{ t('borrowing.pagination.next') }}
             <ArrowLeft class="h-4 w-4 rotate-180" />
           </Button>

@@ -260,8 +260,11 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold">{{ user?.username }}</h1>
         <p class="text-sm text-muted-foreground">
-          {{ user ? t('profile.header.memberSince', { date: formatDate(user.createdTime) }) :
-            t('profile.header.memberSinceLoading') }}
+          {{
+            user
+              ? t('profile.header.memberSince', { date: formatDate(user.createdTime) })
+              : t('profile.header.memberSinceLoading')
+          }}
         </p>
       </div>
     </div>
@@ -285,7 +288,9 @@ onMounted(() => {
         <CardContent class="space-y-4">
           <div v-if="!isEditingProfile" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">{{ t('profile.fields.username.label') }}</Label>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.username.label')
+              }}</Label>
               <div class="flex items-center gap-2">
                 <User class="h-4 w-4 text-muted-foreground" />
                 <span>{{ user?.username || t('profile.placeholders.notAvailable') }}</span>
@@ -293,7 +298,9 @@ onMounted(() => {
             </div>
 
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">{{ t('profile.fields.email.label') }}</Label>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.email.label')
+              }}</Label>
               <div class="flex items-center gap-2">
                 <Mail class="h-4 w-4 text-muted-foreground" />
                 <span>{{ user?.email || t('profile.placeholders.notAvailable') }}</span>
@@ -301,18 +308,24 @@ onMounted(() => {
             </div>
 
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">{{ t('profile.fields.registrationDate.label')
-                }}</Label>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.registrationDate.label')
+              }}</Label>
               <div class="flex items-center gap-2">
                 <Calendar class="h-4 w-4 text-muted-foreground" />
-                <span>{{ user ? formatDate(user.createdTime) : t('profile.placeholders.notAvailable') }}</span>
+                <span>{{
+                  user ? formatDate(user.createdTime) : t('profile.placeholders.notAvailable')
+                }}</span>
               </div>
             </div>
 
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">{{ t('profile.fields.lastUpdated.label')
-                }}</Label>
-              <span>{{ user ? formatDate(user.lastUpdateTime) : t('profile.placeholders.notAvailable') }}</span>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.lastUpdated.label')
+              }}</Label>
+              <span>{{
+                user ? formatDate(user.lastUpdateTime) : t('profile.placeholders.notAvailable')
+              }}</span>
             </div>
           </div>
 
@@ -321,14 +334,21 @@ onMounted(() => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2 md:col-span-2">
                 <Label for="username">{{ t('profile.fields.username.label') }}</Label>
-                <Input id="username" v-model="profileForm.username"
-                  :placeholder="t('profile.fields.username.placeholder')" />
+                <Input
+                  id="username"
+                  v-model="profileForm.username"
+                  :placeholder="t('profile.fields.username.placeholder')"
+                />
               </div>
 
               <div class="space-y-2 md:col-span-2">
                 <Label for="email">{{ t('profile.fields.email.label') }}</Label>
-                <Input id="email" v-model="profileForm.email" :placeholder="t('profile.fields.email.placeholder')"
-                  type="email" />
+                <Input
+                  id="email"
+                  v-model="profileForm.email"
+                  :placeholder="t('profile.fields.email.placeholder')"
+                  type="email"
+                />
               </div>
             </div>
 
@@ -360,34 +380,55 @@ onMounted(() => {
         </CardHeader>
         <CardContent>
           <div v-if="!isChangingPassword" class="text-sm text-muted-foreground">
-            {{ user ? t('profile.security.lastPasswordUpdate', { date: formatDate(user.lastUpdateTime) }) :
-              t('profile.security.lastPasswordUpdateDefault') }}
+            {{
+              user
+                ? t('profile.security.lastPasswordUpdate', {
+                    date: formatDate(user.lastUpdateTime),
+                  })
+                : t('profile.security.lastPasswordUpdateDefault')
+            }}
           </div>
 
           <!-- Change Password Form -->
           <div v-else class="space-y-4">
             <div class="space-y-2">
               <Label for="currentPassword">{{ t('profile.fields.currentPassword.label') }}</Label>
-              <Input id="currentPassword" v-model="passwordForm.currentPassword"
-                :placeholder="t('profile.fields.currentPassword.placeholder')" type="password" />
+              <Input
+                id="currentPassword"
+                v-model="passwordForm.currentPassword"
+                :placeholder="t('profile.fields.currentPassword.placeholder')"
+                type="password"
+              />
             </div>
 
             <div class="space-y-2">
               <Label for="newPassword">{{ t('profile.fields.newPassword.label') }}</Label>
-              <Input id="newPassword" v-model="passwordForm.newPassword"
-                :placeholder="t('profile.fields.newPassword.placeholder')" type="password" />
+              <Input
+                id="newPassword"
+                v-model="passwordForm.newPassword"
+                :placeholder="t('profile.fields.newPassword.placeholder')"
+                type="password"
+              />
             </div>
 
             <div class="space-y-2">
               <Label for="confirmPassword">{{ t('profile.fields.confirmPassword.label') }}</Label>
-              <Input id="confirmPassword" v-model="passwordForm.confirmPassword"
-                :placeholder="t('profile.fields.confirmPassword.placeholder')" type="password" />
+              <Input
+                id="confirmPassword"
+                v-model="passwordForm.confirmPassword"
+                :placeholder="t('profile.fields.confirmPassword.placeholder')"
+                type="password"
+              />
             </div>
 
             <div class="flex gap-2">
               <Button :disabled="isSaving" @click="changePassword">
                 <Save class="h-4 w-4 mr-2" />
-                {{ isSaving ? t('profile.buttons.changingPassword') : t('profile.buttons.changePassword') }}
+                {{
+                  isSaving
+                    ? t('profile.buttons.changingPassword')
+                    : t('profile.buttons.changePassword')
+                }}
               </Button>
               <Button variant="outline" @click="cancelChangePassword">
                 <X class="h-4 w-4 mr-2" />
@@ -434,9 +475,13 @@ onMounted(() => {
         <CardHeader class="flex flex-row items-center justify-between">
           <div>
             <CardTitle>{{ t('profile.sections.recentActivity.title') }}</CardTitle>
-            <CardDescription>{{ t('profile.sections.recentActivity.description') }}</CardDescription>
+            <CardDescription>{{
+              t('profile.sections.recentActivity.description')
+            }}</CardDescription>
           </div>
-          <Button variant="outline" @click="router.push('/borrows')">{{ t('profile.buttons.viewAllBorrows') }}</Button>
+          <Button variant="outline" @click="router.push('/borrows')">{{
+            t('profile.buttons.viewAllBorrows')
+          }}</Button>
         </CardHeader>
         <CardContent>
           <div v-if="recentBorrows.length === 0" class="text-center py-8 text-muted-foreground">
@@ -444,12 +489,21 @@ onMounted(() => {
           </div>
 
           <div v-else class="space-y-4">
-            <div v-for="borrow in recentBorrows" :key="borrow.borrowId"
-              class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+            <div
+              v-for="borrow in recentBorrows"
+              :key="borrow.borrowId"
+              class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+            >
               <div class="flex items-center gap-3">
-                <div class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden">
-                  <img v-if="borrow.coverURL" :src="borrow.coverURL" :alt="`Cover for ${borrow.bookTitle}`"
-                    class="w-full h-full object-cover" />
+                <div
+                  class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    v-if="borrow.coverURL"
+                    :src="borrow.coverURL"
+                    :alt="`Cover for ${borrow.bookTitle}`"
+                    class="w-full h-full object-cover"
+                  />
                   <BookOpen v-else class="h-5 w-5 text-muted-foreground" />
                 </div>
 
@@ -466,7 +520,10 @@ onMounted(() => {
                   {{ getBorrowStatusBadge(borrow).text }}
                 </span>
                 <CheckCircle v-if="borrow.status === 'RETURNED'" class="h-4 w-4 text-green-600" />
-                <Clock v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')" class="h-4 w-4 text-blue-600" />
+                <Clock
+                  v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')"
+                  class="h-4 w-4 text-blue-600"
+                />
                 <AlertTriangle v-else class="h-4 w-4 text-red-600" />
               </div>
             </div>

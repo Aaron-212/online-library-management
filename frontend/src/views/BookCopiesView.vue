@@ -3,7 +3,9 @@
     <!-- Header -->
     <div class="mb-6">
       <nav class="flex items-center gap-2 text-sm text-gray-600 mb-4">
-        <router-link to="/books" class="hover:text-gray-900">{{ t('bookCopies.breadcrumb.books') }}</router-link>
+        <router-link to="/books" class="hover:text-gray-900">{{
+          t('bookCopies.breadcrumb.books')
+        }}</router-link>
         <span>/</span>
         <router-link v-if="book" :to="`/books/${book.id}`" class="hover:text-gray-900">
           {{ book.title }}
@@ -33,7 +35,9 @@
     <!-- Loading book details -->
     <div v-if="loadingBook" class="flex justify-center py-8">
       <div class="text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"
+        ></div>
         <p class="text-gray-600">{{ t('bookCopies.loading.bookDetails') }}</p>
       </div>
     </div>
@@ -51,9 +55,16 @@
 
     <!-- Book copies list -->
     <div v-else-if="book">
-      <BookCopyList :copies="copies" :loading="loadingCopies" :show-actions="true"
-        :user-borrowed-copies="userBorrowedCopies" @borrow="handleBorrow" @return="handleReturn"
-        @maintenance="handleMaintenance" @edit="handleEdit" />
+      <BookCopyList
+        :copies="copies"
+        :loading="loadingCopies"
+        :show-actions="true"
+        :user-borrowed-copies="userBorrowedCopies"
+        @borrow="handleBorrow"
+        @return="handleReturn"
+        @maintenance="handleMaintenance"
+        @edit="handleEdit"
+      />
     </div>
 
     <!-- Create Copy Dialog -->
@@ -61,42 +72,59 @@
       <DialogContent class="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{{ t('bookCopies.dialogs.create.title') }}</DialogTitle>
-          <DialogDescription>{{ t('bookCopies.dialogs.create.description', { title: book?.title }) }}
+          <DialogDescription
+            >{{ t('bookCopies.dialogs.create.description', { title: book?.title }) }}
           </DialogDescription>
         </DialogHeader>
 
         <div class="space-y-4">
           <div>
             <Label for="barcode">{{ t('bookCopies.dialogs.create.fields.barcode.label') }}</Label>
-            <Input id="barcode" v-model="newCopy.barcode"
-              :placeholder="t('bookCopies.dialogs.create.fields.barcode.placeholder')" />
+            <Input
+              id="barcode"
+              v-model="newCopy.barcode"
+              :placeholder="t('bookCopies.dialogs.create.fields.barcode.placeholder')"
+            />
           </div>
 
           <div>
             <Label for="status">{{ t('bookCopies.dialogs.create.fields.status.label') }}</Label>
             <Select v-model="newCopy.status">
               <SelectTrigger>
-                <SelectValue :placeholder="t('bookCopies.dialogs.create.fields.status.placeholder')" />
+                <SelectValue
+                  :placeholder="t('bookCopies.dialogs.create.fields.status.placeholder')"
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="AVAILABLE">{{ t('bookCopies.status.available') }}</SelectItem>
-                <SelectItem value="MAINTENANCE">{{ t('bookCopies.status.maintenance') }}</SelectItem>
+                <SelectItem value="MAINTENANCE">{{
+                  t('bookCopies.status.maintenance')
+                }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label for="purchasePrice">{{ t('bookCopies.dialogs.create.fields.purchasePrice.label') }}</Label>
-            <Input id="purchasePrice" v-model.number="newCopy.purchasePrice" type="number" step="0.01"
-              :placeholder="t('bookCopies.dialogs.create.fields.purchasePrice.placeholder')" />
+            <Label for="purchasePrice">{{
+              t('bookCopies.dialogs.create.fields.purchasePrice.label')
+            }}</Label>
+            <Input
+              id="purchasePrice"
+              v-model.number="newCopy.purchasePrice"
+              type="number"
+              step="0.01"
+              :placeholder="t('bookCopies.dialogs.create.fields.purchasePrice.placeholder')"
+            />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" @click="showCreateDialog = false">{{ t('bookCopies.dialogs.create.buttons.cancel')
-            }}</Button>
-          <Button @click="createCopy" :disabled="!newCopy.barcode">{{ t('bookCopies.dialogs.create.buttons.create')
-            }}</Button>
+          <Button variant="outline" @click="showCreateDialog = false">{{
+            t('bookCopies.dialogs.create.buttons.cancel')
+          }}</Button>
+          <Button @click="createCopy" :disabled="!newCopy.barcode">{{
+            t('bookCopies.dialogs.create.buttons.create')
+          }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -111,21 +139,30 @@
 
         <div v-if="editingCopy" class="space-y-4">
           <div>
-            <Label for="edit-barcode">{{ t('bookCopies.dialogs.edit.fields.barcode.label') }}</Label>
-            <Input id="edit-barcode" v-model="editForm.barcode"
-              :placeholder="t('bookCopies.dialogs.edit.fields.barcode.placeholder')" />
+            <Label for="edit-barcode">{{
+              t('bookCopies.dialogs.edit.fields.barcode.label')
+            }}</Label>
+            <Input
+              id="edit-barcode"
+              v-model="editForm.barcode"
+              :placeholder="t('bookCopies.dialogs.edit.fields.barcode.placeholder')"
+            />
           </div>
 
           <div>
             <Label for="edit-status">{{ t('bookCopies.dialogs.edit.fields.status.label') }}</Label>
             <Select v-model="editForm.status">
               <SelectTrigger>
-                <SelectValue :placeholder="t('bookCopies.dialogs.edit.fields.status.placeholder')" />
+                <SelectValue
+                  :placeholder="t('bookCopies.dialogs.edit.fields.status.placeholder')"
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="AVAILABLE">{{ t('bookCopies.status.available') }}</SelectItem>
                 <SelectItem value="BORROWED">{{ t('bookCopies.status.borrowed') }}</SelectItem>
-                <SelectItem value="MAINTENANCE">{{ t('bookCopies.status.maintenance') }}</SelectItem>
+                <SelectItem value="MAINTENANCE">{{
+                  t('bookCopies.status.maintenance')
+                }}</SelectItem>
                 <SelectItem value="SCRAPPED">{{ t('bookCopies.status.scrapped') }}</SelectItem>
                 <SelectItem value="DISCARDED">{{ t('bookCopies.status.discarded') }}</SelectItem>
               </SelectContent>
@@ -133,17 +170,26 @@
           </div>
 
           <div>
-            <Label for="edit-purchasePrice">{{ t('bookCopies.dialogs.edit.fields.purchasePrice.label') }}</Label>
-            <Input id="edit-purchasePrice" v-model.number="editForm.purchasePrice" type="number" step="0.01"
-              :placeholder="t('bookCopies.dialogs.edit.fields.purchasePrice.placeholder')" />
+            <Label for="edit-purchasePrice">{{
+              t('bookCopies.dialogs.edit.fields.purchasePrice.label')
+            }}</Label>
+            <Input
+              id="edit-purchasePrice"
+              v-model.number="editForm.purchasePrice"
+              type="number"
+              step="0.01"
+              :placeholder="t('bookCopies.dialogs.edit.fields.purchasePrice.placeholder')"
+            />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" @click="showEditDialog = false">{{ t('bookCopies.dialogs.edit.buttons.cancel')
-            }}</Button>
-          <Button @click="updateCopy" :disabled="!editForm.barcode">{{ t('bookCopies.dialogs.edit.buttons.update')
-            }}</Button>
+          <Button variant="outline" @click="showEditDialog = false">{{
+            t('bookCopies.dialogs.edit.buttons.cancel')
+          }}</Button>
+          <Button @click="updateCopy" :disabled="!editForm.barcode">{{
+            t('bookCopies.dialogs.edit.buttons.update')
+          }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -79,37 +79,60 @@ const handleKeyPress = (event: KeyboardEvent) => {
               {{ t('login.form.fields.username.label') }}
             </label>
             <div class="relative">
-              <User class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="username" v-model="username" class="w-full pl-10"
-                :placeholder="t('login.form.fields.username.placeholder')" required type="text"
-                @onKeyDown="handleKeyPress" />
+              <User
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                id="username"
+                v-model="username"
+                class="w-full pl-10"
+                :placeholder="t('login.form.fields.username.placeholder')"
+                required
+                type="text"
+                @onKeyDown="handleKeyPress"
+              />
             </div>
           </div>
 
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="password">{{ t('login.form.fields.password.label')
+            <label class="text-sm font-medium text-foreground" for="password">{{
+              t('login.form.fields.password.label')
             }}</label>
             <div class="relative">
-              <Lock class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'"
-                class="w-full pl-10 pr-10" :placeholder="t('login.form.fields.password.placeholder')" required
-                @onKeyDown="handleKeyPress" />
+              <Lock
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                id="password"
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                class="w-full pl-10 pr-10"
+                :placeholder="t('login.form.fields.password.placeholder')"
+                required
+                @onKeyDown="handleKeyPress"
+              />
               <button
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                type="button" @click="togglePasswordVisibility">
+                type="button"
+                @click="togglePasswordVisibility"
+              >
                 <Eye v-if="!showPassword" class="h-4 w-4" />
                 <EyeOff v-else class="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          <div v-if="successMessage"
-            class="text-sm text-green-700 text-center bg-green-50 border border-green-200 rounded-md p-3">
+          <div
+            v-if="successMessage"
+            class="text-sm text-green-700 text-center bg-green-50 border border-green-200 rounded-md p-3"
+          >
             {{ successMessage }}
           </div>
 
-          <div v-if="errorMessage"
-            class="text-sm text-destructive text-center bg-destructive/10 border border-destructive/20 rounded-md p-3">
+          <div
+            v-if="errorMessage"
+            class="text-sm text-destructive text-center bg-destructive/10 border border-destructive/20 rounded-md p-3"
+          >
             {{ errorMessage }}
           </div>
 
@@ -123,8 +146,11 @@ const handleKeyPress = (event: KeyboardEvent) => {
         <div class="mt-6 text-center">
           <p class="text-sm text-muted-foreground">
             {{ t('login.register.text') }}
-            <button class="font-medium text-primary hover:underline cursor-pointer" type="button"
-              @click="router.push('/register')">
+            <button
+              class="font-medium text-primary hover:underline cursor-pointer"
+              type="button"
+              @click="router.push('/register')"
+            >
               {{ t('login.register.link') }}
             </button>
           </p>

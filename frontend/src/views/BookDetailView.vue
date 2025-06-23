@@ -198,9 +198,13 @@ onMounted(() => {
         <div class="lg:col-span-1">
           <Card class="overflow-hidden">
             <div class="aspect-[3/4] bg-muted flex items-center justify-center relative">
-              <img v-if="book.coverURL && !imageLoadError" :src="book.coverURL"
-                :alt="t('bookDetail.cover.altText', { title: book.title })" class="object-cover w-full h-full"
-                @error="imageLoadError = true" />
+              <img
+                v-if="book.coverURL && !imageLoadError"
+                :src="book.coverURL"
+                :alt="t('bookDetail.cover.altText', { title: book.title })"
+                class="object-cover w-full h-full"
+                @error="imageLoadError = true"
+              />
               <div v-else class="text-muted-foreground p-8 text-center">
                 <BookOpen class="h-16 w-16 mx-auto mb-4" />
                 <p>{{ t('bookDetail.cover.noImageAvailable') }}</p>
@@ -208,12 +212,15 @@ onMounted(() => {
 
               <!-- Availability Badge -->
               <div v-if="availabilityStatus" class="absolute top-4 right-4">
-                <Badge :variant="availabilityStatus === 'available'
-                  ? 'success'
-                  : availabilityStatus === 'limited'
-                    ? 'secondary'
-                    : 'destructive'
-                  ">
+                <Badge
+                  :variant="
+                    availabilityStatus === 'available'
+                      ? 'success'
+                      : availabilityStatus === 'limited'
+                        ? 'secondary'
+                        : 'destructive'
+                  "
+                >
                   {{
                     availabilityStatus === 'available'
                       ? t('bookDetail.availability.available')
@@ -235,40 +242,62 @@ onMounted(() => {
             <!-- Authors -->
             <div class="flex items-center gap-2 text-lg text-muted-foreground mb-4">
               <User class="h-5 w-5" />
-              <span>{{book.authors.map((a) => a.name).join(', ')}}</span>
+              <span>{{ book.authors.map((a) => a.name).join(', ') }}</span>
             </div>
 
             <!-- Rating -->
             <div v-if="comments.length > 0" class="flex items-center gap-2 mb-4">
               <div class="flex items-center">
-                <Star v-for="(filled, index) in renderStars(Math.round(averageRating))" :key="index"
-                  :class="filled ? 'text-yellow-400 fill-current' : 'text-gray-300'" class="h-5 w-5" />
+                <Star
+                  v-for="(filled, index) in renderStars(Math.round(averageRating))"
+                  :key="index"
+                  :class="filled ? 'text-yellow-400 fill-current' : 'text-gray-300'"
+                  class="h-5 w-5"
+                />
               </div>
               <span class="text-sm text-muted-foreground">
                 {{ averageRating.toFixed(1) }} ({{ comments.length }}
-                {{ comments.length === 1 ? t('bookDetail.rating.singleReview') : t('bookDetail.rating.multipleReviews',
-                  { count: comments.length }) }})
+                {{
+                  comments.length === 1
+                    ? t('bookDetail.rating.singleReview')
+                    : t('bookDetail.rating.multipleReviews', { count: comments.length })
+                }})
               </span>
             </div>
 
             <!-- Availability -->
             <div class="mb-6">
               <p class="text-lg font-semibold mb-2">{{ availabilityText }}</p>
-              <p class="text-sm text-muted-foreground">{{ t('bookDetail.availability.totalCopies', {
-                count:
-                  book.totalQuantity
-              }) }}</p>
+              <p class="text-sm text-muted-foreground">
+                {{
+                  t('bookDetail.availability.totalCopies', {
+                    count: book.totalQuantity,
+                  })
+                }}
+              </p>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex flex-wrap gap-3 mb-6">
-              <Button @click="handleBorrow" :disabled="book.availableQuantity === 0 || isBorrowing" size="lg">
+              <Button
+                @click="handleBorrow"
+                :disabled="book.availableQuantity === 0 || isBorrowing"
+                size="lg"
+              >
                 <BookOpen class="h-4 w-4 mr-2" />
-                {{ isBorrowing ? t('bookDetail.buttons.borrowing') : t('bookDetail.buttons.borrow') }}
+                {{
+                  isBorrowing ? t('bookDetail.buttons.borrowing') : t('bookDetail.buttons.borrow')
+                }}
               </Button>
 
-              <FavoriteButton v-if="authStore.isAuthenticated" :book-id="bookId" show-text variant="outline" size="lg"
-                @favorite-changed="handleFavoriteChanged" />
+              <FavoriteButton
+                v-if="authStore.isAuthenticated"
+                :book-id="bookId"
+                show-text
+                variant="outline"
+                size="lg"
+                @favorite-changed="handleFavoriteChanged"
+              />
 
               <Button variant="outline" @click="handleViewCopies" size="lg">
                 <Copy class="h-4 w-4 mr-2" />
@@ -303,13 +332,15 @@ onMounted(() => {
                 <div class="flex items-center gap-2">
                   <Tag class="h-4 w-4 text-muted-foreground" />
                   <span class="text-sm font-medium">{{ t('bookDetail.details.category') }}</span>
-                  <span class="text-sm">{{ book.indexCategory?.name || t('bookDetail.details.uncategorized') }}</span>
+                  <span class="text-sm">{{
+                    book.indexCategory?.name || t('bookDetail.details.uncategorized')
+                  }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
                   <Building class="h-4 w-4 text-muted-foreground" />
                   <span class="text-sm font-medium">{{ t('bookDetail.details.publishers') }}</span>
-                  <span class="text-sm">{{book.publishers.map((p) => p.name).join(', ')}}</span>
+                  <span class="text-sm">{{ book.publishers.map((p) => p.name).join(', ') }}</span>
                 </div>
               </div>
 
@@ -321,7 +352,9 @@ onMounted(() => {
 
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium">{{ t('bookDetail.details.available') }}</span>
-                  <span class="text-sm">{{ book.availableQuantity }} / {{ book.totalQuantity }}</span>
+                  <span class="text-sm"
+                    >{{ book.availableQuantity }} / {{ book.totalQuantity }}</span
+                  >
                 </div>
               </div>
             </CardContent>
@@ -351,8 +384,14 @@ onMounted(() => {
           <CardDescription>{{ t('bookDetail.comments.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
-          <CommentList :comments="comments" :book-id="bookId" :loading="isCommentsLoading" @comment-added="loadComments"
-            @comment-updated="loadComments" @comment-deleted="loadComments" />
+          <CommentList
+            :comments="comments"
+            :book-id="bookId"
+            :loading="isCommentsLoading"
+            @comment-added="loadComments"
+            @comment-updated="loadComments"
+            @comment-deleted="loadComments"
+          />
         </CardContent>
       </Card>
     </template>

@@ -234,8 +234,10 @@ const handleLogout = () => {
       <SidebarMenu>
         <!-- Language Selector -->
         <SidebarMenuItem>
-          <Select :model-value="currentLanguage"
-            @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)">
+          <Select
+            :model-value="currentLanguage"
+            @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)"
+          >
             <SelectTrigger class="w-full">
               <SelectValue>
                 <Languages class="h-4 w-4" />
@@ -257,7 +259,8 @@ const handleLogout = () => {
               <SidebarMenuButton class="h-12 px-2">
                 <Avatar class="h-8 w-8">
                   <AvatarImage alt="User" src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>{{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}
+                  <AvatarFallback
+                    >{{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}
                   </AvatarFallback>
                 </Avatar>
                 <div class="flex flex-col items-start">
@@ -289,7 +292,11 @@ const handleLogout = () => {
                 </RouterLink>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem class="flex items-center gap-2" variant="destructive" @click="handleLogout">
+              <DropdownMenuItem
+                class="flex items-center gap-2"
+                variant="destructive"
+                @click="handleLogout"
+              >
                 <LogOut class="h-4 w-4" />
                 <span>{{ t('sidebar.logout') }}</span>
               </DropdownMenuItem>

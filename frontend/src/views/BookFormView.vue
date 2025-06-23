@@ -48,10 +48,18 @@ const newPublisher = ref('')
 
 // Computed
 const isEditMode = computed(() => !!props.id)
-const pageTitle = computed(() => (isEditMode.value ? t('bookForm.title.edit') : t('bookForm.title.create')))
-const pageDescription = computed(() => (isEditMode.value ? t('bookForm.description.edit') : t('bookForm.description.create')))
+const pageTitle = computed(() =>
+  isEditMode.value ? t('bookForm.title.edit') : t('bookForm.title.create'),
+)
+const pageDescription = computed(() =>
+  isEditMode.value ? t('bookForm.description.edit') : t('bookForm.description.create'),
+)
 const submitButtonText = computed(() =>
-  isSaving.value ? t('bookForm.loading.saving') : isEditMode.value ? t('bookForm.buttons.update') : t('bookForm.buttons.create'),
+  isSaving.value
+    ? t('bookForm.loading.saving')
+    : isEditMode.value
+      ? t('bookForm.buttons.update')
+      : t('bookForm.buttons.create'),
 )
 
 // Methods
@@ -249,47 +257,76 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="title">{{ t('bookForm.fields.title.required') }}</Label>
-              <Input id="title" v-model="formData.title" :placeholder="t('bookForm.fields.title.placeholder')"
-                required />
+              <Input
+                id="title"
+                v-model="formData.title"
+                :placeholder="t('bookForm.fields.title.placeholder')"
+                required
+              />
             </div>
             <div class="space-y-2">
               <Label for="isbn">{{ t('bookForm.fields.isbn.required') }}</Label>
-              <Input id="isbn" v-model="formData.isbn" :placeholder="t('bookForm.fields.isbn.placeholder')"
-                :disabled="isEditMode" required />
+              <Input
+                id="isbn"
+                v-model="formData.isbn"
+                :placeholder="t('bookForm.fields.isbn.placeholder')"
+                :disabled="isEditMode"
+                required
+              />
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="language">{{ t('bookForm.fields.language.required') }}</Label>
-              <Input id="language" v-model="formData.language" :placeholder="t('bookForm.fields.language.placeholder')"
-                required />
+              <Input
+                id="language"
+                v-model="formData.language"
+                :placeholder="t('bookForm.fields.language.placeholder')"
+                required
+              />
             </div>
             <div class="space-y-2">
               <Label for="location">{{ t('bookForm.fields.location.label') }}</Label>
-              <Input id="location" v-model="formData.location"
-                :placeholder="t('bookForm.fields.location.placeholder')" />
+              <Input
+                id="location"
+                v-model="formData.location"
+                :placeholder="t('bookForm.fields.location.placeholder')"
+              />
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" v-if="!isEditMode">
             <div class="space-y-2">
               <Label for="totalQuantity">{{ t('bookForm.fields.totalQuantity.required') }}</Label>
-              <Input id="totalQuantity" v-model.number="formData.totalQuantity" type="number" min="1" required />
+              <Input
+                id="totalQuantity"
+                v-model.number="formData.totalQuantity"
+                type="number"
+                min="1"
+                required
+              />
             </div>
           </div>
 
           <div class="space-y-2">
             <Label for="description">{{ t('bookForm.fields.description.label') }}</Label>
-            <textarea id="description" v-model="formData.description"
+            <textarea
+              id="description"
+              v-model="formData.description"
               class="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              :placeholder="t('bookForm.fields.description.placeholder')" />
+              :placeholder="t('bookForm.fields.description.placeholder')"
+            />
           </div>
 
           <div class="space-y-2">
             <Label for="coverURL">{{ t('bookForm.fields.coverURL.label') }}</Label>
-            <Input id="coverURL" v-model="formData.coverURL" type="url"
-              :placeholder="t('bookForm.fields.coverURL.placeholder')" />
+            <Input
+              id="coverURL"
+              v-model="formData.coverURL"
+              type="url"
+              :placeholder="t('bookForm.fields.coverURL.placeholder')"
+            />
           </div>
         </CardContent>
       </Card>
@@ -302,14 +339,22 @@ onMounted(() => {
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="flex space-x-2">
-            <Input v-model="newAuthor" :placeholder="t('bookForm.fields.newAuthor.placeholder')"
-              @keyup.enter="addAuthor" />
-            <Button type="button" @click="addAuthor" variant="outline"> {{ t('bookForm.buttons.add') }} </Button>
+            <Input
+              v-model="newAuthor"
+              :placeholder="t('bookForm.fields.newAuthor.placeholder')"
+              @keyup.enter="addAuthor"
+            />
+            <Button type="button" @click="addAuthor" variant="outline">
+              {{ t('bookForm.buttons.add') }}
+            </Button>
           </div>
 
           <div v-if="formData.authorNames.length > 0" class="space-y-2">
-            <div v-for="(author, index) in formData.authorNames" :key="index"
-              class="flex items-center justify-between p-2 bg-muted rounded">
+            <div
+              v-for="(author, index) in formData.authorNames"
+              :key="index"
+              class="flex items-center justify-between p-2 bg-muted rounded"
+            >
               <span>{{ author }}</span>
               <Button type="button" variant="ghost" size="sm" @click="removeAuthor(index)">
                 {{ t('bookForm.buttons.remove') }}
@@ -327,14 +372,22 @@ onMounted(() => {
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="flex space-x-2">
-            <Input v-model="newPublisher" :placeholder="t('bookForm.fields.newPublisher.placeholder')"
-              @keyup.enter="addPublisher" />
-            <Button type="button" @click="addPublisher" variant="outline"> {{ t('bookForm.buttons.add') }} </Button>
+            <Input
+              v-model="newPublisher"
+              :placeholder="t('bookForm.fields.newPublisher.placeholder')"
+              @keyup.enter="addPublisher"
+            />
+            <Button type="button" @click="addPublisher" variant="outline">
+              {{ t('bookForm.buttons.add') }}
+            </Button>
           </div>
 
           <div v-if="formData.publisherNames.length > 0" class="space-y-2">
-            <div v-for="(publisher, index) in formData.publisherNames" :key="index"
-              class="flex items-center justify-between p-2 bg-muted rounded">
+            <div
+              v-for="(publisher, index) in formData.publisherNames"
+              :key="index"
+              class="flex items-center justify-between p-2 bg-muted rounded"
+            >
               <span>{{ publisher }}</span>
               <Button type="button" variant="ghost" size="sm" @click="removePublisher(index)">
                 {{ t('bookForm.buttons.remove') }}
@@ -353,8 +406,12 @@ onMounted(() => {
         <CardContent>
           <div class="space-y-2">
             <Label for="category">{{ t('bookForm.fields.category.required') }}</Label>
-            <Input id="category" v-model="formData.categoryName"
-              :placeholder="t('bookForm.fields.category.placeholder')" required />
+            <Input
+              id="category"
+              v-model="formData.categoryName"
+              :placeholder="t('bookForm.fields.category.placeholder')"
+              required
+            />
           </div>
         </CardContent>
       </Card>
@@ -363,7 +420,9 @@ onMounted(() => {
 
       <!-- Form Actions -->
       <div class="flex justify-end space-x-4">
-        <Button type="button" variant="outline" @click="goBack"> {{ t('bookForm.buttons.cancel') }} </Button>
+        <Button type="button" variant="outline" @click="goBack">
+          {{ t('bookForm.buttons.cancel') }}
+        </Button>
         <Button type="submit" :disabled="isSaving">
           <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin mr-2" />
           <Save v-else class="h-4 w-4 mr-2" />

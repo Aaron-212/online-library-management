@@ -30,65 +30,67 @@ export default {
       welcomeBack: 'Welcome back, {username}!',
       welcomeBackDefault: 'Welcome back, Reader!',
       welcomeToLibrary: 'Welcome to Your Digital Library',
-      subtitleAuthenticated: 'Discover new worlds, continue your reading journey, and explore our vast collection.',
-      subtitleGuest: 'Discover thousands of books, manage your reading journey, and connect with a community of readers.',
+      subtitleAuthenticated:
+        'Discover new worlds, continue your reading journey, and explore our vast collection.',
+      subtitleGuest:
+        'Discover thousands of books, manage your reading journey, and connect with a community of readers.',
       searchPlaceholder: 'Search books, ISBN or author...',
-      searchButton: 'Search'
+      searchButton: 'Search',
     },
     quickActions: {
       title: 'Quick Actions',
       browseBooks: {
         title: 'Browse Books',
-        description: 'Explore our collection'
+        description: 'Explore our collection',
       },
       myBorrows: {
         title: 'My Borrows',
-        description: 'View borrowed books'
+        description: 'View borrowed books',
       },
       dashboard: {
         title: 'Dashboard',
-        description: 'Your reading stats'
+        description: 'Your reading stats',
       },
       signIn: {
         title: 'Sign In',
-        description: 'Access your account'
+        description: 'Access your account',
       },
       register: {
         title: 'Register',
-        description: 'Join our community'
-      }
+        description: 'Join our community',
+      },
     },
     categories: {
-      title: 'Browse by Category'
+      title: 'Browse by Category',
     },
     recommendedBooks: {
       title: 'Recommended Books',
       subtitle: 'Recently added to our collection',
-      viewAll: 'View All'
+      viewAll: 'View All',
     },
     popularBooks: {
       title: 'Hot Borrows',
-      subtitle: 'Most borrowed books recently'
+      subtitle: 'Most borrowed books recently',
     },
     libraryFeatures: {
       title: 'Why Choose Our Library?',
       subtitle: 'Discover the benefits of joining our digital library community',
       vastCollection: {
         title: 'Vast Collection',
-        description: 'Access thousands of books across all genres and categories.'
+        description: 'Access thousands of books across all genres and categories.',
       },
       community: {
         title: 'Community',
-        description: 'Connect with fellow readers and share your reading experience.'
+        description: 'Connect with fellow readers and share your reading experience.',
       },
       easyManagement: {
         title: 'Easy Management',
-        description: 'Track your borrowed books and manage your reading schedule.'
+        description: 'Track your borrowed books and manage your reading schedule.',
       },
       personalized: {
         title: 'Personalized',
-        description: 'Get recommendations based on your reading preferences.'
-      }
+        description: 'Get recommendations based on your reading preferences.',
+      },
     },
     status: {
       available: 'Available',
@@ -99,42 +101,42 @@ export default {
     },
     loading: {
       content: 'Loading library content...',
-      error: 'Failed to load some content'
-    }
-  },
-  "routes": {
-    "home": "Home",
-    "dashboard": "Dashboard",
-    "login": "Login",
-    "register": "Register",
-    "profile": "Profile",
-    "notices": "Notices",
-    "reservations": "Reservations",
-    "favorites": "Favorites", 
-    "billing": "Billing",
-    "api-test": "API Test",
-    "not-found": "Page Not Found",
-    "books": "Books",
-    "book-detail": "Book Details",
-    "book": {
-      "index": "Books",
-      "detail": "Book Details",
-      "copies": "Book Copies",
-      "create": "Create Book",
-      "edit": "Edit Book"
+      error: 'Failed to load some content',
     },
-    "borrows": "My Borrowing",
-    "admin": {
-      "dashboard": "Admin Dashboard",
-      "books": "Manage Books",
-      "book-create": "Create Book",
-      "book-edit": "Edit Book", 
-      "users": "User Management",
-      "borrowing": "Borrowing Management",
-      "borrowing-rules": "Borrowing Rules",
-      "fees": "Fee Management",
-      "reports": "Reports"
-    }
+  },
+  routes: {
+    home: 'Home',
+    dashboard: 'Dashboard',
+    login: 'Login',
+    register: 'Register',
+    profile: 'Profile',
+    notices: 'Notices',
+    reservations: 'Reservations',
+    favorites: 'Favorites',
+    billing: 'Billing',
+    'api-test': 'API Test',
+    'not-found': 'Page Not Found',
+    books: 'Books',
+    'book-detail': 'Book Details',
+    book: {
+      index: 'Books',
+      detail: 'Book Details',
+      copies: 'Book Copies',
+      create: 'Create Book',
+      edit: 'Edit Book',
+    },
+    borrows: 'My Borrowing',
+    admin: {
+      dashboard: 'Admin Dashboard',
+      books: 'Manage Books',
+      'book-create': 'Create Book',
+      'book-edit': 'Edit Book',
+      users: 'User Management',
+      borrowing: 'Borrowing Management',
+      'borrowing-rules': 'Borrowing Rules',
+      fees: 'Fee Management',
+      reports: 'Reports',
+    },
   },
   books: {
     title: 'Books',
@@ -143,34 +145,34 @@ export default {
     search: {
       label: 'Search',
       placeholder: 'Search books by title, author, or ISBN...',
-      button: 'Search'
+      button: 'Search',
     },
     filters: {
       category: {
         label: 'Category',
-        all: 'All Categories'
+        all: 'All Categories',
       },
       language: {
         label: 'Language',
-        all: 'All Languages'
+        all: 'All Languages',
       },
       sort: {
         label: 'Sort By',
         titleAsc: 'Title (A-Z)',
         titleDesc: 'Title (Z-A)',
         availableFirst: 'Available First',
-        totalCopies: 'Total Copies'
-      }
+        totalCopies: 'Total Copies',
+      },
     },
     results: {
       showing: 'Showing {count} of {total} books',
       loading: 'Loading books...',
-      noResults: 'No books found matching your criteria.'
+      noResults: 'No books found matching your criteria.',
     },
     pagination: {
       previous: 'Previous',
       next: 'Next',
-      page: 'Page {current} of {total}'
+      page: 'Page {current} of {total}',
     },
     form: {
       title: 'Add Book',
@@ -178,59 +180,59 @@ export default {
       fields: {
         title: {
           label: 'Title',
-          placeholder: 'Enter book title...'
+          placeholder: 'Enter book title...',
         },
         isbn: {
           label: 'ISBN',
-          placeholder: 'Enter ISBN...'
+          placeholder: 'Enter ISBN...',
         },
         language: {
           label: 'Language',
-          placeholder: 'Enter language...'
+          placeholder: 'Enter language...',
         },
         category: {
           label: 'Category',
-          placeholder: 'Enter category...'
+          placeholder: 'Enter category...',
         },
         authors: {
           label: 'Authors',
-          placeholder: 'Enter authors (comma-separated)...'
+          placeholder: 'Enter authors (comma-separated)...',
         },
         publisher: {
           label: 'Publisher',
-          placeholder: 'Enter publisher...'
+          placeholder: 'Enter publisher...',
         },
         publishedYear: {
-          label: 'Published Year'
+          label: 'Published Year',
         },
         description: {
           label: 'Description',
-          placeholder: 'Enter book description...'
+          placeholder: 'Enter book description...',
         },
         coverURL: {
           label: 'Cover Image URL',
-          placeholder: 'https://example.com/book-cover.jpg (optional)'
+          placeholder: 'https://example.com/book-cover.jpg (optional)',
         },
         totalQuantity: {
-          label: 'Total Quantity'
-        }
+          label: 'Total Quantity',
+        },
       },
       buttons: {
         cancel: 'Cancel',
         add: 'Add Book',
-        adding: 'Adding...'
+        adding: 'Adding...',
       },
       validation: {
-        requiredFields: 'Please fill in all required fields'
+        requiredFields: 'Please fill in all required fields',
       },
       messages: {
         success: 'Book added successfully!',
-        error: 'Failed to add book'
-      }
+        error: 'Failed to add book',
+      },
     },
     errors: {
-      loadFailed: 'Failed to load books'
-    }
+      loadFailed: 'Failed to load books',
+    },
   },
   bookCard: {
     loadingImage: 'Loading image...',
@@ -239,15 +241,15 @@ export default {
       available: 'Available',
       limited: 'Limited',
       outOfStock: 'Out of Stock',
-      notAvailable: 'Not Available'
+      notAvailable: 'Not Available',
     },
     availability: {
       singleCopy: '1 copy available',
       multipleCopies: '{count} copies available',
-      total: 'total'
+      total: 'total',
     },
     authorPrefix: 'By: ',
-    isbnPrefix: 'ISBN: '
+    isbnPrefix: 'ISBN: ',
   },
   notices: {
     title: 'Library Notices',
@@ -255,79 +257,79 @@ export default {
     addNotice: 'Add Notice',
     search: {
       placeholder: 'Search notices...',
-      showing: '{count} of {total} notices'
+      showing: '{count} of {total} notices',
     },
     loading: 'Loading notices...',
     empty: {
       title: 'No Notices Yet',
       description: 'There are no notices to display at the moment.',
-      createFirst: 'Create First Notice'
+      createFirst: 'Create First Notice',
     },
     noResults: 'No notices found matching your search.',
     status: {
       new: 'New',
       pinned: 'Pinned',
-      show: 'Show'
+      show: 'Show',
     },
     time: {
       justNow: 'Just now',
       minutesAgo: '{count} minute{plural} ago',
       hoursAgo: '{count} hour{plural} ago',
       daysAgo: '{count} day{plural} ago',
-      updated: 'Updated {time}'
+      updated: 'Updated {time}',
     },
     form: {
       create: {
         title: 'Create New Notice',
-        description: 'Create a new announcement for library users.'
+        description: 'Create a new announcement for library users.',
       },
       edit: {
         title: 'Edit Notice',
-        description: 'Update the notice information.'
+        description: 'Update the notice information.',
       },
       fields: {
         title: {
           label: 'Title',
-          placeholder: 'Enter notice title...'
+          placeholder: 'Enter notice title...',
         },
         content: {
           label: 'Content',
-          placeholder: 'Enter notice content...'
+          placeholder: 'Enter notice content...',
         },
         publishTime: {
           label: 'Publish Time',
-          required: 'Publish Time *'
+          required: 'Publish Time *',
         },
         expireTime: {
-          label: 'Expire Time (optional)'
+          label: 'Expire Time (optional)',
         },
         status: {
           label: 'Status',
           required: 'Status *',
-          placeholder: 'Select status'
-        }
+          placeholder: 'Select status',
+        },
       },
       buttons: {
         cancel: 'Cancel',
         create: 'Create Notice',
         creating: 'Creating...',
         update: 'Update Notice',
-        updating: 'Updating...'
+        updating: 'Updating...',
       },
       validation: {
-        requiredFields: 'Please fill in all required fields'
-      }
+        requiredFields: 'Please fill in all required fields',
+      },
     },
     delete: {
       title: 'Delete Notice',
       description: 'Are you sure you want to delete this notice? This action cannot be undone.',
       confirm: 'Delete',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
     },
     pagination: {
       previous: 'Previous',
       next: 'Next',
-      page: 'Page {current} of {total}'
+      page: 'Page {current} of {total}',
     },
     messages: {
       createSuccess: 'Notice created successfully!',
@@ -336,17 +338,18 @@ export default {
       updateError: 'Failed to update notice',
       deleteSuccess: 'Notice deleted successfully!',
       deleteError: 'Failed to delete notice',
-      loadError: 'Failed to load notices'
-    }
+      loadError: 'Failed to load notices',
+    },
   },
   notFound: {
     title: '404',
     heading: 'Page Not Found',
-    description: 'The page you\'re looking for doesn\'t exist. It might have been moved, deleted, or you entered the wrong URL.',
+    description:
+      "The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.",
     buttons: {
       goBack: 'Go Back',
-      goHome: 'Go Home'
-    }
+      goHome: 'Go Home',
+    },
   },
   favorites: {
     title: 'Favorites',
@@ -355,11 +358,11 @@ export default {
     pageTitle: 'My Favorite Books',
     count: {
       singular: '{count} book in your favorites',
-      plural: '{count} books in your favorites'
+      plural: '{count} books in your favorites',
     },
     empty: {
       title: 'No favorites yet',
-      description: 'Start adding books to your favorites to see them here.'
+      description: 'Start adding books to your favorites to see them here.',
     },
     table: {
       headers: {
@@ -367,24 +370,24 @@ export default {
         authors: 'Author(s)',
         category: 'Category',
         addedDate: 'Added Date',
-        actions: 'Actions'
+        actions: 'Actions',
       },
       actions: {
         viewDetails: 'View Details',
         remove: 'Remove',
-        removing: 'Removing...'
+        removing: 'Removing...',
       },
       categoryDefault: 'Uncategorized',
-      isbnPrefix: 'ISBN: '
+      isbnPrefix: 'ISBN: ',
     },
     dialogs: {
-      removeConfirm: 'Are you sure you want to remove this book from your favorites?'
+      removeConfirm: 'Are you sure you want to remove this book from your favorites?',
     },
     messages: {
       removeSuccess: 'Book removed from favorites!',
       removeError: 'Failed to remove favorite. Please try again.',
-      loadError: 'Failed to load favorites'
-    }
+      loadError: 'Failed to load favorites',
+    },
   },
   billing: {
     title: 'Billing Center',
@@ -393,44 +396,44 @@ export default {
     sections: {
       overdueFees: {
         title: 'Overdue Fees',
-        description: 'Fees for late book returns'
+        description: 'Fees for late book returns',
       },
       paymentSummary: {
-        title: 'Payment Summary'
-      }
+        title: 'Payment Summary',
+      },
     },
     table: {
       headers: {
         borrowRecordId: 'Borrow Record ID',
         feeAmount: 'Fee Amount',
         status: 'Status',
-        actions: 'Actions'
-      }
+        actions: 'Actions',
+      },
     },
     status: {
       paid: 'Paid',
-      unpaid: 'Unpaid'
+      unpaid: 'Unpaid',
     },
     actions: {
       payFee: 'Pay Fee',
-      processing: 'Processing...'
+      processing: 'Processing...',
     },
     summary: {
       unpaidFees: 'Unpaid Fees',
       totalUnpaidAmount: 'Total Unpaid Amount',
-      paidFees: 'Paid Fees'
+      paidFees: 'Paid Fees',
     },
     empty: {
-      noOverdueFees: 'No overdue fees found'
+      noOverdueFees: 'No overdue fees found',
     },
     dialogs: {
-      payConfirm: 'Are you sure you want to pay this fee?'
+      payConfirm: 'Are you sure you want to pay this fee?',
     },
     messages: {
       loadError: 'Failed to load billing information',
       paySuccess: 'Fee paid successfully!',
-      payError: 'Failed to pay fee. Please try again.'
-    }
+      payError: 'Failed to pay fee. Please try again.',
+    },
   },
   borrowing: {
     title: 'My Borrowing',
@@ -442,46 +445,46 @@ export default {
       renew: 'Renew',
       return: 'Return',
       returning: 'Returning...',
-      payNow: 'Pay Now'
+      payNow: 'Pay Now',
     },
     summary: {
       activeBorrows: {
         title: 'Active Borrows',
-        description: 'Currently borrowed'
+        description: 'Currently borrowed',
       },
       overdueBooks: {
         title: 'Overdue Books',
-        description: 'Need immediate attention'
+        description: 'Need immediate attention',
       },
       outstandingFees: {
         title: 'Outstanding Fees',
-        description: 'Unpaid late fees'
-      }
+        description: 'Unpaid late fees',
+      },
     },
     filters: {
       search: {
         label: 'Search Books',
-        placeholder: 'Search by title, author, or ISBN...'
+        placeholder: 'Search by title, author, or ISBN...',
       },
       status: {
         label: 'Status',
         all: 'All Borrows',
         active: 'Active',
         returned: 'Returned',
-        overdue: 'Overdue'
-      }
+        overdue: 'Overdue',
+      },
     },
     status: {
       returned: 'Returned',
       overdue: 'Overdue',
       dueSoon: 'Due Soon',
-      active: 'Active'
+      active: 'Active',
     },
     fees: {
       title: 'Outstanding Fees',
       description: 'Please pay your late fees to continue borrowing',
       borrowId: 'Borrow ID: {id}',
-      feeDate: 'Fee Date: {date}'
+      feeDate: 'Fee Date: {date}',
     },
     history: {
       title: 'Borrowing History',
@@ -491,16 +494,16 @@ export default {
       due: 'Due: {date}',
       returned: 'Returned: {date}',
       daysLeft: '{days} days left',
-      daysOverdue: '{days} days overdue'
+      daysOverdue: '{days} days overdue',
     },
     empty: {
       noBorrows: 'No borrows found matching your criteria',
-      noFees: 'No outstanding fees'
+      noFees: 'No outstanding fees',
     },
     pagination: {
       previous: 'Previous',
       next: 'Next',
-      page: 'Page {current} of {total}'
+      page: 'Page {current} of {total}',
     },
     messages: {
       loadError: 'Failed to load borrowing history',
@@ -509,23 +512,23 @@ export default {
       renewSuccess: 'Book renewed successfully!',
       renewError: 'Failed to renew book',
       paySuccess: 'Fee paid successfully!',
-      payError: 'Failed to pay fee'
-    }
+      payError: 'Failed to pay fee',
+    },
   },
   bookCopies: {
     title: 'Book Copies',
     breadcrumb: {
       books: 'Books',
-      copies: 'Copies'
+      copies: 'Copies',
     },
     header: {
       title: 'Book Copies',
-      addCopy: 'Add Copy'
+      addCopy: 'Add Copy',
     },
     loading: {
       bookDetails: 'Loading book details...',
       error: 'Error Loading Book',
-      tryAgain: 'Try Again'
+      tryAgain: 'Try Again',
     },
     dialogs: {
       create: {
@@ -534,21 +537,21 @@ export default {
         fields: {
           barcode: {
             label: 'Barcode',
-            placeholder: 'Enter barcode...'
+            placeholder: 'Enter barcode...',
           },
           status: {
             label: 'Status',
-            placeholder: 'Select status'
+            placeholder: 'Select status',
           },
           purchasePrice: {
             label: 'Purchase Price (Optional)',
-            placeholder: '0.00'
-          }
+            placeholder: '0.00',
+          },
         },
         buttons: {
           cancel: 'Cancel',
-          create: 'Create Copy'
-        }
+          create: 'Create Copy',
+        },
       },
       edit: {
         title: 'Edit Copy',
@@ -556,29 +559,29 @@ export default {
         fields: {
           barcode: {
             label: 'Barcode',
-            placeholder: 'Enter barcode...'
+            placeholder: 'Enter barcode...',
           },
           status: {
             label: 'Status',
-            placeholder: 'Select status'
+            placeholder: 'Select status',
           },
           purchasePrice: {
             label: 'Purchase Price',
-            placeholder: '0.00'
-          }
+            placeholder: '0.00',
+          },
         },
         buttons: {
           cancel: 'Cancel',
-          update: 'Update Copy'
-        }
-      }
+          update: 'Update Copy',
+        },
+      },
     },
     status: {
       available: 'Available',
       borrowed: 'Borrowed',
       maintenance: 'Maintenance',
       scrapped: 'Scrapped',
-      discarded: 'Discarded'
+      discarded: 'Discarded',
     },
     messages: {
       createSuccess: 'Copy created successfully',
@@ -593,8 +596,8 @@ export default {
       maintenanceError: 'Failed to update copy status',
       loginRequired: 'Please login to borrow books',
       loginRequiredReturn: 'Please login to return books',
-      noBorrowRecord: 'No active borrow record found for this book copy'
-    }
+      noBorrowRecord: 'No active borrow record found for this book copy',
+    },
   },
   adminBorrowing: {
     title: 'Admin Borrowing Management',
@@ -603,21 +606,21 @@ export default {
       registerBorrow: 'Register Borrow',
       cancel: 'Cancel',
       creating: 'Creating...',
-      refresh: 'Refresh'
+      refresh: 'Refresh',
     },
     summary: {
       totalBorrows: {
         title: 'Total Borrows',
-        description: 'All borrowing records'
+        description: 'All borrowing records',
       },
       activeBorrows: {
         title: 'Active Borrows',
-        description: 'Currently borrowed'
+        description: 'Currently borrowed',
       },
       overdueBooks: {
         title: 'Overdue Books',
-        description: 'Need attention'
-      }
+        description: 'Need attention',
+      },
     },
     dialog: {
       title: 'Register Book Borrowing',
@@ -625,33 +628,33 @@ export default {
       userSelection: {
         label: 'Select User',
         placeholder: 'Search users by username...',
-        idPrefix: 'ID: '
+        idPrefix: 'ID: ',
       },
       bookSelection: {
         label: 'Select Book',
         placeholder: 'Search books by title, author, or ISBN...',
         available: 'Available: {available} / {total}',
-        isbnPrefix: 'ISBN: '
+        isbnPrefix: 'ISBN: ',
       },
       copySelection: {
         label: 'Select Available Copy',
         copyNumber: 'Copy #{id}',
         availableStatus: 'Available',
-        noAvailableCopies: 'No available copies for this book'
-      }
+        noAvailableCopies: 'No available copies for this book',
+      },
     },
     filters: {
       search: {
         label: 'Search Records',
-        placeholder: 'Search by user, book title, or ISBN...'
+        placeholder: 'Search by user, book title, or ISBN...',
       },
       status: {
         label: 'Status',
         allBorrows: 'All Borrows',
         active: 'Active',
         returned: 'Returned',
-        overdue: 'Overdue'
-      }
+        overdue: 'Overdue',
+      },
     },
     list: {
       title: 'All Borrowing Records',
@@ -664,13 +667,13 @@ export default {
       due: 'Due: {date}',
       returned: 'Returned: {date}',
       daysLeft: '{days} days left',
-      daysOverdue: '{days} days overdue'
+      daysOverdue: '{days} days overdue',
     },
     status: {
       returned: 'Returned',
       overdue: 'Overdue',
       dueSoon: 'Due Soon',
-      active: 'Active'
+      active: 'Active',
     },
     messages: {
       success: 'Book borrowed successfully!',
@@ -679,83 +682,83 @@ export default {
       loadUsersError: 'Failed to load users',
       loadBooksError: 'Failed to load books',
       loadCopiesError: 'Failed to load book copies',
-      validationError: 'Please select both a user and a book copy'
-    }
+      validationError: 'Please select both a user and a book copy',
+    },
   },
   bookForm: {
     title: {
       create: 'Add New Book',
-      edit: 'Edit Book'
+      edit: 'Edit Book',
     },
     description: {
       create: 'Add a new book to the library',
-      edit: 'Update book information'
+      edit: 'Update book information',
     },
     loading: {
       book: 'Loading book data...',
-      saving: 'Saving...'
+      saving: 'Saving...',
     },
     sections: {
       basicInfo: {
         title: 'Basic Information',
-        description: 'Enter the book\'s basic details'
+        description: "Enter the book's basic details",
       },
       authors: {
         title: 'Authors',
-        description: 'Add the book\'s authors'
+        description: "Add the book's authors",
       },
       publishers: {
         title: 'Publishers',
-        description: 'Add the book\'s publishers'
+        description: "Add the book's publishers",
       },
       category: {
         title: 'Category',
-        description: 'Specify the book\'s category'
-      }
+        description: "Specify the book's category",
+      },
     },
     fields: {
       title: {
         label: 'Title',
         placeholder: 'Enter book title',
-        required: 'Title *'
+        required: 'Title *',
       },
       isbn: {
         label: 'ISBN',
         placeholder: 'Enter ISBN',
-        required: 'ISBN *'
+        required: 'ISBN *',
       },
       language: {
         label: 'Language',
         placeholder: 'e.g., English, Spanish, etc.',
-        required: 'Language *'
+        required: 'Language *',
       },
       location: {
         label: 'Location',
-        placeholder: 'e.g., LIBRARY, STORAGE, etc.'
+        placeholder: 'e.g., LIBRARY, STORAGE, etc.',
       },
       totalQuantity: {
         label: 'Total Quantity',
-        required: 'Total Quantity *'
+        required: 'Total Quantity *',
       },
       description: {
         label: 'Description',
-        placeholder: 'Enter book description (optional)'
+        placeholder: 'Enter book description (optional)',
       },
       coverURL: {
         label: 'Cover Image URL',
-        placeholder: 'https://example.com/book-cover.jpg (optional)'
+        placeholder: 'https://example.com/book-cover.jpg (optional)',
       },
       category: {
         label: 'Category',
         placeholder: 'Enter category name',
-        required: 'Category *'
+        required: 'Category *',
       },
       newAuthor: {
-        placeholder: 'Enter author name'
+        placeholder: 'Enter author name',
       },
       newPublisher: {
-        placeholder: 'Enter publisher name'
-      }
+        placeholder: 'Enter publisher name',
+      },
     },
     buttons: {
       back: 'Back',
@@ -766,7 +769,7 @@ export default {
       creating: 'Creating...',
       updating: 'Updating...',
       add: 'Add',
-      remove: 'Remove'
+      remove: 'Remove',
     },
     validation: {
       titleRequired: 'Title is required',
@@ -775,74 +778,74 @@ export default {
       authorsRequired: 'At least one author is required',
       publishersRequired: 'At least one publisher is required',
       categoryRequired: 'Category is required',
-      quantityMinimum: 'Total quantity must be at least 1'
+      quantityMinimum: 'Total quantity must be at least 1',
     },
     messages: {
       loadError: 'Failed to load book data',
       saveError: 'Failed to save book',
       createSuccess: 'Book created successfully!',
-      updateSuccess: 'Book updated successfully!'
-    }
+      updateSuccess: 'Book updated successfully!',
+    },
   },
   dashboard: {
     greeting: {
       morning: 'Good morning',
       afternoon: 'Good afternoon',
       evening: 'Good evening',
-      subtitle: 'Ready to explore your library today?'
+      subtitle: 'Ready to explore your library today?',
     },
     loading: 'Loading your dashboard...',
     user: {
       roles: {
         admin: 'Administrator',
-        user: 'Reader'
+        user: 'Reader',
       },
       memberSince: 'Member since',
-      recently: 'recently'
+      recently: 'recently',
     },
     stats: {
       availableBooks: {
         title: 'Available Books',
-        description: 'Ready to borrow'
+        description: 'Ready to borrow',
       },
       activeLoans: {
         title: 'Your Active Loans',
-        description: 'Currently borrowed'
+        description: 'Currently borrowed',
       },
       booksRead: {
         title: 'Books Read',
-        description: 'Successfully returned'
+        description: 'Successfully returned',
       },
       overdueBooks: {
         title: 'Overdue Books',
-        description: 'Need to return'
-      }
+        description: 'Need to return',
+      },
     },
     quickActions: {
       title: 'Quick Actions',
       subtitle: 'What would you like to do today?',
       browseBooks: {
         title: 'Browse Books',
-        description: 'Explore available books'
+        description: 'Explore available books',
       },
       myBorrowings: {
         title: 'My Borrowings',
-        description: 'View borrowing history'
+        description: 'View borrowing history',
       },
       myProfile: {
         title: 'My Profile',
-        description: 'Manage your account'
+        description: 'Manage your account',
       },
       readingList: {
         title: 'Reading List',
-        description: 'Manage your wishlist'
-      }
+        description: 'Manage your wishlist',
+      },
     },
     newArrivals: {
       title: 'New Arrivals',
       description: 'Recently added to the library',
       browseAll: 'Browse All',
-      noBooks: 'No recent books found'
+      noBooks: 'No recent books found',
     },
     recentActivity: {
       title: 'Your Recent Activity',
@@ -852,23 +855,23 @@ export default {
       noActivity: 'No borrowing activity yet',
       startBrowsing: 'Start browsing books',
       returned: 'Returned',
-      due: 'Due'
+      due: 'Due',
     },
     notices: {
       title: 'Library Notices',
       description: 'Important updates and announcements',
       viewAll: 'View All',
-      noNotices: 'No recent notices'
+      noNotices: 'No recent notices',
     },
     recommendations: {
       title: 'Recommended for You',
       description: 'Based on your reading history and preferences',
       comingSoon: 'Personalized recommendations coming soon!',
-      keepReading: 'Keep borrowing books to help us learn your preferences.'
+      keepReading: 'Keep borrowing books to help us learn your preferences.',
     },
     messages: {
-      loadError: 'Failed to load statistics'
-    }
+      loadError: 'Failed to load statistics',
+    },
   },
   bookDetail: {
     title: 'Book Details',
@@ -876,7 +879,7 @@ export default {
     loading: 'Loading book details...',
     cover: {
       noImageAvailable: 'No cover image available',
-      altText: 'Cover of {title}'
+      altText: 'Cover of {title}',
     },
     availability: {
       available: 'Available',
@@ -885,18 +888,18 @@ export default {
       notAvailable: 'Not Available',
       singleCopy: '1 copy available',
       multipleCopies: '{count} copies available',
-      totalCopies: 'Total copies: {count}'
+      totalCopies: 'Total copies: {count}',
     },
     rating: {
       singleReview: '1 review',
-      multipleReviews: '{count} reviews'
+      multipleReviews: '{count} reviews',
     },
     buttons: {
       borrow: 'Borrow Book',
       borrowing: 'Borrowing...',
       viewCopies: 'View Copies',
       share: 'Share',
-      edit: 'Edit Book'
+      edit: 'Edit Book',
     },
     details: {
       title: 'Book Details',
@@ -905,19 +908,19 @@ export default {
       publishers: 'Publishers:',
       language: 'Language:',
       available: 'Available:',
-      uncategorized: 'Uncategorized'
+      uncategorized: 'Uncategorized',
     },
     description: {
-      title: 'Description'
+      title: 'Description',
     },
     comments: {
       title: 'Reviews & Comments',
-      description: 'See what others think about this book'
+      description: 'See what others think about this book',
     },
     notFound: {
       title: 'Book Not Found',
-      description: 'The book you\'re looking for doesn\'t exist.',
-      backButton: 'Back to Books'
+      description: "The book you're looking for doesn't exist.",
+      backButton: 'Back to Books',
     },
     messages: {
       loadError: 'Failed to load book details',
@@ -925,8 +928,8 @@ export default {
       borrowError: 'Failed to borrow book',
       borrowLoginRequired: 'Please log in to borrow books',
       borrowNotAvailable: 'This book is not available for borrowing',
-      shareSuccess: 'Link copied to clipboard!'
-    }
+      shareSuccess: 'Link copied to clipboard!',
+    },
   },
   adminDashboard: {
     title: 'Admin Dashboard',
@@ -936,48 +939,48 @@ export default {
     stats: {
       totalUsers: {
         title: 'Total Users',
-        description: 'Registered users'
+        description: 'Registered users',
       },
       activeLoans: {
         title: 'Active Loans',
-        description: 'Currently borrowed'
+        description: 'Currently borrowed',
       },
       overdueBooks: {
         title: 'Overdue Books',
-        description: 'Need attention'
+        description: 'Need attention',
       },
       totalBooks: {
         title: 'Total Books',
-        description: 'In library'
-      }
+        description: 'In library',
+      },
     },
     actions: {
       title: 'Administrative Actions',
       description: 'Common administrative tasks and system management',
       addNewBook: {
         title: 'Add New Book',
-        description: 'Add books to library'
+        description: 'Add books to library',
       },
       manageUsers: {
         title: 'Manage Users',
-        description: 'User administration'
+        description: 'User administration',
       },
       borrowingRules: {
         title: 'Borrowing Rules',
-        description: 'Configure borrowing'
+        description: 'Configure borrowing',
       },
       feeManagement: {
         title: 'Fee Management',
-        description: 'Manage fees & fines'
+        description: 'Manage fees & fines',
       },
       systemReports: {
         title: 'System Reports',
-        description: 'Generate reports'
+        description: 'Generate reports',
       },
       manageNotices: {
         title: 'Manage Notices',
-        description: 'System announcements'
-      }
+        description: 'System announcements',
+      },
     },
     sections: {
       recentBooks: {
@@ -985,7 +988,7 @@ export default {
         description: 'Latest additions to the library',
         manageAll: 'Manage All',
         noBooks: 'No recent books found',
-        unknownAuthor: 'Unknown author'
+        unknownAuthor: 'Unknown author',
       },
       overdueBorrows: {
         title: 'Overdue Borrowings',
@@ -995,7 +998,7 @@ export default {
         userPrefix: 'User: ',
         duePrefix: 'Due: ',
         unknownUser: 'Unknown user',
-        unknownBook: 'Unknown book'
+        unknownBook: 'Unknown book',
       },
       systemNotices: {
         title: 'System Notices',
@@ -1006,7 +1009,7 @@ export default {
         untitled: 'Untitled',
         noContent: 'No content',
         publishedPrefix: 'Published: ',
-        edit: 'Edit'
+        edit: 'Edit',
       },
       bookInventory: {
         title: 'Book Inventory by Category',
@@ -1016,14 +1019,14 @@ export default {
         totalPrefix: 'Total: ',
         availablePrefix: 'Available: ',
         borrowedPrefix: 'Borrowed: ',
-        availableSuffix: '% Available'
-      }
+        availableSuffix: '% Available',
+      },
     },
     status: {
       returned: 'Returned',
       overdue: 'Overdue',
       dueSoon: 'Due Soon',
-      active: 'Active'
+      active: 'Active',
     },
     messages: {
       loadStatisticsError: 'Failed to load statistics',
@@ -1031,8 +1034,8 @@ export default {
       loadRecentBooksError: 'Failed to load recent books',
       loadOverdueBorrowsError: 'Failed to load overdue borrows',
       loadRecentNoticesError: 'Failed to load recent notices',
-      loadInventoryStatsError: 'Failed to load inventory statistics'
-    }
+      loadInventoryStatsError: 'Failed to load inventory statistics',
+    },
   },
   login: {
     title: 'Sign in to your account',
@@ -1041,31 +1044,31 @@ export default {
       fields: {
         username: {
           label: 'Username or Email',
-          placeholder: 'Enter your username or email'
+          placeholder: 'Enter your username or email',
         },
         password: {
           label: 'Password',
-          placeholder: 'Enter your password'
-        }
+          placeholder: 'Enter your password',
+        },
       },
       buttons: {
         signIn: 'Sign in',
-        signingIn: 'Signing in...'
+        signingIn: 'Signing in...',
       },
       validation: {
-        allFieldsRequired: 'Please fill in all fields'
+        allFieldsRequired: 'Please fill in all fields',
       },
       messages: {
         success: 'Login successful!',
         successDescription: 'Welcome back {username}.',
         loginFailed: 'Login failed. Please try again.',
-        unexpectedError: 'An unexpected error occurred. Please try again.'
-      }
+        unexpectedError: 'An unexpected error occurred. Please try again.',
+      },
     },
     register: {
       text: "Don't have an account?",
-      link: 'Sign up here'
-    }
+      link: 'Sign up here',
+    },
   },
   register: {
     title: 'Create your account',
@@ -1074,41 +1077,41 @@ export default {
       fields: {
         username: {
           label: 'Username',
-          placeholder: 'Enter your username'
+          placeholder: 'Enter your username',
         },
         email: {
           label: 'Email Address',
-          placeholder: 'Enter your email'
+          placeholder: 'Enter your email',
         },
         password: {
           label: 'Password',
-          placeholder: 'Create a password'
+          placeholder: 'Create a password',
         },
         confirmPassword: {
           label: 'Confirm Password',
-          placeholder: 'Confirm your password'
-        }
+          placeholder: 'Confirm your password',
+        },
       },
       buttons: {
         createAccount: 'Create account',
-        creatingAccount: 'Creating account...'
+        creatingAccount: 'Creating account...',
       },
       validation: {
         allFieldsRequired: 'Please fill in all fields',
         validEmail: 'Please enter a valid email address',
         passwordLength: 'Password must be at least 6 characters long',
-        passwordMatch: 'Passwords do not match'
+        passwordMatch: 'Passwords do not match',
       },
       messages: {
         success: 'Registration successful! Please log in.',
         registrationFailed: 'Registration failed. Please try again.',
-        unexpectedError: 'An unexpected error occurred. Please try again.'
-      }
+        unexpectedError: 'An unexpected error occurred. Please try again.',
+      },
     },
     login: {
       text: 'Already have an account?',
-      link: 'Sign in here'
-    }
+      link: 'Sign in here',
+    },
   },
   userManagement: {
     title: 'User Management',
@@ -1148,7 +1151,7 @@ export default {
     previous: 'Previous',
     search: {
       placeholder: 'Search users by username or email...',
-      showing: '{count} total users'
+      showing: '{count} total users',
     },
     table: {
       headers: {
@@ -1157,24 +1160,24 @@ export default {
         role: 'Role',
         created: 'Created',
         lastUpdated: 'Last Updated',
-        actions: 'Actions'
+        actions: 'Actions',
       },
-      noEmail: 'Not provided'
+      noEmail: 'Not provided',
     },
     roles: {
       admin: 'Admin',
-      user: 'User'
+      user: 'User',
     },
     pagination: {
       showing: 'Showing {start} to {end} of {total} users',
       page: 'Page {current} of {total}',
       previous: 'Previous',
-      next: 'Next'
+      next: 'Next',
     },
     empty: {
       title: 'No users found',
       searchDescription: 'Try adjusting your search terms',
-      defaultDescription: 'Get started by creating your first user'
+      defaultDescription: 'Get started by creating your first user',
     },
     dialogs: {
       create: {
@@ -1183,25 +1186,25 @@ export default {
         fields: {
           username: {
             label: 'Username',
-            placeholder: 'Enter username'
+            placeholder: 'Enter username',
           },
           email: {
             label: 'Email',
-            placeholder: 'Enter email address'
+            placeholder: 'Enter email address',
           },
           password: {
             label: 'Password',
-            placeholder: 'Enter password'
+            placeholder: 'Enter password',
           },
           role: {
             label: 'Role',
-            placeholder: 'Select role'
-          }
+            placeholder: 'Select role',
+          },
         },
         buttons: {
           cancel: 'Cancel',
-          create: 'Create User'
-        }
+          create: 'Create User',
+        },
       },
       edit: {
         title: 'Edit User',
@@ -1209,17 +1212,17 @@ export default {
         fields: {
           username: {
             label: 'Username',
-            placeholder: 'Enter username'
+            placeholder: 'Enter username',
           },
           email: {
             label: 'Email',
-            placeholder: 'Enter email address'
-          }
+            placeholder: 'Enter email address',
+          },
         },
         buttons: {
           cancel: 'Cancel',
-          update: 'Update User'
-        }
+          update: 'Update User',
+        },
       },
       role: {
         title: 'Update User Role',
@@ -1227,41 +1230,42 @@ export default {
         fields: {
           newRole: {
             label: 'New Role',
-            placeholder: 'Select new role'
-          }
+            placeholder: 'Select new role',
+          },
         },
         buttons: {
           cancel: 'Cancel',
-          update: 'Update Role'
-        }
+          update: 'Update Role',
+        },
       },
       delete: {
         title: 'Delete User',
-        description: 'Are you sure you want to delete {username}? This action cannot be undone and will remove all user data.',
+        description:
+          'Are you sure you want to delete {username}? This action cannot be undone and will remove all user data.',
         buttons: {
           cancel: 'Cancel',
-          delete: 'Delete User'
-        }
-      }
+          delete: 'Delete User',
+        },
+      },
     },
     messages: {
       validation: {
-        requiredFields: 'Please fill in all required fields'
+        requiredFields: 'Please fill in all required fields',
       },
       success: {
         userCreated: 'User created successfully',
         userUpdated: 'User updated successfully',
         roleUpdated: 'User role updated successfully',
-        userDeleted: 'User deleted successfully'
+        userDeleted: 'User deleted successfully',
       },
       error: {
         createFailed: 'Failed to create user',
         updateFailed: 'Failed to update user',
         roleUpdateFailed: 'Failed to update user role',
         deleteFailed: 'Failed to delete user',
-        loadFailed: 'Failed to load users'
-      }
-    }
+        loadFailed: 'Failed to load users',
+      },
+    },
   },
   profile: {
     title: 'User Profile',
@@ -1269,57 +1273,57 @@ export default {
     loading: {
       profile: 'Loading profile...',
       data: 'Loading user data...',
-      borrowing: 'Loading borrowing data...'
+      borrowing: 'Loading borrowing data...',
     },
     header: {
       memberSince: 'Member since {date}',
-      memberSinceLoading: 'Member since loading...'
+      memberSinceLoading: 'Member since loading...',
     },
     sections: {
       profileInfo: {
         title: 'Profile Information',
-        description: 'Manage your personal information'
+        description: 'Manage your personal information',
       },
       security: {
         title: 'Security',
-        description: 'Manage your account security'
+        description: 'Manage your account security',
       },
       borrowingStats: {
         title: 'Borrowing Statistics',
-        description: 'Your library activity overview'
+        description: 'Your library activity overview',
       },
       recentActivity: {
         title: 'Recent Borrowing Activity',
-        description: 'Your latest book borrowing activity'
-      }
+        description: 'Your latest book borrowing activity',
+      },
     },
     fields: {
       username: {
         label: 'Username',
-        placeholder: 'Enter your username'
+        placeholder: 'Enter your username',
       },
       email: {
         label: 'Email',
-        placeholder: 'Enter your email address'
+        placeholder: 'Enter your email address',
       },
       registrationDate: {
-        label: 'Registration Date'
+        label: 'Registration Date',
       },
       lastUpdated: {
-        label: 'Last Updated'
+        label: 'Last Updated',
       },
       currentPassword: {
         label: 'Current Password',
-        placeholder: 'Enter your current password'
+        placeholder: 'Enter your current password',
       },
       newPassword: {
         label: 'New Password',
-        placeholder: 'Enter your new password'
+        placeholder: 'Enter your new password',
       },
       confirmPassword: {
         label: 'Confirm New Password',
-        placeholder: 'Confirm your new password'
-      }
+        placeholder: 'Confirm your new password',
+      },
     },
     buttons: {
       editProfile: 'Edit Profile',
@@ -1328,28 +1332,28 @@ export default {
       cancel: 'Cancel',
       changePassword: 'Change Password',
       changingPassword: 'Changing...',
-      viewAllBorrows: 'View All'
+      viewAllBorrows: 'View All',
     },
     stats: {
       totalBorrows: 'Total Borrows',
       returned: 'Returned',
       active: 'Active',
-      overdue: 'Overdue'
+      overdue: 'Overdue',
     },
     activity: {
       noActivity: 'No recent borrowing activity',
       due: 'Due: {date}',
-      dueDate: 'Due {date}'
+      dueDate: 'Due {date}',
     },
     status: {
       returned: 'Returned',
       overdue: 'Overdue',
       dueSoon: 'Due Soon',
-      active: 'Active'
+      active: 'Active',
     },
     security: {
       lastPasswordUpdate: 'Your password was last updated on {date}',
-      lastPasswordUpdateDefault: 'Your password was last updated on N/A'
+      lastPasswordUpdateDefault: 'Your password was last updated on N/A',
     },
     messages: {
       profileUpdateSuccess: 'Profile updated successfully!',
@@ -1359,10 +1363,10 @@ export default {
       passwordMismatch: 'New passwords do not match',
       passwordTooShort: 'New password must be at least 6 characters long',
       loadUserDataError: 'Failed to load user profile',
-      loadBorrowingDataError: 'Failed to load borrowing data'
+      loadBorrowingDataError: 'Failed to load borrowing data',
     },
     placeholders: {
-      notAvailable: 'N/A'
-    }
-  }
+      notAvailable: 'N/A',
+    },
+  },
 }

@@ -16,8 +16,11 @@
         <div class="p-4 border-b">
           <h2 class="text-xl font-semibold">{{ t('favorites.pageTitle') }}</h2>
           <p class="text-sm text-muted-foreground">
-            {{ favorites.length === 1 ? t('favorites.count.singular', { count: favorites.length }) :
-              t('favorites.count.plural', { count: favorites.length }) }}
+            {{
+              favorites.length === 1
+                ? t('favorites.count.singular', { count: favorites.length })
+                : t('favorites.count.plural', { count: favorites.length })
+            }}
           </p>
         </div>
         <div class="p-4">
@@ -40,21 +43,29 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="favorite in favorites" :key="favorite.id" class="border-b hover:bg-muted/50">
+                <tr
+                  v-for="favorite in favorites"
+                  :key="favorite.id"
+                  class="border-b hover:bg-muted/50"
+                >
                   <td class="p-3">
                     <div class="font-medium">{{ favorite.book.title }}</div>
-                    <div class="text-sm text-muted-foreground">{{ t('favorites.table.isbnPrefix') }}{{
-                      favorite.book.isbn }}</div>
+                    <div class="text-sm text-muted-foreground">
+                      {{ t('favorites.table.isbnPrefix') }}{{ favorite.book.isbn }}
+                    </div>
                   </td>
                   <td class="p-3">
                     <div class="text-sm">
-                      {{favorite.book.authors.map((a) => a.name).join(', ')}}
+                      {{ favorite.book.authors.map((a) => a.name).join(', ') }}
                     </div>
                   </td>
                   <td class="p-3">
                     <span
-                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {{ favorite.book.indexCategory?.name || t('favorites.table.categoryDefault') }}
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                      {{
+                        favorite.book.indexCategory?.name || t('favorites.table.categoryDefault')
+                      }}
                     </span>
                   </td>
                   <td class="p-3 text-sm text-muted-foreground">
@@ -64,13 +75,20 @@
                     <div class="flex gap-2">
                       <button
                         class="px-3 py-1 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors"
-                        @click="viewBook(favorite.book.id)">
+                        @click="viewBook(favorite.book.id)"
+                      >
                         {{ t('favorites.table.actions.viewDetails') }}
                       </button>
                       <button
                         class="px-3 py-1 border border-destructive text-destructive bg-background hover:bg-destructive hover:text-destructive-foreground rounded-md text-sm transition-colors disabled:opacity-50"
-                        @click="removeFavorite(favorite.id)" :disabled="isRemoving">
-                        {{ isRemoving ? t('favorites.table.actions.removing') : t('favorites.table.actions.remove') }}
+                        @click="removeFavorite(favorite.id)"
+                        :disabled="isRemoving"
+                      >
+                        {{
+                          isRemoving
+                            ? t('favorites.table.actions.removing')
+                            : t('favorites.table.actions.remove')
+                        }}
                       </button>
                     </div>
                   </td>

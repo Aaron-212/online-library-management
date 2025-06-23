@@ -225,11 +225,19 @@ onMounted(() => {
       </div>
       <div v-if="authStore.isAuthenticated" class="text-right">
         <Badge variant="outline" class="text-sm px-3 py-1">
-          {{ authStore.user?.role === 'ADMIN' ? t('dashboard.user.roles.admin') : t('dashboard.user.roles.user') }}
+          {{
+            authStore.user?.role === 'ADMIN'
+              ? t('dashboard.user.roles.admin')
+              : t('dashboard.user.roles.user')
+          }}
         </Badge>
         <p class="text-xs text-muted-foreground mt-1">
           {{ t('dashboard.user.memberSince') }}
-          {{ authStore.user?.createdTime ? formatDate(authStore.user.createdTime) : t('dashboard.user.recently') }}
+          {{
+            authStore.user?.createdTime
+              ? formatDate(authStore.user.createdTime)
+              : t('dashboard.user.recently')
+          }}
         </p>
       </div>
     </div>
@@ -240,7 +248,11 @@ onMounted(() => {
     <template v-else>
       <!-- User Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="card in userDashboardCards" :key="card.title" class="hover:shadow-lg transition-shadow">
+        <Card
+          v-for="card in userDashboardCards"
+          :key="card.title"
+          class="hover:shadow-lg transition-shadow"
+        >
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">{{ card.title }}</CardTitle>
             <div :class="[card.bgColor, 'p-2 rounded-md']">
@@ -262,8 +274,13 @@ onMounted(() => {
         </CardHeader>
         <CardContent>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button v-for="action in quickActions" :key="action.title" :variant="action.variant"
-              class="h-auto p-4 flex flex-col items-center gap-2" @click="action.action">
+            <Button
+              v-for="action in quickActions"
+              :key="action.title"
+              :variant="action.variant"
+              class="h-auto p-4 flex flex-col items-center gap-2"
+              @click="action.action"
+            >
               <component :is="action.icon" class="h-6 w-6" />
               <div class="text-center">
                 <div class="font-medium">{{ action.title }}</div>
@@ -293,17 +310,28 @@ onMounted(() => {
               {{ t('dashboard.newArrivals.noBooks') }}
             </div>
             <div v-else class="space-y-3">
-              <div v-for="book in recentBooks" :key="book.id"
+              <div
+                v-for="book in recentBooks"
+                :key="book.id"
                 class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
-                @click="router.push(`/books/${book.id}`)">
+                @click="router.push(`/books/${book.id}`)"
+              >
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ book.title }}</p>
                   <p class="text-xs text-muted-foreground truncate">
-                    {{ Array.isArray(book.authors) ? book.authors.join(', ') : t('home.status.unknownAuthor') }}
+                    {{
+                      Array.isArray(book.authors)
+                        ? book.authors.join(', ')
+                        : t('home.status.unknownAuthor')
+                    }}
                   </p>
                 </div>
                 <Badge :variant="book.availableQuantity > 0 ? 'success' : 'destructive'" size="sm">
-                  {{ book.availableQuantity > 0 ? t('bookCard.status.available') : t('bookCard.status.notAvailable') }}
+                  {{
+                    book.availableQuantity > 0
+                      ? t('bookCard.status.available')
+                      : t('bookCard.status.notAvailable')
+                  }}
                 </Badge>
               </div>
             </div>
@@ -326,7 +354,10 @@ onMounted(() => {
             <div v-if="!authStore.isAuthenticated" class="text-center py-4 text-muted-foreground">
               {{ t('dashboard.recentActivity.notAuthenticated') }}
             </div>
-            <div v-else-if="userBorrows.length === 0" class="text-center py-4 text-muted-foreground">
+            <div
+              v-else-if="userBorrows.length === 0"
+              class="text-center py-4 text-muted-foreground"
+            >
               {{ t('dashboard.recentActivity.noActivity') }}
               <div class="mt-2">
                 <Button variant="outline" size="sm" @click="router.push('/books')">
@@ -335,13 +366,19 @@ onMounted(() => {
               </div>
             </div>
             <div v-else class="space-y-3">
-              <div v-for="borrow in userBorrows" :key="borrow.borrowId"
-                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer">
+              <div
+                v-for="borrow in userBorrows"
+                :key="borrow.borrowId"
+                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
+              >
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ borrow.bookTitle }}</p>
                   <p class="text-xs text-muted-foreground">
-                    {{ borrow.status === 'RETURNED' ? t('dashboard.recentActivity.returned') :
-                      t('dashboard.recentActivity.due') }}:
+                    {{
+                      borrow.status === 'RETURNED'
+                        ? t('dashboard.recentActivity.returned')
+                        : t('dashboard.recentActivity.due')
+                    }}:
                     {{
                       borrow.status === 'RETURNED' && borrow.actualReturnTime
                         ? formatDate(borrow.actualReturnTime)
@@ -374,9 +411,12 @@ onMounted(() => {
               {{ t('dashboard.notices.noNotices') }}
             </div>
             <div v-else class="space-y-4">
-              <div v-for="notice in recentNotices" :key="notice.id"
+              <div
+                v-for="notice in recentNotices"
+                :key="notice.id"
                 class="border-l-4 border-primary pl-4 py-2 hover:bg-muted/50 rounded-r cursor-pointer"
-                @click="router.push(`/notices/${notice.id}`)">
+                @click="router.push(`/notices/${notice.id}`)"
+              >
                 <h4 class="font-medium">{{ notice.title }}</h4>
                 <p class="text-sm text-muted-foreground mt-1 line-clamp-2">
                   {{ notice.content }}
