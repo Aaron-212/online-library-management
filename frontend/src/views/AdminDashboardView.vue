@@ -145,13 +145,19 @@ const loadSystemStats = async () => {
   try {
     // Fetch real system statistics from backend
     const [userBehaviorStats, totalUsersCount] = await Promise.all([
-      statisticsService.getUserBehaviorAnalysis(),
-      statisticsService.getTotalUsers(),
+      statisticsService.getUserBehaviorAnalysis().catch(error => {
+        console.error('Error loading user behavior stats:', error)
+        return { registrationCount: 0, activeUserCount: 0 }
+      }),
+      statisticsService.getTotalUsers().catch(error => {
+        console.error('Error loading total users:', error)
+        return 0
+      }),
     ])
 
     systemStats.value = {
-      totalUsers: totalUsersCount,
-      newUsersThisMonth: userBehaviorStats.registrationCount,
+      totalUsers: typeof totalUsersCount === 'number' ? totalUsersCount : 0,
+      newUsersThisMonth: typeof userBehaviorStats.registrationCount === 'number' ? userBehaviorStats.registrationCount : 0,
       activeLoans: statistics.value?.activeBorrows || 0,
       overdueBooks: statistics.value?.overdueBorrows || 0,
       totalRevenue: 0, // TODO: Calculate from fees when fee statistics endpoint is available
@@ -159,6 +165,7 @@ const loadSystemStats = async () => {
     }
   } catch (error) {
     console.error('Error loading system stats:', error)
+    toast.error('Failed to load some system statistics')
     // Fallback to minimal stats using already loaded statistics
     systemStats.value = {
       totalUsers: 0,
