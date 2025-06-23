@@ -152,6 +152,7 @@ export interface Borrow {
   copyId: number
   bookTitle: string
   isbn: string
+  coverURL?: string
   borrowTime: string
   returnTime: string
   actualReturnTime?: string
