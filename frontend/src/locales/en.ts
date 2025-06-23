@@ -231,5 +231,22 @@ export default {
     errors: {
       loadFailed: 'Failed to load books'
     }
+  },
+  bookCard: {
+    loadingImage: 'Loading image...',
+    noImageAvailable: 'No image available',
+    status: {
+      available: 'Available',
+      limited: 'Limited',
+      outOfStock: 'Out of Stock',
+      notAvailable: 'Not Available'
+    },
+    availability: {
+      singleCopy: '1 copy available',
+      multipleCopies: '{count} copies available',
+      total: 'total'
+    },
+    authorPrefix: 'By: ',
+    isbnPrefix: 'ISBN: '
   }
 }

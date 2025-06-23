@@ -231,5 +231,22 @@ export default {
     errors: {
       loadFailed: '加载图书失败'
     }
+  },
+  bookCard: {
+    loadingImage: '正在加载图片...',
+    noImageAvailable: '无图片可用',
+    status: {
+      available: '可借阅',
+      limited: '库存有限',
+      outOfStock: '无库存',
+      notAvailable: '不可借阅'
+    },
+    availability: {
+      singleCopy: '1本可借',
+      multipleCopies: '{count}本可借',
+      total: '总计'
+    },
+    authorPrefix: '作者：',
+    isbnPrefix: 'ISBN：'
   }
 }
