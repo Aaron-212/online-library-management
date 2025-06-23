@@ -150,9 +150,38 @@ const bookCoverMap = computed(() => {
   return map
 })
 
-// Get book cover URL by ISBN
-const getBookCoverUrl = (isbn: string): string | undefined => {
-  return bookCoverMap.value.get(isbn)
+// Cache for on-demand loaded book covers
+const coverCache = ref(new Map<string, string>())
+
+// Get book cover URL by ISBN with on-demand loading
+const getBookCoverUrl = async (isbn: string): Promise<string | undefined> => {
+  // Check if we already have it in the main book map
+  if (bookCoverMap.value.has(isbn)) {
+    return bookCoverMap.value.get(isbn)
+  }
+
+  // Check if we already cached it
+  if (coverCache.value.has(isbn)) {
+    return coverCache.value.get(isbn)
+  }
+
+  // Try to find the book by ISBN and load its cover
+  try {
+    const book = await booksService.getByIsbn(isbn)
+    if (book?.coverURL) {
+      coverCache.value.set(isbn, book.coverURL)
+      return book.coverURL
+    }
+  } catch (error) {
+    console.error('Error loading book cover for ISBN:', isbn, error)
+  }
+
+  return undefined
+}
+
+// Synchronous version for template usage (uses cached values only)
+const getBookCoverUrlSync = (isbn: string): string | undefined => {
+  return bookCoverMap.value.get(isbn) || coverCache.value.get(isbn)
 }
 
 const activeBorrows = computed(() => borrows.value.filter((borrow) => borrow.status === 'BORROWED'))
@@ -201,11 +230,29 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+// Function to preload missing book covers
+const preloadMissingCovers = async (borrowList: Borrow[]) => {
+  const missingIsbns = borrowList
+    .map(borrow => borrow.isbn)
+    .filter(isbn => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
+  
+  // Remove duplicates
+  const uniqueIsbns = [...new Set(missingIsbns)]
+  
+  // Load covers for missing ISBNs in parallel
+  await Promise.allSettled(
+    uniqueIsbns.map(isbn => getBookCoverUrl(isbn))
+  )
+}
+
 const loadBorrows = async () => {
   try {
     isLoading.value = true
     const allBorrows = await borrowService.adminGetAllBorrows()
     borrows.value = allBorrows
+    
+    // Preload any missing book covers
+    await preloadMissingCovers(allBorrows)
   } catch (error) {
     console.error('Error loading borrows:', error)
     toast.error('Failed to load borrowing records')
@@ -226,8 +273,20 @@ const loadUsers = async () => {
 
 const loadBooks = async () => {
   try {
-    const response = await booksService.getAll({ page: 0, size: 100 })
-    books.value = response.content
+    // Load all books to ensure we have cover URLs for all borrow records
+    let allBooks: BookType[] = []
+    let page = 0
+    const size = 100
+    let hasMore = true
+
+    while (hasMore) {
+      const response = await booksService.getAll({ page, size })
+      allBooks = [...allBooks, ...response.content]
+      hasMore = response.content.length === size && !response.last
+      page++
+    }
+
+    books.value = allBooks
   } catch (error) {
     console.error('Error loading books:', error)
     toast.error('Failed to load books')
@@ -647,8 +706,8 @@ onMounted(() => {
               <div class="flex items-start gap-4 flex-1">
                 <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
                   <img
-                    v-if="getBookCoverUrl(borrow.isbn)"
-                    :src="getBookCoverUrl(borrow.isbn)"
+                    v-if="getBookCoverUrlSync(borrow.isbn)"
+                    :src="getBookCoverUrlSync(borrow.isbn)"
                     :alt="borrow.bookTitle"
                     class="w-full h-full object-cover"
                     @error="($event.target as HTMLImageElement).style.display = 'none'"
