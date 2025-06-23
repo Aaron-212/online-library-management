@@ -672,6 +672,194 @@ export default {
       noBorrowRecord: '未找到此图书副本的有效借阅记录'
     }
   },
+  adminBorrowing: {
+    title: '管理员借阅管理',
+    description: '为用户注册和管理图书借阅',
+    buttons: {
+      registerBorrow: '注册借阅',
+      cancel: '取消',
+      creating: '正在创建...',
+      refresh: '刷新'
+    },
+    summary: {
+      totalBorrows: {
+        title: '总借阅数',
+        description: '所有借阅记录'
+      },
+      activeBorrows: {
+        title: '活跃借阅',
+        description: '当前借阅中'
+      },
+      overdueBooks: {
+        title: '逾期图书',
+        description: '需要注意'
+      }
+    },
+    dialog: {
+      title: '注册图书借阅',
+      description: '选择用户和图书副本以注册新的借阅记录',
+      userSelection: {
+        label: '选择用户',
+        placeholder: '按用户名搜索用户...',
+        idPrefix: 'ID：'
+      },
+      bookSelection: {
+        label: '选择图书',
+        placeholder: '按标题、作者或ISBN搜索图书...',
+        available: '可借：{available} / {total}',
+        isbnPrefix: 'ISBN：'
+      },
+      copySelection: {
+        label: '选择可借副本',
+        copyNumber: '副本 #{id}',
+        availableStatus: '可借阅',
+        noAvailableCopies: '此图书无可借副本'
+      }
+    },
+    filters: {
+      search: {
+        label: '搜索记录',
+        placeholder: '按用户、图书标题或ISBN搜索...'
+      },
+      status: {
+        label: '状态',
+        allBorrows: '所有借阅',
+        active: '借阅中',
+        returned: '已归还',
+        overdue: '逾期'
+      }
+    },
+    list: {
+      title: '所有借阅记录',
+      description: '显示 {total} 条记录中的 {count} 条',
+      loading: '正在加载借阅记录...',
+      empty: '未找到借阅记录',
+      copyPrefix: '副本 #',
+      isbnPrefix: 'ISBN：',
+      borrowed: '借阅时间：{date}',
+      due: '到期时间：{date}',
+      returned: '归还时间：{date}',
+      daysLeft: '还有 {days} 天',
+      daysOverdue: '逾期 {days} 天'
+    },
+    status: {
+      returned: '已归还',
+      overdue: '逾期',
+      dueSoon: '即将到期',
+      active: '借阅中'
+    },
+    messages: {
+      success: '图书借阅成功！',
+      error: '创建借阅记录失败',
+      loadBorrowsError: '加载借阅记录失败',
+      loadUsersError: '加载用户失败',
+      loadBooksError: '加载图书失败',
+      loadCopiesError: '加载图书副本失败',
+      validationError: '请同时选择用户和图书副本'
+    }
+  },
+  bookForm: {
+    title: {
+      create: '添加新图书',
+      edit: '编辑图书'
+    },
+    description: {
+      create: '向图书馆添加新图书',
+      edit: '更新图书信息'
+    },
+    loading: {
+      book: '正在加载图书数据...',
+      saving: '正在保存...'
+    },
+    sections: {
+      basicInfo: {
+        title: '基本信息',
+        description: '输入图书的基本详情'
+      },
+      authors: {
+        title: '作者',
+        description: '添加图书的作者'
+      },
+      publishers: {
+        title: '出版社',
+        description: '添加图书的出版社'
+      },
+      category: {
+        title: '分类',
+        description: '指定图书的分类'
+      }
+    },
+    fields: {
+      title: {
+        label: '标题',
+        placeholder: '请输入图书标题',
+        required: '标题 *'
+      },
+      isbn: {
+        label: 'ISBN',
+        placeholder: '请输入ISBN',
+        required: 'ISBN *'
+      },
+      language: {
+        label: '语言',
+        placeholder: '例如：中文、英文等',
+        required: '语言 *'
+      },
+      location: {
+        label: '位置',
+        placeholder: '例如：LIBRARY、STORAGE等'
+      },
+      totalQuantity: {
+        label: '总数量',
+        required: '总数量 *'
+      },
+      description: {
+        label: '描述',
+        placeholder: '请输入图书描述（可选）'
+      },
+      coverURL: {
+        label: '封面图片URL',
+        placeholder: 'https://example.com/book-cover.jpg （可选）'
+      },
+      category: {
+        label: '分类',
+        placeholder: '请输入分类名称',
+        required: '分类 *'
+      },
+      newAuthor: {
+        placeholder: '请输入作者姓名'
+      },
+      newPublisher: {
+        placeholder: '请输入出版社名称'
+      }
+    },
+    buttons: {
+      back: '返回',
+      cancel: '取消',
+      save: '保存',
+      create: '创建图书',
+      update: '更新图书',
+      creating: '正在创建...',
+      updating: '正在更新...',
+      add: '添加',
+      remove: '移除'
+    },
+    validation: {
+      titleRequired: '标题为必填项',
+      isbnRequired: 'ISBN为必填项',
+      languageRequired: '语言为必填项',
+      authorsRequired: '至少需要一个作者',
+      publishersRequired: '至少需要一个出版社',
+      categoryRequired: '分类为必填项',
+      quantityMinimum: '总数量至少为1'
+    },
+    messages: {
+      loadError: '加载图书数据失败',
+      saveError: '保存图书失败',
+      createSuccess: '图书创建成功！',
+      updateSuccess: '图书更新成功！'
+    }
+  },
   dashboard: {
     greeting: {
       morning: '上午好',
