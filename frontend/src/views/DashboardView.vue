@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { BookmarkPlus, BookOpen, Clock, Eye, Heart, History, Search, User } from 'lucide-vue-next'
 import { booksService, borrowService, noticesService, statisticsService } from '@/lib/api'
-import type { Book, BookStatisticsDto, Borrow, Notice } from '@/lib/api/types'
+import type { BookSummaryDto, LibraryStatisticsDto, Borrow, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -15,8 +15,8 @@ const authStore = useAuthStore()
 
 // Data
 const isLoading = ref(false)
-const statistics = ref<BookStatisticsDto | null>(null)
-const recentBooks = ref<Book[]>([])
+const statistics = ref<LibraryStatisticsDto | null>(null)
+const recentBooks = ref<BookSummaryDto[]>([])
 const userBorrows = ref<Borrow[]>([])
 const recentNotices = ref<Notice[]>([])
 const userStats = ref({
@@ -128,7 +128,7 @@ const loadUserStats = async () => {
 
 const loadRecentBooks = async () => {
   try {
-    const response = await booksService.getAll({ page: 0, size: 5, sort: 'id,desc' })
+    const response = await booksService.getAllSummary({ page: 0, size: 5, sort: 'id,desc' })
     recentBooks.value = response.content
   } catch (error) {
     console.error('Error loading recent books:', error)
@@ -309,7 +309,7 @@ onMounted(() => {
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ book.title }}</p>
                   <p class="text-xs text-muted-foreground truncate">
-                    {{ book.authors.map((a) => a.name).join(', ') }}
+                    {{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}
                   </p>
                 </div>
                 <Badge :variant="book.availableQuantity > 0 ? 'success' : 'destructive'" size="sm">

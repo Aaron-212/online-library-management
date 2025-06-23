@@ -19,7 +19,7 @@ import {
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { booksService, categoriesService, noticesService, statisticsService } from '@/lib/api'
-import type { Book, Notice } from '@/lib/api/types'
+import type { BookSummaryDto, BookStatisticsDto, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
@@ -28,9 +28,9 @@ const authStore = useAuthStore()
 // Data
 const isLoading = ref(false)
 // 推荐图书
-const recommendedBooks = ref<Book[]>([])
+const recommendedBooks = ref<BookSummaryDto[]>([])
 // 热门借阅榜
-const topBorrowBooks = ref<Book[]>([])
+const topBorrowBooks = ref<BookStatisticsDto[]>([])
 // 公告轮播
 const recentNotices = ref<Notice[]>([])
 // 分类导航
@@ -146,7 +146,7 @@ const libraryFeatures = [
 // 加载推荐图书（最新上架）
 const loadRecommendedBooks = async () => {
   try {
-    const res = await booksService.getAll({ page: 0, size: 8, sort: 'id,desc' })
+    const res = await booksService.getAllSummary({ page: 0, size: 8, sort: 'id,desc' })
     recommendedBooks.value = res.content
   } catch (e) {
     console.error(e)
@@ -338,7 +338,7 @@ onMounted(() => {
                     {{ book.title }}
                   </CardTitle>
                   <CardDescription class="mt-1">
-                    {{ book.authors.map((a) => a.name).join(', ') }}
+                    {{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}
                   </CardDescription>
                 </div>
                 <Badge
@@ -350,11 +350,8 @@ onMounted(() => {
               </div>
             </CardHeader>
             <CardContent>
-              <div v-if="book.description" class="text-sm text-muted-foreground line-clamp-3 mb-3">
-                {{ book.description }}
-              </div>
               <div class="flex items-center justify-between text-xs text-muted-foreground">
-                <span>{{ book.indexCategory?.name || 'General' }}</span>
+                <span>General</span>
                 <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
               </div>
             </CardContent>
@@ -369,20 +366,20 @@ onMounted(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <Card
             v-for="(book, idx) in topBorrowBooks"
-            :key="book.id"
+            :key="book.bookId"
             class="cursor-pointer hover:shadow-md transition-shadow"
-            @click="goToBookDetail(book.id)"
+            @click="goToBookDetail(book.bookId)"
           >
             <CardHeader class="flex-row items-center gap-4">
               <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
               <div class="flex-1 min-w-0">
                 <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
-                <CardDescription>{{ book.authors.map((a) => a.name).join(', ') }}</CardDescription>
+                <CardDescription>{{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}</CardDescription>
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">
-              <span>{{ book.indexCategory?.name || 'General' }}</span>
-              <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
+              <span>{{ book.borrowCount }} borrows</span>
+              <span>{{ book.isbn }}</span>
             </CardContent>
           </Card>
         </div>
