@@ -372,6 +372,15 @@ export default {
       loadError: '加载公告失败'
     }
   },
+  notFound: {
+    title: '404',
+    heading: '页面未找到',
+    description: '您要访问的页面不存在。可能已被移动、删除，或者您输入了错误的网址。',
+    buttons: {
+      goBack: '返回',
+      goHome: '回到首页'
+    }
+  },
   favorites: {
     title: '收藏',
     description: '管理您的收藏图书',

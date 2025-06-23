@@ -339,6 +339,15 @@ export default {
       loadError: 'Failed to load notices'
     }
   },
+  notFound: {
+    title: '404',
+    heading: 'Page Not Found',
+    description: 'The page you\'re looking for doesn\'t exist. It might have been moved, deleted, or you entered the wrong URL.',
+    buttons: {
+      goBack: 'Go Back',
+      goHome: 'Go Home'
+    }
+  },
   favorites: {
     title: 'Favorites',
     description: 'Manage your favorite books',
