@@ -338,5 +338,43 @@ export default {
       deleteError: 'Failed to delete notice',
       loadError: 'Failed to load notices'
     }
+  },
+  favorites: {
+    title: 'Favorites',
+    description: 'Manage your favorite books',
+    loading: 'Loading favorites...',
+    pageTitle: 'My Favorite Books',
+    count: {
+      singular: '{count} book in your favorites',
+      plural: '{count} books in your favorites'
+    },
+    empty: {
+      title: 'No favorites yet',
+      description: 'Start adding books to your favorites to see them here.'
+    },
+    table: {
+      headers: {
+        title: 'Book Title',
+        authors: 'Author(s)',
+        category: 'Category',
+        addedDate: 'Added Date',
+        actions: 'Actions'
+      },
+      actions: {
+        viewDetails: 'View Details',
+        remove: 'Remove',
+        removing: 'Removing...'
+      },
+      categoryDefault: 'Uncategorized',
+      isbnPrefix: 'ISBN: '
+    },
+    dialogs: {
+      removeConfirm: 'Are you sure you want to remove this book from your favorites?'
+    },
+    messages: {
+      removeSuccess: 'Book removed from favorites!',
+      removeError: 'Failed to remove favorite. Please try again.',
+      loadError: 'Failed to load favorites'
+    }
   }
 }

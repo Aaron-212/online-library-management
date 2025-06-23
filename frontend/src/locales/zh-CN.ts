@@ -338,5 +338,43 @@ export default {
       deleteError: '删除公告失败',
       loadError: '加载公告失败'
     }
+  },
+  favorites: {
+    title: '收藏',
+    description: '管理您的收藏图书',
+    loading: '正在加载收藏...',
+    pageTitle: '我的收藏图书',
+    count: {
+      singular: '您收藏了 {count} 本图书',
+      plural: '您收藏了 {count} 本图书'
+    },
+    empty: {
+      title: '暂无收藏',
+      description: '开始将图书添加到您的收藏中吧。'
+    },
+    table: {
+      headers: {
+        title: '图书标题',
+        authors: '作者',
+        category: '分类',
+        addedDate: '添加日期',
+        actions: '操作'
+      },
+      actions: {
+        viewDetails: '查看详情',
+        remove: '移除',
+        removing: '正在移除...'
+      },
+      categoryDefault: '未分类',
+      isbnPrefix: 'ISBN：'
+    },
+    dialogs: {
+      removeConfirm: '您确定要从收藏中移除这本图书吗？'
+    },
+    messages: {
+      removeSuccess: '已从收藏中移除图书！',
+      removeError: '移除收藏失败，请重试。',
+      loadError: '加载收藏失败'
+    }
   }
 }
