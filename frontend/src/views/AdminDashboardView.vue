@@ -283,11 +283,7 @@ onMounted(() => {
     <template v-else>
       <!-- Admin Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card
-          v-for="card in adminStats"
-          :key="card.title"
-          class="hover:shadow-lg transition-shadow"
-        >
+        <Card v-for="card in adminStats" :key="card.title" class="hover:shadow-lg transition-shadow">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">{{ card.title }}</CardTitle>
             <div :class="[card.bgColor, 'p-2 rounded-md']">
@@ -313,13 +309,8 @@ onMounted(() => {
         </CardHeader>
         <CardContent>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button
-              v-for="action in adminActions"
-              :key="action.title"
-              :variant="action.variant"
-              class="h-auto p-4 flex flex-col items-center gap-2"
-              @click="action.action"
-            >
+            <Button v-for="action in adminActions" :key="action.title" :variant="action.variant"
+              class="h-auto p-4 flex flex-col items-center gap-2" @click="action.action">
               <component :is="action.icon" class="h-6 w-6" />
               <div class="text-center">
                 <div class="font-medium">{{ action.title }}</div>
@@ -345,19 +336,22 @@ onMounted(() => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!recentBooks || recentBooks.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
+            <div v-if="!recentBooks || recentBooks.length === 0" class="text-center py-4 text-muted-foreground">
               No recent books found
             </div>
             <div v-else class="space-y-3">
-              <div
-                v-for="book in recentBooks"
-                :key="book.id"
+              <div v-for="book in recentBooks" :key="book.id"
                 class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
-                @click="router.push(`/books/${book.id}`)"
-              >
+                @click="router.push(`/books/${book.id}`)">
+                <!-- Book Cover -->
+                <div class="flex-shrink-0 w-12 h-16 bg-muted rounded overflow-hidden flex items-center justify-center">
+                  <img v-if="book.coverURL" :src="book.coverURL" :alt="`Cover for ${book.title || 'Unknown book'}`"
+                    class="w-full h-full object-cover"
+                    @error="(event) => { if (event.target) (event.target as HTMLImageElement).style.display = 'none' }" />
+                  <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
+                </div>
+
+                <!-- Book Info -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ book.title || 'Unknown' }}</p>
                   <p class="text-xs text-muted-foreground truncate">
@@ -368,11 +362,10 @@ onMounted(() => {
                     }}
                   </p>
                 </div>
+
+                <!-- Availability Badge -->
                 <div class="flex flex-col items-end gap-1">
-                  <Badge
-                    :variant="(book.availableQuantity || 0) > 0 ? 'success' : 'destructive'"
-                    size="sm"
-                  >
+                  <Badge :variant="(book.availableQuantity || 0) > 0 ? 'success' : 'destructive'" size="sm">
                     {{ book.availableQuantity || 0 }} / {{ book.totalQuantity || 0 }}
                   </Badge>
                 </div>
@@ -394,18 +387,12 @@ onMounted(() => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!recentBorrows || recentBorrows.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
+            <div v-if="!recentBorrows || recentBorrows.length === 0" class="text-center py-4 text-muted-foreground">
               No overdue borrowings
             </div>
             <div v-else class="space-y-3">
-              <div
-                v-for="borrow in recentBorrows"
-                :key="borrow.borrowId"
-                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50"
-              >
+              <div v-for="borrow in recentBorrows" :key="borrow.borrowId"
+                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50">
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">
                     {{ borrow.bookTitle || 'Unknown book' }}
@@ -442,18 +429,11 @@ onMounted(() => {
             </div>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!recentNotices || recentNotices.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
+            <div v-if="!recentNotices || recentNotices.length === 0" class="text-center py-4 text-muted-foreground">
               No recent notices
             </div>
             <div v-else class="space-y-4">
-              <div
-                v-for="notice in recentNotices"
-                :key="notice.id"
-                class="border-l-4 border-primary pl-4 py-2"
-              >
+              <div v-for="notice in recentNotices" :key="notice.id" class="border-l-4 border-primary pl-4 py-2">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
                     <h4 class="font-medium">{{ notice.title || 'Untitled' }}</h4>
@@ -464,11 +444,7 @@ onMounted(() => {
                       Published: {{ notice.publishTime ? formatDate(notice.publishTime) : 'N/A' }}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    @click="router.push(`/notices/${notice.id}/edit`)"
-                  >
+                  <Button variant="ghost" size="sm" @click="router.push(`/notices/${notice.id}/edit`)">
                     Edit
                   </Button>
                 </div>
@@ -478,7 +454,7 @@ onMounted(() => {
         </Card>
 
         <!-- Book Inventory by Category -->
-        <Card class="lg:col-span-2">
+        <Card v-if="false" class="lg:col-span-2">
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Book Inventory by Category</CardTitle>
@@ -490,18 +466,13 @@ onMounted(() => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!formattedInventoryStats || formattedInventoryStats.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
+            <div v-if="!formattedInventoryStats || formattedInventoryStats.length === 0"
+              class="text-center py-4 text-muted-foreground">
               No inventory data available
             </div>
             <div v-else class="space-y-3">
-              <div
-                v-for="item in formattedInventoryStats"
-                :key="item.category"
-                class="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
+              <div v-for="item in formattedInventoryStats" :key="item.category"
+                class="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                 <div class="flex-1">
                   <h4 class="font-medium">{{ item.category }}</h4>
                   <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
@@ -513,8 +484,7 @@ onMounted(() => {
                 <div class="text-right">
                   <Badge
                     :variant="item.availabilityRate >= 50 ? 'success' : item.availabilityRate >= 25 ? 'secondary' : 'destructive'"
-                    size="sm"
-                  >
+                    size="sm">
                     {{ item.availabilityRate }}% Available
                   </Badge>
                 </div>
