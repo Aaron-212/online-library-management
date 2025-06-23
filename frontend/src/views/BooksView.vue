@@ -46,10 +46,14 @@ const currentPage = ref(0)
 const totalPages = ref(0)
 const totalElements = ref(0)
 
+// Constants for "all" options
+const ALL_CATEGORIES = 'ALL_CATEGORIES'
+const ALL_LANGUAGES = 'ALL_LANGUAGES'
+
 // Search and filter parameters
 const searchKeyword = ref('')
-const selectedCategory = ref('')
-const selectedLanguage = ref('')
+const selectedCategory = ref(ALL_CATEGORIES)
+const selectedLanguage = ref(ALL_LANGUAGES)
 const sortBy = ref('title')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 const pageSize = ref(12)
@@ -74,7 +78,7 @@ const bookForm = ref({
 
 // Computed values that depend on translations
 const languages = computed(() => [
-  t('books.filters.language.all'),
+  ALL_LANGUAGES,
   'English',
   'Chinese',
   'Spanish',
@@ -90,13 +94,22 @@ const sortOptions = computed(() => [
   { label: t('books.filters.sort.totalCopies'), value: 'totalQuantity', direction: 'desc' },
 ])
 
+// Helper function to get display text for filter values
+const getDisplayText = (filterType: 'category' | 'language', value: string): string => {
+  if (filterType === 'category' && value === ALL_CATEGORIES) {
+    return t('books.filters.category.all')
+  }
+  if (filterType === 'language' && value === ALL_LANGUAGES) {
+    return t('books.filters.language.all')
+  }
+  return value
+}
+
 // Computed
 const searchParams = computed<BookSearchParams>(() => ({
   keyword: searchKeyword.value || undefined,
-  category:
-    selectedCategory.value !== t('books.filters.category.all') ? selectedCategory.value : undefined,
-  language:
-    selectedLanguage.value !== t('books.filters.language.all') ? selectedLanguage.value : undefined,
+  category: selectedCategory.value !== ALL_CATEGORIES ? selectedCategory.value : undefined,
+  language: selectedLanguage.value !== ALL_LANGUAGES ? selectedLanguage.value : undefined,
   page: currentPage.value,
   size: pageSize.value,
   sort: `${sortBy.value},${sortDirection.value}`,
@@ -249,10 +262,6 @@ watch([selectedCategory, selectedLanguage], () => {
 
 // Lifecycle
 onMounted(() => {
-  // Initialize translated values
-  selectedCategory.value = t('books.filters.category.all')
-  selectedLanguage.value = t('books.filters.language.all')
-
   loadBooks()
   loadCategories()
 })
@@ -279,16 +288,9 @@ onMounted(() => {
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
           <Label for="search">{{ t('books.search.label') }}</Label>
           <div class="relative">
-            <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-              id="search"
-              v-model="searchKeyword"
-              :placeholder="t('books.search.placeholder')"
-              class="pl-10"
-              @keyup.enter="handleSearch"
-            />
+            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="search" v-model="searchKeyword" :placeholder="t('books.search.placeholder')" class="pl-10"
+              @keyup.enter="handleSearch" />
           </div>
         </div>
 
@@ -298,23 +300,15 @@ onMounted(() => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
-                {{
-                  selectedCategory === t('books.filters.category.all')
-                    ? t('books.filters.category.all')
-                    : selectedCategory
-                }}
+                {{ getDisplayText('category', selectedCategory) }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem @click="selectedCategory = t('books.filters.category.all')">
+              <DropdownMenuItem @click="selectedCategory = ALL_CATEGORIES">
                 {{ t('books.filters.category.all') }}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                v-for="category in categories"
-                :key="category"
-                @click="selectedCategory = category"
-              >
+              <DropdownMenuItem v-for="category in categories" :key="category" @click="selectedCategory = category">
                 {{ category }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -327,21 +321,13 @@ onMounted(() => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
-                {{
-                  selectedLanguage === t('books.filters.language.all')
-                    ? t('books.filters.language.all')
-                    : selectedLanguage
-                }}
+                {{ getDisplayText('language', selectedLanguage) }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem
-                v-for="language in languages"
-                :key="language"
-                @click="selectedLanguage = language"
-              >
-                {{ language }}
+              <DropdownMenuItem v-for="language in languages" :key="language" @click="selectedLanguage = language">
+                {{ getDisplayText('language', language) }}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -361,11 +347,8 @@ onMounted(() => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem
-                v-for="option in sortOptions"
-                :key="`${option.value}-${option.direction}`"
-                @click="handleSortChange(option)"
-              >
+              <DropdownMenuItem v-for="option in sortOptions" :key="`${option.value}-${option.direction}`"
+                @click="handleSortChange(option)">
                 {{ option.label }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -391,36 +374,19 @@ onMounted(() => {
       {{ t('books.results.noResults') }}
     </div>
 
-    <div
-      v-else
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6"
-    >
-      <div
-        v-for="book in books"
-        :key="book.id"
-        class="cursor-pointer transform transition-transform hover:scale-105"
-        @click="goToBookDetail(book.id)"
-      >
-        <BookCard
-          :title="book.title"
-          :author="book.authors.join(', ')"
-          :cover-image-url="book.coverURL"
-          :available-copies="book.availableQuantity"
-          :total-copies="book.totalQuantity"
-          :book-id="book.id"
-          :show-favorite-button="authStore.isAuthenticated"
-          @favorite-changed="handleFavoriteChanged"
-        />
+    <div v-else
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+      <div v-for="book in books" :key="book.id" class="cursor-pointer transform transition-transform hover:scale-105"
+        @click="goToBookDetail(book.id)">
+        <BookCard :title="book.title" :author="book.authors.join(', ')" :cover-image-url="book.coverURL"
+          :available-copies="book.availableQuantity" :total-copies="book.totalQuantity" :book-id="book.id"
+          :show-favorite-button="authStore.isAuthenticated" @favorite-changed="handleFavoriteChanged" />
       </div>
     </div>
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
-      <Button
-        variant="outline"
-        :disabled="currentPage === 0"
-        @click="handlePageChange(currentPage - 1)"
-      >
+      <Button variant="outline" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
         <ChevronLeft class="h-4 w-4" />
         {{ t('books.pagination.previous') }}
       </Button>
@@ -429,11 +395,7 @@ onMounted(() => {
         {{ t('books.pagination.page', { current: currentPage + 1, total: totalPages }) }}
       </span>
 
-      <Button
-        variant="outline"
-        :disabled="currentPage === totalPages - 1"
-        @click="handlePageChange(currentPage + 1)"
-      >
+      <Button variant="outline" :disabled="currentPage === totalPages - 1" @click="handlePageChange(currentPage + 1)">
         {{ t('books.pagination.next') }}
         <ChevronRight class="h-4 w-4" />
       </Button>
@@ -451,113 +413,70 @@ onMounted(() => {
       <form @submit.prevent="handleCreateBook" class="space-y-4">
         <div class="space-y-2">
           <Label for="title">{{ t('books.form.fields.title.label') }}</Label>
-          <Input
-            id="title"
-            v-model="bookForm.title"
-            :placeholder="t('books.form.fields.title.placeholder')"
-            required
-          />
+          <Input id="title" v-model="bookForm.title" :placeholder="t('books.form.fields.title.placeholder')" required />
         </div>
 
         <div class="space-y-2">
           <Label for="isbn">{{ t('books.form.fields.isbn.label') }}</Label>
-          <Input
-            id="isbn"
-            v-model="bookForm.isbn"
-            :placeholder="t('books.form.fields.isbn.placeholder')"
-            required
-          />
+          <Input id="isbn" v-model="bookForm.isbn" :placeholder="t('books.form.fields.isbn.placeholder')" required />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <Label for="language">{{ t('books.form.fields.language.label') }}</Label>
-            <Input
-              id="language"
-              v-model="bookForm.language"
-              :placeholder="t('books.form.fields.language.placeholder')"
-              required
-            />
+            <Input id="language" v-model="bookForm.language" :placeholder="t('books.form.fields.language.placeholder')"
+              required />
           </div>
 
           <div class="space-y-2">
             <Label for="category">{{ t('books.form.fields.category.label') }}</Label>
-            <Input
-              id="category"
-              v-model="bookForm.category"
-              :placeholder="t('books.form.fields.category.placeholder')"
-              required
-            />
+            <Input id="category" v-model="bookForm.category" :placeholder="t('books.form.fields.category.placeholder')"
+              required />
           </div>
         </div>
 
         <div class="space-y-2">
           <Label for="authors">{{ t('books.form.fields.authors.label') }}</Label>
-          <Input
-            id="authors"
-            v-model="bookForm.authors"
-            :placeholder="t('books.form.fields.authors.placeholder')"
-            required
-          />
+          <Input id="authors" v-model="bookForm.authors" :placeholder="t('books.form.fields.authors.placeholder')"
+            required />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <Label for="publisher">{{ t('books.form.fields.publisher.label') }}</Label>
-            <Input
-              id="publisher"
-              v-model="bookForm.publisher"
-              :placeholder="t('books.form.fields.publisher.placeholder')"
-            />
+            <Input id="publisher" v-model="bookForm.publisher"
+              :placeholder="t('books.form.fields.publisher.placeholder')" />
           </div>
 
           <div class="space-y-2">
             <Label for="publishedYear">{{ t('books.form.fields.publishedYear.label') }}</Label>
-            <Input
-              id="publishedYear"
-              type="number"
-              v-model="bookForm.publishedYear"
-              :min="1000"
-              :max="new Date().getFullYear() + 1"
-            />
+            <Input id="publishedYear" type="number" v-model="bookForm.publishedYear" :min="1000"
+              :max="new Date().getFullYear() + 1" />
           </div>
         </div>
 
         <div class="space-y-2">
           <Label for="description">{{ t('books.form.fields.description.label') }}</Label>
-          <textarea
-            id="description"
-            v-model="bookForm.description"
+          <textarea id="description" v-model="bookForm.description"
             :placeholder="t('books.form.fields.description.placeholder')"
-            class="w-full min-h-[100px] p-3 border rounded-md resize-none"
-          />
+            class="w-full min-h-[100px] p-3 border rounded-md resize-none" />
         </div>
 
         <div class="space-y-2">
           <Label for="coverURL">{{ t('books.form.fields.coverURL.label') }}</Label>
-          <Input
-            id="coverURL"
-            type="url"
-            v-model="bookForm.coverURL"
-            :placeholder="t('books.form.fields.coverURL.placeholder')"
-          />
+          <Input id="coverURL" type="url" v-model="bookForm.coverURL"
+            :placeholder="t('books.form.fields.coverURL.placeholder')" />
         </div>
 
         <div class="space-y-2">
           <Label for="totalQuantity">{{ t('books.form.fields.totalQuantity.label') }}</Label>
-          <Input
-            id="totalQuantity"
-            type="number"
-            v-model="bookForm.totalQuantity"
-            :min="1"
-            required
-          />
+          <Input id="totalQuantity" type="number" v-model="bookForm.totalQuantity" :min="1" required />
         </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" @click="closeAddBookDialog">{{
             t('books.form.buttons.cancel')
-          }}</Button>
+            }}</Button>
           <Button type="submit" :disabled="isSubmitting">
             {{ isSubmitting ? t('books.form.buttons.adding') : t('books.form.buttons.add') }}
           </Button>
