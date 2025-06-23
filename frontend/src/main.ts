@@ -14,7 +14,12 @@ async function initializeApp() {
   const i18n = createI18n({
     // Disable legacy API mode to use Composition API
     legacy: false,
-    // You can add other i18n options here (locale, messages, etc.)
+    locale: 'en',
+    fallbackLocale: 'en',
+    messages: {
+      en: {},
+      'zh-CN': {}
+    }
   })
 
   app.use(i18n)
