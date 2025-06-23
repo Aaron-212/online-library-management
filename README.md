@@ -1,5 +1,7 @@
 # Online Library Management System
 
+[中文版](README_zh-CN.md)
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen.svg)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.5.13-brightgreen.svg)
