@@ -78,8 +78,6 @@ export class StatisticsService {
     }>(`${this.basePath}/dashboard`)
     return response
   }
-
-
 }
 
 export const statisticsService = new StatisticsService()

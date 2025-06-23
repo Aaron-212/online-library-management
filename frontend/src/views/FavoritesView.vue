@@ -1,53 +1,45 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-bold">Favorites</h1>
-      <p class="text-muted-foreground">Manage your favorite books</p>
+      <h1 class="text-2xl font-bold">{{ t('favorites.title') }}</h1>
+      <p class="text-muted-foreground">{{ t('favorites.description') }}</p>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-8">
-      <div class="text-muted-foreground">Loading favorites...</div>
+      <div class="text-muted-foreground">{{ t('favorites.loading') }}</div>
     </div>
 
     <template v-else>
       <!-- Favorites List -->
       <div class="bg-background border rounded-lg shadow-sm">
         <div class="p-4 border-b">
-          <h2 class="text-xl font-semibold">My Favorite Books</h2>
+          <h2 class="text-xl font-semibold">{{ t('favorites.pageTitle') }}</h2>
           <p class="text-sm text-muted-foreground">
-            {{ favorites.length }} book{{ favorites.length !== 1 ? 's' : '' }} in your favorites
+            {{
+              favorites.length === 1
+                ? t('favorites.count.singular', { count: favorites.length })
+                : t('favorites.count.plural', { count: favorites.length })
+            }}
           </p>
         </div>
         <div class="p-4">
           <div v-if="favorites.length === 0" class="text-center py-12 text-muted-foreground">
             <div class="mb-4">
-              <svg
-                class="mx-auto h-12 w-12 text-muted-foreground/50"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
+              <Heart class="mx-auto h-12 w-12 text-muted-foreground/50" />
             </div>
-            <h3 class="text-lg font-semibold mb-2">No favorites yet</h3>
-            <p>Start adding books to your favorites to see them here.</p>
+            <h3 class="text-lg font-semibold mb-2">{{ t('favorites.empty.title') }}</h3>
+            <p>{{ t('favorites.empty.description') }}</p>
           </div>
           <div v-else class="overflow-x-auto">
             <table class="w-full">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left p-3">Book Title</th>
-                  <th class="text-left p-3">Author(s)</th>
-                  <th class="text-left p-3">Category</th>
-                  <th class="text-left p-3">Added Date</th>
-                  <th class="text-left p-3">Actions</th>
+                  <th class="text-left p-3">{{ t('favorites.table.headers.title') }}</th>
+                  <th class="text-left p-3">{{ t('favorites.table.headers.authors') }}</th>
+                  <th class="text-left p-3">{{ t('favorites.table.headers.category') }}</th>
+                  <th class="text-left p-3">{{ t('favorites.table.headers.addedDate') }}</th>
+                  <th class="text-left p-3">{{ t('favorites.table.headers.actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,7 +50,9 @@
                 >
                   <td class="p-3">
                     <div class="font-medium">{{ favorite.book.title }}</div>
-                    <div class="text-sm text-muted-foreground">ISBN: {{ favorite.book.isbn }}</div>
+                    <div class="text-sm text-muted-foreground">
+                      {{ t('favorites.table.isbnPrefix') }}{{ favorite.book.isbn }}
+                    </div>
                   </td>
                   <td class="p-3">
                     <div class="text-sm">
@@ -69,7 +63,9 @@
                     <span
                       class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                     >
-                      {{ favorite.book.indexCategory?.name || 'Uncategorized' }}
+                      {{
+                        favorite.book.indexCategory?.name || t('favorites.table.categoryDefault')
+                      }}
                     </span>
                   </td>
                   <td class="p-3 text-sm text-muted-foreground">
@@ -81,14 +77,18 @@
                         class="px-3 py-1 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors"
                         @click="viewBook(favorite.book.id)"
                       >
-                        View Details
+                        {{ t('favorites.table.actions.viewDetails') }}
                       </button>
                       <button
                         class="px-3 py-1 border border-destructive text-destructive bg-background hover:bg-destructive hover:text-destructive-foreground rounded-md text-sm transition-colors disabled:opacity-50"
                         @click="removeFavorite(favorite.id)"
                         :disabled="isRemoving"
                       >
-                        {{ isRemoving ? 'Removing...' : 'Remove' }}
+                        {{
+                          isRemoving
+                            ? t('favorites.table.actions.removing')
+                            : t('favorites.table.actions.remove')
+                        }}
                       </button>
                     </div>
                   </td>
@@ -105,9 +105,13 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { Heart } from 'lucide-vue-next'
 import { favoritesService } from '@/lib/api'
 import type { FavoriteDto } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
+
+const { t } = useI18n()
 
 const router = useRouter()
 
@@ -124,26 +128,26 @@ const fetchFavorites = async () => {
     favorites.value = response.content
   } catch (error) {
     console.error('Failed to fetch favorites:', error)
-    toast.error('Failed to load favorites')
+    toast.error(t('favorites.messages.loadError'))
   } finally {
     isLoading.value = false
   }
 }
 
 const removeFavorite = async (favoriteId: number) => {
-  if (!confirm('Are you sure you want to remove this book from your favorites?')) {
+  if (!confirm(t('favorites.dialogs.removeConfirm'))) {
     return
   }
 
   try {
     isRemoving.value = true
     await favoritesService.removeFavorite(favoriteId)
-    toast.success('Book removed from favorites!')
+    toast.success(t('favorites.messages.removeSuccess'))
     // Refresh the favorites list
     await fetchFavorites()
   } catch (error) {
     console.error('Failed to remove favorite:', error)
-    toast.error('Failed to remove favorite. Please try again.')
+    toast.error(t('favorites.messages.removeError'))
   } finally {
     isRemoving.value = false
   }

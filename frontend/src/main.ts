@@ -7,6 +7,7 @@ import { createI18n } from 'vue-i18n'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
+import { messages } from './locales'
 
 async function initializeApp() {
   const app = createApp(App)
@@ -16,10 +17,7 @@ async function initializeApp() {
     legacy: false,
     locale: 'en',
     fallbackLocale: 'en',
-    messages: {
-      en: {},
-      'zh-CN': {}
-    }
+    messages,
   })
 
   app.use(i18n)

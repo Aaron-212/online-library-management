@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const user = ref<UserType | null>(null)
@@ -72,7 +74,7 @@ const loadUserData = async () => {
     }
   } catch (error) {
     console.error('Error loading user data:', error)
-    toast.error('Failed to load user profile')
+    toast.error(t('profile.messages.loadUserDataError'))
   } finally {
     isLoading.value = false
   }
@@ -98,6 +100,7 @@ const loadBorrowingData = async () => {
     }
   } catch (error) {
     console.error('Error loading borrowing data:', error)
+    toast.error(t('profile.messages.loadBorrowingDataError'))
   }
 }
 
@@ -127,10 +130,10 @@ const saveProfile = async () => {
 
     await loadUserData()
     isEditingProfile.value = false
-    toast.success('Profile updated successfully!')
+    toast.success(t('profile.messages.profileUpdateSuccess'))
   } catch (error) {
     console.error('Error updating profile:', error)
-    toast.error('Failed to update profile')
+    toast.error(t('profile.messages.profileUpdateError'))
   } finally {
     isSaving.value = false
   }
@@ -156,12 +159,12 @@ const cancelChangePassword = () => {
 
 const changePassword = async () => {
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    toast.error('New passwords do not match')
+    toast.error(t('profile.messages.passwordMismatch'))
     return
   }
 
   if (passwordForm.value.newPassword.length < 6) {
-    toast.error('New password must be at least 6 characters long')
+    toast.error(t('profile.messages.passwordTooShort'))
     return
   }
 
@@ -176,7 +179,7 @@ const changePassword = async () => {
     if (result.success) {
       // On successful password change, immediately log the user out and redirect to login page
       isChangingPassword.value = false
-      toast.success('Password changed successfully! Please log in with your new password.')
+      toast.success(t('profile.messages.passwordChangeSuccess'))
 
       // Clear authentication state and force re-authentication
       authStore.logout()
@@ -187,7 +190,7 @@ const changePassword = async () => {
         await router.push({
           path: '/login',
           query: {
-            message: 'Password changed successfully! Please log in with your new password.',
+            message: t('profile.messages.passwordChangeSuccess'),
           },
         })
       } catch (navigationError) {
@@ -196,11 +199,11 @@ const changePassword = async () => {
         // The user is already logged out, so they'll need to navigate manually
       }
     } else {
-      toast.error(result.message || 'Failed to change password')
+      toast.error(result.message || t('profile.messages.passwordChangeError'))
     }
   } catch (error) {
     console.error('Error changing password:', error)
-    toast.error('Failed to change password')
+    toast.error(t('profile.messages.passwordChangeError'))
   } finally {
     isSaving.value = false
   }
@@ -212,7 +215,7 @@ const formatDate = (dateString: string) => {
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.status === 'RETURNED') {
-    return { color: 'text-green-600', text: 'Returned' }
+    return { color: 'text-green-600', text: t('profile.status.returned') }
   }
 
   if (borrow.status === 'BORROWED') {
@@ -220,15 +223,15 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
     const now = new Date()
 
     if (dueDate < now) {
-      return { color: 'text-red-600', text: 'Overdue' }
+      return { color: 'text-red-600', text: t('profile.status.overdue') }
     }
 
     const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     if (daysUntilDue <= 3) {
-      return { color: 'text-orange-600', text: 'Due Soon' }
+      return { color: 'text-orange-600', text: t('profile.status.dueSoon') }
     }
 
-    return { color: 'text-blue-600', text: 'Active' }
+    return { color: 'text-blue-600', text: t('profile.status.active') }
   }
 
   return { color: 'text-gray-600', text: borrow.status }
@@ -257,56 +260,72 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold">{{ user?.username }}</h1>
         <p class="text-sm text-muted-foreground">
-          Member since {{ user ? formatDate(user.createdTime) : 'loading...' }}
+          {{
+            user
+              ? t('profile.header.memberSince', { date: formatDate(user.createdTime) })
+              : t('profile.header.memberSinceLoading')
+          }}
         </p>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">Loading profile...</div>
+    <div v-if="isLoading" class="text-center py-8">{{ t('profile.loading.profile') }}</div>
 
     <template v-else>
       <!-- Profile Information -->
       <Card>
         <CardHeader class="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Manage your personal information</CardDescription>
+            <CardTitle>{{ t('profile.sections.profileInfo.title') }}</CardTitle>
+            <CardDescription>{{ t('profile.sections.profileInfo.description') }}</CardDescription>
           </div>
           <Button v-if="!isEditingProfile" variant="outline" @click="startEditProfile">
             <Edit class="h-4 w-4 mr-2" />
-            Edit Profile
+            {{ t('profile.buttons.editProfile') }}
           </Button>
         </CardHeader>
         <CardContent class="space-y-4">
           <div v-if="!isEditingProfile" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">Username</Label>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.username.label')
+              }}</Label>
               <div class="flex items-center gap-2">
                 <User class="h-4 w-4 text-muted-foreground" />
-                <span>{{ user?.username || 'N/A' }}</span>
+                <span>{{ user?.username || t('profile.placeholders.notAvailable') }}</span>
               </div>
             </div>
 
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">Email</Label>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.email.label')
+              }}</Label>
               <div class="flex items-center gap-2">
                 <Mail class="h-4 w-4 text-muted-foreground" />
-                <span>{{ user?.email || 'N/A' }}</span>
+                <span>{{ user?.email || t('profile.placeholders.notAvailable') }}</span>
               </div>
             </div>
 
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">Registration Date</Label>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.registrationDate.label')
+              }}</Label>
               <div class="flex items-center gap-2">
                 <Calendar class="h-4 w-4 text-muted-foreground" />
-                <span>{{ user ? formatDate(user.createdTime) : 'N/A' }}</span>
+                <span>{{
+                  user ? formatDate(user.createdTime) : t('profile.placeholders.notAvailable')
+                }}</span>
               </div>
             </div>
 
             <div class="space-y-2">
-              <Label class="text-sm font-medium text-muted-foreground">Last Updated</Label>
-              <span>{{ user ? formatDate(user.lastUpdateTime) : 'N/A' }}</span>
+              <Label class="text-sm font-medium text-muted-foreground">{{
+                t('profile.fields.lastUpdated.label')
+              }}</Label>
+              <span>{{
+                user ? formatDate(user.lastUpdateTime) : t('profile.placeholders.notAvailable')
+              }}</span>
             </div>
           </div>
 
@@ -314,24 +333,33 @@ onMounted(() => {
           <div v-else class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2 md:col-span-2">
-                <Label for="username">User Name</Label>
-                <Input id="username" v-model="profileForm.username" placeholder="Enter your username" />
+                <Label for="username">{{ t('profile.fields.username.label') }}</Label>
+                <Input
+                  id="username"
+                  v-model="profileForm.username"
+                  :placeholder="t('profile.fields.username.placeholder')"
+                />
               </div>
 
               <div class="space-y-2 md:col-span-2">
-                <Label for="email">Email</Label>
-                <Input id="email" v-model="profileForm.email" placeholder="Enter your email address" type="email" />
+                <Label for="email">{{ t('profile.fields.email.label') }}</Label>
+                <Input
+                  id="email"
+                  v-model="profileForm.email"
+                  :placeholder="t('profile.fields.email.placeholder')"
+                  type="email"
+                />
               </div>
             </div>
 
             <div class="flex gap-2">
               <Button :disabled="isSaving" @click="saveProfile">
                 <Save class="h-4 w-4 mr-2" />
-                {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                {{ isSaving ? t('profile.buttons.saving') : t('profile.buttons.saveChanges') }}
               </Button>
               <Button variant="outline" @click="cancelEditProfile">
                 <X class="h-4 w-4 mr-2" />
-                Cancel
+                {{ t('profile.buttons.cancel') }}
               </Button>
             </div>
           </div>
@@ -342,47 +370,69 @@ onMounted(() => {
       <Card>
         <CardHeader class="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Security</CardTitle>
-            <CardDescription>Manage your account security</CardDescription>
+            <CardTitle>{{ t('profile.sections.security.title') }}</CardTitle>
+            <CardDescription>{{ t('profile.sections.security.description') }}</CardDescription>
           </div>
           <Button v-if="!isChangingPassword" variant="outline" @click="startChangePassword">
             <Lock class="h-4 w-4 mr-2" />
-            Change Password
+            {{ t('profile.buttons.changePassword') }}
           </Button>
         </CardHeader>
         <CardContent>
           <div v-if="!isChangingPassword" class="text-sm text-muted-foreground">
-            Your password was last updated on {{ user ? formatDate(user.lastUpdateTime) : 'N/A' }}
+            {{
+              user
+                ? t('profile.security.lastPasswordUpdate', {
+                    date: formatDate(user.lastUpdateTime),
+                  })
+                : t('profile.security.lastPasswordUpdateDefault')
+            }}
           </div>
 
           <!-- Change Password Form -->
           <div v-else class="space-y-4">
             <div class="space-y-2">
-              <Label for="currentPassword">Current Password</Label>
-              <Input id="currentPassword" v-model="passwordForm.currentPassword"
-                placeholder="Enter your current password" type="password" />
+              <Label for="currentPassword">{{ t('profile.fields.currentPassword.label') }}</Label>
+              <Input
+                id="currentPassword"
+                v-model="passwordForm.currentPassword"
+                :placeholder="t('profile.fields.currentPassword.placeholder')"
+                type="password"
+              />
             </div>
 
             <div class="space-y-2">
-              <Label for="newPassword">New Password</Label>
-              <Input id="newPassword" v-model="passwordForm.newPassword" placeholder="Enter your new password"
-                type="password" />
+              <Label for="newPassword">{{ t('profile.fields.newPassword.label') }}</Label>
+              <Input
+                id="newPassword"
+                v-model="passwordForm.newPassword"
+                :placeholder="t('profile.fields.newPassword.placeholder')"
+                type="password"
+              />
             </div>
 
             <div class="space-y-2">
-              <Label for="confirmPassword">Confirm New Password</Label>
-              <Input id="confirmPassword" v-model="passwordForm.confirmPassword" placeholder="Confirm your new password"
-                type="password" />
+              <Label for="confirmPassword">{{ t('profile.fields.confirmPassword.label') }}</Label>
+              <Input
+                id="confirmPassword"
+                v-model="passwordForm.confirmPassword"
+                :placeholder="t('profile.fields.confirmPassword.placeholder')"
+                type="password"
+              />
             </div>
 
             <div class="flex gap-2">
               <Button :disabled="isSaving" @click="changePassword">
                 <Save class="h-4 w-4 mr-2" />
-                {{ isSaving ? 'Changing...' : 'Change Password' }}
+                {{
+                  isSaving
+                    ? t('profile.buttons.changingPassword')
+                    : t('profile.buttons.changePassword')
+                }}
               </Button>
               <Button variant="outline" @click="cancelChangePassword">
                 <X class="h-4 w-4 mr-2" />
-                Cancel
+                {{ t('profile.buttons.cancel') }}
               </Button>
             </div>
           </div>
@@ -392,29 +442,29 @@ onMounted(() => {
       <!-- Borrowing Statistics -->
       <Card>
         <CardHeader>
-          <CardTitle>Borrowing Statistics</CardTitle>
-          <CardDescription>Your library activity overview</CardDescription>
+          <CardTitle>{{ t('profile.sections.borrowingStats.title') }}</CardTitle>
+          <CardDescription>{{ t('profile.sections.borrowingStats.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="text-center">
               <div class="text-2xl font-bold text-blue-600">{{ borrowStats.totalBorrows }}</div>
-              <div class="text-sm text-muted-foreground">Total Borrows</div>
+              <div class="text-sm text-muted-foreground">{{ t('profile.stats.totalBorrows') }}</div>
             </div>
 
             <div class="text-center">
               <div class="text-2xl font-bold text-green-600">{{ borrowStats.returnedBorrows }}</div>
-              <div class="text-sm text-muted-foreground">Returned</div>
+              <div class="text-sm text-muted-foreground">{{ t('profile.stats.returned') }}</div>
             </div>
 
             <div class="text-center">
               <div class="text-2xl font-bold text-orange-600">{{ borrowStats.activeBorrows }}</div>
-              <div class="text-sm text-muted-foreground">Active</div>
+              <div class="text-sm text-muted-foreground">{{ t('profile.stats.active') }}</div>
             </div>
 
             <div class="text-center">
               <div class="text-2xl font-bold text-red-600">{{ borrowStats.overdueBorrows }}</div>
-              <div class="text-sm text-muted-foreground">Overdue</div>
+              <div class="text-sm text-muted-foreground">{{ t('profile.stats.overdue') }}</div>
             </div>
           </div>
         </CardContent>
@@ -424,30 +474,43 @@ onMounted(() => {
       <Card>
         <CardHeader class="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Recent Borrowing Activity</CardTitle>
-            <CardDescription>Your latest book borrowing activity</CardDescription>
+            <CardTitle>{{ t('profile.sections.recentActivity.title') }}</CardTitle>
+            <CardDescription>{{
+              t('profile.sections.recentActivity.description')
+            }}</CardDescription>
           </div>
-          <Button variant="outline" @click="router.push('/borrows')"> View All</Button>
+          <Button variant="outline" @click="router.push('/borrows')">{{
+            t('profile.buttons.viewAllBorrows')
+          }}</Button>
         </CardHeader>
         <CardContent>
           <div v-if="recentBorrows.length === 0" class="text-center py-8 text-muted-foreground">
-            No recent borrowing activity
+            {{ t('profile.activity.noActivity') }}
           </div>
 
           <div v-else class="space-y-4">
-            <div v-for="borrow in recentBorrows" :key="borrow.borrowId"
-              class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+            <div
+              v-for="borrow in recentBorrows"
+              :key="borrow.borrowId"
+              class="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+            >
               <div class="flex items-center gap-3">
-                <div class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden">
-                  <img v-if="borrow.coverURL" :src="borrow.coverURL" :alt="`Cover for ${borrow.bookTitle}`"
-                    class="w-full h-full object-cover" />
+                <div
+                  class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    v-if="borrow.coverURL"
+                    :src="borrow.coverURL"
+                    :alt="`Cover for ${borrow.bookTitle}`"
+                    class="w-full h-full object-cover"
+                  />
                   <BookOpen v-else class="h-5 w-5 text-muted-foreground" />
                 </div>
 
                 <div>
                   <h4 class="font-medium">{{ borrow.bookTitle }}</h4>
                   <p class="text-sm text-muted-foreground">
-                    Due: {{ formatDate(borrow.returnTime) }}
+                    {{ t('profile.activity.due', { date: formatDate(borrow.returnTime) }) }}
                   </p>
                 </div>
               </div>
@@ -457,7 +520,10 @@ onMounted(() => {
                   {{ getBorrowStatusBadge(borrow).text }}
                 </span>
                 <CheckCircle v-if="borrow.status === 'RETURNED'" class="h-4 w-4 text-green-600" />
-                <Clock v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')" class="h-4 w-4 text-blue-600" />
+                <Clock
+                  v-else-if="!getBorrowStatusBadge(borrow).color.includes('red')"
+                  class="h-4 w-4 text-blue-600"
+                />
                 <AlertTriangle v-else class="h-4 w-4 text-red-600" />
               </div>
             </div>

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -31,6 +32,7 @@ import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const borrows = ref<Borrow[]>([])
@@ -45,13 +47,13 @@ const totalPages = ref(0)
 const totalElements = ref(0)
 const pageSize = ref(10)
 
-// Filter options
-const statusOptions = [
-  { value: 'all', label: 'All Borrows' },
-  { value: 'active', label: 'Active' },
-  { value: 'returned', label: 'Returned' },
-  { value: 'overdue', label: 'Overdue' },
-]
+// Filter options - computed to make them reactive to language changes
+const statusOptions = computed(() => [
+  { value: 'all', label: t('borrowing.filters.status.all') },
+  { value: 'active', label: t('borrowing.filters.status.active') },
+  { value: 'returned', label: t('borrowing.filters.status.returned') },
+  { value: 'overdue', label: t('borrowing.filters.status.overdue') },
+])
 
 // Computed
 const filteredBorrows = computed(() => {
@@ -97,7 +99,7 @@ const totalFees = computed(() =>
 // Map ISBN to cover URL for displaying book covers
 const bookCoverMap = computed(() => {
   const map = new Map<string, string>()
-  books.value.forEach(book => {
+  books.value.forEach((book) => {
     if (book.coverURL) {
       map.set(book.isbn, book.coverURL)
     }
@@ -152,19 +154,23 @@ const getDaysUntilDue = (borrow: Borrow) => {
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.status === 'RETURNED') {
-    return { variant: 'success' as const, text: 'Returned', icon: CheckCircle }
+    return { variant: 'success' as const, text: t('borrowing.status.returned'), icon: CheckCircle }
   }
 
   if (borrow.status === 'OVERDUE' || (borrow.status === 'BORROWED' && isOverdue(borrow))) {
-    return { variant: 'destructive' as const, text: 'Overdue', icon: AlertTriangle }
+    return {
+      variant: 'destructive' as const,
+      text: t('borrowing.status.overdue'),
+      icon: AlertTriangle,
+    }
   }
 
   if (borrow.status === 'BORROWED') {
     const daysUntilDue = getDaysUntilDue(borrow)
     if (daysUntilDue <= 3) {
-      return { variant: 'secondary' as const, text: 'Due Soon', icon: Clock }
+      return { variant: 'secondary' as const, text: t('borrowing.status.dueSoon'), icon: Clock }
     }
-    return { variant: 'default' as const, text: 'Active', icon: BookOpen }
+    return { variant: 'default' as const, text: t('borrowing.status.active'), icon: BookOpen }
   }
 
   return { variant: 'default' as const, text: borrow.status, icon: BookOpen }
@@ -177,16 +183,14 @@ const formatDate = (dateString: string) => {
 // Function to preload missing book covers
 const preloadMissingCovers = async (borrowList: Borrow[]) => {
   const missingIsbns = borrowList
-    .map(borrow => borrow.isbn)
-    .filter(isbn => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
+    .map((borrow) => borrow.isbn)
+    .filter((isbn) => !bookCoverMap.value.has(isbn) && !coverCache.value.has(isbn))
 
   // Remove duplicates
   const uniqueIsbns = [...new Set(missingIsbns)]
 
   // Load covers for missing ISBNs in parallel
-  await Promise.allSettled(
-    uniqueIsbns.map(isbn => getBookCoverUrl(isbn))
-  )
+  await Promise.allSettled(uniqueIsbns.map((isbn) => getBookCoverUrl(isbn)))
 }
 
 const loadBorrows = async () => {
@@ -204,7 +208,7 @@ const loadBorrows = async () => {
     await preloadMissingCovers(response.content)
   } catch (error) {
     console.error('Error loading borrows:', error)
-    toast.error('Failed to load borrowing history')
+    toast.error(t('borrowing.messages.loadError'))
   } finally {
     isLoading.value = false
   }
@@ -246,12 +250,12 @@ const handleReturnBook = async (borrowId: number) => {
   try {
     isReturning.value = borrowId
     await borrowService.returnBook(borrowId)
-    toast.success('Book returned successfully!')
+    toast.success(t('borrowing.messages.returnSuccess'))
     await loadBorrows()
     await loadFees()
   } catch (error) {
     console.error('Error returning book:', error)
-    toast.error('Failed to return book')
+    toast.error(t('borrowing.messages.returnError'))
   } finally {
     isReturning.value = null
   }
@@ -260,22 +264,22 @@ const handleReturnBook = async (borrowId: number) => {
 const handleRenewBook = async (borrowId: number) => {
   try {
     await borrowService.renewBook(borrowId)
-    toast.success('Book renewed successfully!')
+    toast.success(t('borrowing.messages.renewSuccess'))
     await loadBorrows()
   } catch (error) {
     console.error('Error renewing book:', error)
-    toast.error('Failed to renew book')
+    toast.error(t('borrowing.messages.renewError'))
   }
 }
 
 const handlePayFee = async (feeId: number) => {
   try {
     await feesService.payFee(feeId)
-    toast.success('Fee paid successfully!')
+    toast.success(t('borrowing.messages.paySuccess'))
     await loadFees()
   } catch (error) {
     console.error('Error paying fee:', error)
-    toast.error('Failed to pay fee')
+    toast.error(t('borrowing.messages.payError'))
   }
 }
 
@@ -308,12 +312,12 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold">My Borrowing</h1>
-        <p class="text-muted-foreground">Manage your borrowed books and fees</p>
+        <h1 class="text-2xl font-bold">{{ t('borrowing.title') }}</h1>
+        <p class="text-muted-foreground">{{ t('borrowing.description') }}</p>
       </div>
       <Button @click="router.push('/books')" variant="outline">
         <BookOpen class="h-4 w-4 mr-2" />
-        Browse Books
+        {{ t('borrowing.buttons.browseBooks') }}
       </Button>
     </div>
 
@@ -321,36 +325,48 @@ onMounted(() => {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Active Borrows</CardTitle>
+          <CardTitle class="text-sm font-medium">{{
+            t('borrowing.summary.activeBorrows.title')
+          }}</CardTitle>
           <BookOpen class="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold">{{ activeBorrows.length }}</div>
-          <p class="text-xs text-muted-foreground">Currently borrowed</p>
+          <p class="text-xs text-muted-foreground">
+            {{ t('borrowing.summary.activeBorrows.description') }}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Overdue Books</CardTitle>
+          <CardTitle class="text-sm font-medium">{{
+            t('borrowing.summary.overdueBooks.title')
+          }}</CardTitle>
           <AlertTriangle class="h-4 w-4 text-red-500" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-red-600">{{ overdueBorrows.length }}</div>
-          <p class="text-xs text-muted-foreground">Need immediate attention</p>
+          <p class="text-xs text-muted-foreground">
+            {{ t('borrowing.summary.overdueBooks.description') }}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Outstanding Fees</CardTitle>
+          <CardTitle class="text-sm font-medium">{{
+            t('borrowing.summary.outstandingFees.title')
+          }}</CardTitle>
           <CreditCard class="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold">
             {{ totalFees > 0 ? `$${totalFees.toFixed(2)}` : '$0.00' }}
           </div>
-          <p class="text-xs text-muted-foreground">Unpaid late fees</p>
+          <p class="text-xs text-muted-foreground">
+            {{ t('borrowing.summary.outstandingFees.description') }}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -360,29 +376,39 @@ onMounted(() => {
       <div class="flex flex-wrap gap-4">
         <!-- Search -->
         <div class="flex flex-col gap-2 flex-1 min-w-[200px]">
-          <Label for="search">Search Books</Label>
+          <Label for="search">{{ t('borrowing.filters.search.label') }}</Label>
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="search" v-model="searchKeyword" placeholder="Search by title, author, or ISBN..."
-              class="pl-10" />
+            <Search
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              id="search"
+              v-model="searchKeyword"
+              :placeholder="t('borrowing.filters.search.placeholder')"
+              class="pl-10"
+            />
           </div>
         </div>
 
         <!-- Status Filter -->
         <div class="flex flex-col gap-2">
-          <Label for="status">Status</Label>
+          <Label for="status">{{ t('borrowing.filters.status.label') }}</Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" class="w-48 justify-between">
                 {{
-                  statusOptions.find((opt) => opt.value === statusFilter)?.label || 'All Borrows'
+                  statusOptions.find((opt) => opt.value === statusFilter)?.label ||
+                  t('borrowing.filters.status.all')
                 }}
                 <ChevronDown class="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem v-for="option in statusOptions" :key="option.value"
-                @click="statusFilter = option.value">
+              <DropdownMenuItem
+                v-for="option in statusOptions"
+                :key="option.value"
+                @click="statusFilter = option.value"
+              >
                 {{ option.label }}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -403,23 +429,28 @@ onMounted(() => {
       <CardHeader>
         <CardTitle class="flex items-center gap-2 text-red-600">
           <AlertTriangle class="h-5 w-5" />
-          Outstanding Fees
+          {{ t('borrowing.fees.title') }}
         </CardTitle>
-        <CardDescription>Please pay your late fees to continue borrowing</CardDescription>
+        <CardDescription>{{ t('borrowing.fees.description') }}</CardDescription>
       </CardHeader>
       <CardContent>
         <div class="space-y-3">
-          <div v-for="fee in fees.filter((f) => !f.paid)" :key="fee.id"
-            class="flex items-center justify-between p-3 border rounded-lg">
+          <div
+            v-for="fee in fees.filter((f) => !f.paid)"
+            :key="fee.id"
+            class="flex items-center justify-between p-3 border rounded-lg"
+          >
             <div>
-              <p class="font-medium">Borrow ID: {{ fee.borrowId }}</p>
+              <p class="font-medium">{{ t('borrowing.fees.borrowId', { id: fee.borrowId }) }}</p>
               <p class="text-sm text-muted-foreground">
-                Fee Date: {{ formatDate(fee.calculationDate) }}
+                {{ t('borrowing.fees.feeDate', { date: formatDate(fee.calculationDate) }) }}
               </p>
             </div>
             <div class="flex items-center gap-3">
               <span class="font-bold text-red-600">${{ fee.amount.toFixed(2) }}</span>
-              <Button size="sm" @click="handlePayFee(fee.id)"> Pay Now </Button>
+              <Button size="sm" @click="handlePayFee(fee.id)">{{
+                t('borrowing.buttons.payNow')
+              }}</Button>
             </div>
           </div>
         </div>
@@ -429,28 +460,42 @@ onMounted(() => {
     <!-- Borrows List -->
     <Card>
       <CardHeader>
-        <CardTitle>Borrowing History</CardTitle>
+        <CardTitle>{{ t('borrowing.history.title') }}</CardTitle>
         <CardDescription>
-          Showing {{ filteredBorrows.length }} of {{ totalElements }} borrows
+          {{
+            t('borrowing.history.showing', { count: filteredBorrows.length, total: totalElements })
+          }}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div v-if="isLoading" class="text-center py-8">Loading your borrowing history...</div>
+        <div v-if="isLoading" class="text-center py-8">{{ t('borrowing.loading') }}</div>
 
-        <div v-else-if="filteredBorrows.length === 0" class="text-center py-8 text-muted-foreground">
-          No borrows found matching your criteria
+        <div
+          v-else-if="filteredBorrows.length === 0"
+          class="text-center py-8 text-muted-foreground"
+        >
+          {{ t('borrowing.empty.noBorrows') }}
         </div>
 
         <div v-else class="space-y-4">
-          <div v-for="borrow in filteredBorrows" :key="borrow.borrowId"
-            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+          <div
+            v-for="borrow in filteredBorrows"
+            :key="borrow.borrowId"
+            class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+          >
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
-                  <img v-if="getBookCoverUrlSync(borrow.isbn)" :src="getBookCoverUrlSync(borrow.isbn)"
-                    :alt="borrow.bookTitle" class="w-full h-full object-cover"
-                    @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                <div
+                  class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden"
+                >
+                  <img
+                    v-if="getBookCoverUrlSync(borrow.isbn)"
+                    :src="getBookCoverUrlSync(borrow.isbn)"
+                    :alt="borrow.bookTitle"
+                    class="w-full h-full object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'"
+                  />
                   <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
@@ -458,7 +503,9 @@ onMounted(() => {
                   <h3 class="font-medium truncate">
                     {{ borrow.bookTitle }}
                   </h3>
-                  <p class="text-xs text-muted-foreground">ISBN: {{ borrow.isbn }}</p>
+                  <p class="text-xs text-muted-foreground">
+                    {{ t('borrowing.history.isbn', { isbn: borrow.isbn }) }}
+                  </p>
                 </div>
               </div>
 
@@ -472,22 +519,26 @@ onMounted(() => {
                 <div class="text-sm text-muted-foreground">
                   <div class="flex items-center gap-1">
                     <Calendar class="h-3 w-3" />
-                    Borrowed: {{ formatDate(borrow.borrowTime) }}
+                    {{ t('borrowing.history.borrowed', { date: formatDate(borrow.borrowTime) }) }}
                   </div>
                   <div class="flex items-center gap-1">
                     <Clock class="h-3 w-3" />
-                    Due: {{ formatDate(borrow.returnTime) }}
+                    {{ t('borrowing.history.due', { date: formatDate(borrow.returnTime) }) }}
                     <span v-if="borrow.status === 'BORROWED'" class="ml-1">
                       ({{
                         getDaysUntilDue(borrow) > 0
-                          ? `${getDaysUntilDue(borrow)} days left`
-                          : `${Math.abs(getDaysUntilDue(borrow))} days overdue`
+                          ? t('borrowing.history.daysLeft', { days: getDaysUntilDue(borrow) })
+                          : t('borrowing.history.daysOverdue', {
+                              days: Math.abs(getDaysUntilDue(borrow)),
+                            })
                       }})
                     </span>
                   </div>
                   <div v-if="borrow.actualReturnTime" class="flex items-center gap-1">
                     <CheckCircle class="h-3 w-3" />
-                    Returned: {{ formatDate(borrow.actualReturnTime) }}
+                    {{
+                      t('borrowing.history.returned', { date: formatDate(borrow.actualReturnTime) })
+                    }}
                   </div>
                 </div>
               </div>
@@ -496,12 +547,19 @@ onMounted(() => {
               <div v-if="borrow.status === 'BORROWED'" class="flex gap-2">
                 <Button size="sm" variant="outline" @click="handleRenewBook(borrow.borrowId)">
                   <RefreshCw class="h-3 w-3 mr-1" />
-                  Renew
+                  {{ t('borrowing.buttons.renew') }}
                 </Button>
-                <Button size="sm" @click="handleReturnBook(borrow.borrowId)"
-                  :disabled="isReturning === borrow.borrowId">
+                <Button
+                  size="sm"
+                  @click="handleReturnBook(borrow.borrowId)"
+                  :disabled="isReturning === borrow.borrowId"
+                >
                   <CheckCircle class="h-3 w-3 mr-1" />
-                  {{ isReturning === borrow.borrowId ? 'Returning...' : 'Return' }}
+                  {{
+                    isReturning === borrow.borrowId
+                      ? t('borrowing.buttons.returning')
+                      : t('borrowing.buttons.return')
+                  }}
                 </Button>
               </div>
             </div>
@@ -510,18 +568,27 @@ onMounted(() => {
 
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-6">
-          <Button variant="outline" size="sm" :disabled="currentPage === 0" @click="handlePageChange(currentPage - 1)">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="currentPage === 0"
+            @click="handlePageChange(currentPage - 1)"
+          >
             <ArrowLeft class="h-4 w-4" />
-            Previous
+            {{ t('borrowing.pagination.previous') }}
           </Button>
 
           <span class="text-sm text-muted-foreground px-4">
-            Page {{ currentPage + 1 }} of {{ totalPages }}
+            {{ t('borrowing.pagination.page', { current: currentPage + 1, total: totalPages }) }}
           </span>
 
-          <Button variant="outline" size="sm" :disabled="currentPage === totalPages - 1"
-            @click="handlePageChange(currentPage + 1)">
-            Next
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="currentPage === totalPages - 1"
+            @click="handlePageChange(currentPage + 1)"
+          >
+            {{ t('borrowing.pagination.next') }}
             <ArrowLeft class="h-4 w-4 rotate-180" />
           </Button>
         </div>

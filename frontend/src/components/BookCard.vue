@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import FavoriteButton from '@/components/FavoriteButton.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   title: string
@@ -28,6 +29,7 @@ const emit = defineEmits<{
   favoriteChanged: [bookId: number, isFavorite: boolean]
 }>()
 
+const { t } = useI18n()
 const { isLoading, error } = useImage({ src: props.coverImageUrl || '' })
 
 const altText = computed(() => `Cover image for ${props.title}`)
@@ -41,9 +43,9 @@ const availabilityStatus = computed(() => {
 
 const availabilityText = computed(() => {
   if (props.availableCopies === undefined) return ''
-  if (props.availableCopies === 0) return 'Not Available'
-  if (props.availableCopies === 1) return '1 copy available'
-  return `${props.availableCopies} copies available`
+  if (props.availableCopies === 0) return t('bookCard.status.notAvailable')
+  if (props.availableCopies === 1) return t('bookCard.availability.singleCopy')
+  return t('bookCard.availability.multipleCopies', { count: props.availableCopies })
 })
 
 const handleFavoriteChanged = (isFavorite: boolean) => {
@@ -66,9 +68,11 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
           class="object-cover w-full h-full"
         />
         <div v-else-if="isLoading" class="text-sm text-muted-foreground p-4 text-center">
-          Loading image...
+          {{ t('bookCard.loadingImage') }}
         </div>
-        <div v-else class="text-sm text-muted-foreground p-4 text-center">No image available</div>
+        <div v-else class="text-sm text-muted-foreground p-4 text-center">
+          {{ t('bookCard.noImageAvailable') }}
+        </div>
 
         <!-- Top left favorite button -->
         <div v-if="showFavoriteButton && bookId" class="absolute top-2 left-2">
@@ -94,10 +98,10 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
           >
             {{
               availabilityStatus === 'available'
-                ? 'Available'
+                ? t('bookCard.status.available')
                 : availabilityStatus === 'limited'
-                  ? 'Limited'
-                  : 'Out of Stock'
+                  ? t('bookCard.status.limited')
+                  : t('bookCard.status.outOfStock')
             }}
           </Badge>
         </div>
@@ -108,18 +112,20 @@ const handleFavoriteChanged = (isFavorite: boolean) => {
         {{ props.title }}
       </CardTitle>
       <CardDescription :title="props.author" class="text-sm mb-2 line-clamp-1">
-        By: {{ props.author }}
+        {{ t('bookCard.authorPrefix') }}{{ props.author }}
       </CardDescription>
 
       <!-- Availability Info -->
       <div v-if="availableCopies !== undefined" class="text-xs text-muted-foreground mb-1">
         {{ availabilityText }}
-        <span v-if="totalCopies !== undefined" class="ml-1">({{ totalCopies }} total)</span>
+        <span v-if="totalCopies !== undefined" class="ml-1"
+          >({{ totalCopies }} {{ t('bookCard.availability.total') }})</span
+        >
       </div>
     </CardContent>
     <CardFooter v-if="props.isbn" class="pb-4 pt-0">
       <p :title="props.isbn" class="text-xs text-muted-foreground truncate w-full">
-        ISBN: {{ props.isbn }}
+        {{ t('bookCard.isbnPrefix') }}{{ props.isbn }}
       </p>
     </CardFooter>
   </Card>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { RouterLink, useRouter } from 'vue-router'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   BarChart3,
   Bell,
@@ -51,39 +52,40 @@ import {
 const router = useRouter()
 const authStore = useAuthStore()
 const { currentLanguage, currentLanguageLabel, availableLanguages, changeLanguage } = useLanguage()
+const { t } = useI18n()
 
 // Main navigation for all users - computed to allow dynamic URLs
 const navigationItems = computed(() => [
   {
-    title: 'Home',
+    title: t('sidebar.home'),
     url: '/',
     icon: Home,
   },
   {
-    title: 'Dashboard',
+    title: t('sidebar.dashboard'),
     url: '/dashboard',
     icon: Gauge,
     requiresAuth: true,
     hideForAdmin: true, // Hide this for admins since they have Admin Dashboard
   },
   {
-    title: 'Books',
+    title: t('sidebar.books'),
     url: '/books',
     icon: BookOpen,
   },
   {
-    title: 'Notices',
+    title: t('sidebar.notices'),
     url: '/notices',
     icon: Bell,
   },
   {
-    title: 'Favorites',
+    title: t('sidebar.favorites'),
     url: '/favorites',
     icon: Heart,
     requiresAuth: true,
   },
   {
-    title: 'Billing Center',
+    title: t('sidebar.billingCenter'),
     url: '/billing',
     icon: CreditCard,
     requiresAuth: true,
@@ -91,53 +93,53 @@ const navigationItems = computed(() => [
 ])
 
 // Library management for authenticated users
-const libraryItems = [
+const libraryItems = computed(() => [
   {
-    title: 'My Borrowing',
+    title: t('sidebar.myBorrowing'),
     url: '/borrows',
     icon: Clock,
     requiresAuth: true,
   },
-]
+])
 
 // Admin navigation items
-const adminItems = [
+const adminItems = computed(() => [
   {
-    title: 'Admin Dashboard',
+    title: t('sidebar.adminDashboard'),
     url: '/admin/dashboard',
     icon: Gauge,
   },
   {
-    title: 'Manage Books',
+    title: t('sidebar.manageBooks'),
     url: '/admin/books',
     icon: Library,
   },
   {
-    title: 'User Management',
+    title: t('sidebar.userManagement'),
     url: '/admin/users',
     icon: Users,
   },
   {
-    title: 'Borrowing Management',
+    title: t('sidebar.borrowingManagement'),
     url: '/admin/borrowing',
     icon: Clock,
   },
   {
-    title: 'Borrowing Rules',
+    title: t('sidebar.borrowingRules'),
     url: '/admin/borrowing-rules',
     icon: Settings,
   },
   {
-    title: 'Fee Management',
+    title: t('sidebar.feeManagement'),
     url: '/admin/fees',
     icon: CreditCard,
   },
   {
-    title: 'Reports',
+    title: t('sidebar.reports'),
     url: '/admin/reports',
     icon: BarChart3,
   },
-]
+])
 
 // Computed properties
 const isAdmin = computed(() => {
@@ -157,7 +159,7 @@ const filteredNavigationItems = computed(() => {
 })
 
 const filteredLibraryItems = computed(() => {
-  return libraryItems.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
+  return libraryItems.value.filter((item) => !item.requiresAuth || authStore.isAuthenticated)
 })
 
 const handleLogout = () => {
@@ -171,14 +173,14 @@ const handleLogout = () => {
     <SidebarHeader class="border-b border-sidebar-border h-16">
       <div class="flex items-center gap-2 px-2 h-full">
         <BookOpen class="h-6 w-6" />
-        <span class="font-semibold">Library System</span>
+        <span class="font-semibold">{{ t('sidebar.title') }}</span>
       </div>
     </SidebarHeader>
 
     <SidebarContent>
       <!-- Main Navigation -->
       <SidebarGroup>
-        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+        <SidebarGroupLabel>{{ t('sidebar.navigation') }}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in filteredNavigationItems" :key="item.title">
@@ -195,7 +197,7 @@ const handleLogout = () => {
 
       <!-- Library Management -->
       <SidebarGroup v-if="authStore.isAuthenticated && filteredLibraryItems.length > 0">
-        <SidebarGroupLabel>Library Management</SidebarGroupLabel>
+        <SidebarGroupLabel>{{ t('sidebar.libraryManagement') }}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in filteredLibraryItems" :key="item.title">
@@ -212,7 +214,7 @@ const handleLogout = () => {
 
       <!-- Admin Section -->
       <SidebarGroup v-if="isAdmin">
-        <SidebarGroupLabel>Administration</SidebarGroupLabel>
+        <SidebarGroupLabel>{{ t('sidebar.administration') }}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in adminItems" :key="item.title">
@@ -232,24 +234,24 @@ const handleLogout = () => {
       <SidebarMenu>
         <!-- Language Selector -->
         <SidebarMenuItem>
-          <div class="px-2 py-2">
-            <div class="flex items-center gap-2 mb-2">
-              <Languages class="h-4 w-4" />
-              <span class="text-sm font-medium">Language</span>
-            </div>
-            <Select :model-value="currentLanguage" @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)">
-              <SelectTrigger class="w-full">
-                <SelectValue>{{ currentLanguageLabel }}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="lang in availableLanguages" :key="lang.value" :value="lang.value">
-                  {{ lang.label }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            :model-value="currentLanguage"
+            @update:model-value="(value) => typeof value === 'string' && changeLanguage(value)"
+          >
+            <SelectTrigger class="w-full">
+              <SelectValue>
+                <Languages class="h-4 w-4" />
+                {{ currentLanguageLabel }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="lang in availableLanguages" :key="lang.value" :value="lang.value">
+                {{ lang.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </SidebarMenuItem>
-        
+
         <SidebarMenuItem>
           <!-- Show dropdown when authenticated, otherwise show login link -->
           <DropdownMenu v-if="authStore.isAuthenticated">
@@ -263,9 +265,9 @@ const handleLogout = () => {
                 </Avatar>
                 <div class="flex flex-col items-start">
                   <span class="text-sm font-medium">{{
-                    authStore.user?.username || 'Anonymous'
+                    authStore.user?.username || t('sidebar.anonymous')
                   }}</span>
-                  <span class="text-xs text-muted-foreground">View Profile</span>
+                  <span class="text-xs text-muted-foreground">{{ t('sidebar.viewProfile') }}</span>
                 </div>
               </SidebarMenuButton>
             </DropdownMenuTrigger>
@@ -273,20 +275,20 @@ const handleLogout = () => {
               <DropdownMenuItem as-child>
                 <RouterLink class="flex items-center gap-2" to="/profile">
                   <User class="h-4 w-4" />
-                  <span>Profile</span>
+                  <span>{{ t('sidebar.profile') }}</span>
                 </RouterLink>
               </DropdownMenuItem>
               <DropdownMenuItem as-child>
                 <RouterLink class="flex items-center gap-2" to="/borrows">
                   <Clock class="h-4 w-4" />
-                  <span>My Borrowing</span>
+                  <span>{{ t('sidebar.myBorrowing') }}</span>
                 </RouterLink>
               </DropdownMenuItem>
               <DropdownMenuSeparator v-if="isAdmin" />
               <DropdownMenuItem v-if="isAdmin" as-child>
                 <RouterLink class="flex items-center gap-2" to="/admin/dashboard">
                   <Shield class="h-4 w-4" />
-                  <span>Admin Panel</span>
+                  <span>{{ t('sidebar.adminDashboard') }}</span>
                 </RouterLink>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -296,7 +298,7 @@ const handleLogout = () => {
                 @click="handleLogout"
               >
                 <LogOut class="h-4 w-4" />
-                <span>Logout</span>
+                <span>{{ t('sidebar.logout') }}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -309,8 +311,8 @@ const handleLogout = () => {
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div class="flex flex-col items-start">
-                <span class="text-sm font-medium">Anonymous</span>
-                <span class="text-xs text-muted-foreground">Click here to login</span>
+                <span class="text-sm font-medium">{{ t('sidebar.anonymous') }}</span>
+                <span class="text-xs text-muted-foreground">{{ t('sidebar.clickToLogin') }}</span>
               </div>
             </RouterLink>
           </SidebarMenuButton>

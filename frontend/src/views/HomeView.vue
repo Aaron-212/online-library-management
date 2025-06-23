@@ -18,12 +18,14 @@ import {
   Users,
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
 import { booksService, categoriesService, noticesService, statisticsService } from '@/lib/api'
 import type { BookSummaryDto, BookStatisticsDto, Notice } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const isLoading = ref(false)
@@ -42,16 +44,17 @@ const searchKeyword = ref('')
 // Computed
 const heroTitle = computed(() => {
   if (authStore.isAuthenticated) {
-    return `Welcome back, ${authStore.user?.username || 'Reader'}!`
+    const username = authStore.user?.username || 'Reader'
+    return t('home.hero.welcomeBack', { username })
   }
-  return 'Welcome to Your Digital Library'
+  return t('home.hero.welcomeToLibrary')
 })
 
 const heroSubtitle = computed(() => {
   if (authStore.isAuthenticated) {
-    return 'Discover new worlds, continue your reading journey, and explore our vast collection.'
+    return t('home.hero.subtitleAuthenticated')
   }
-  return 'Discover thousands of books, manage your reading journey, and connect with a community of readers.'
+  return t('home.hero.subtitleGuest')
 })
 
 // Quick action buttons for different user states
@@ -59,23 +62,23 @@ const quickActions = computed(() => {
   if (authStore.isAuthenticated) {
     return [
       {
-        title: 'Browse Books',
-        description: 'Explore our collection',
+        title: t('home.quickActions.browseBooks.title'),
+        description: t('home.quickActions.browseBooks.description'),
         icon: Search,
         action: () => router.push('/books'),
         variant: 'default' as const,
         featured: true,
       },
       {
-        title: 'My Borrows',
-        description: 'View borrowed books',
+        title: t('home.quickActions.myBorrows.title'),
+        description: t('home.quickActions.myBorrows.description'),
         icon: Clock,
         action: () => router.push('/borrows'),
         variant: 'outline' as const,
       },
       {
-        title: 'Dashboard',
-        description: 'Your reading stats',
+        title: t('home.quickActions.dashboard.title'),
+        description: t('home.quickActions.dashboard.description'),
         icon: TrendingUp,
         action: () => router.push('/dashboard'),
         variant: 'outline' as const,
@@ -84,24 +87,24 @@ const quickActions = computed(() => {
   } else {
     return [
       {
-        title: 'Sign In',
-        description: 'Access your account',
+        title: t('home.quickActions.signIn.title'),
+        description: t('home.quickActions.signIn.description'),
         icon: LogIn,
         action: () => router.push('/login'),
         variant: 'default' as const,
         featured: true,
       },
       {
-        title: 'Register',
-        description: 'Join our community',
+        title: t('home.quickActions.register.title'),
+        description: t('home.quickActions.register.description'),
         icon: UserPlus,
         action: () => router.push('/register'),
         variant: 'outline' as const,
         featured: true,
       },
       {
-        title: 'Browse Books',
-        description: 'Explore our collection',
+        title: t('home.quickActions.browseBooks.title'),
+        description: t('home.quickActions.browseBooks.description'),
         icon: Search,
         action: () => router.push('/books'),
         variant: 'outline' as const,
@@ -111,36 +114,36 @@ const quickActions = computed(() => {
 })
 
 // Library features showcase
-const libraryFeatures = [
+const libraryFeatures = computed(() => [
   {
     icon: BookOpen,
-    title: 'Vast Collection',
-    description: 'Access thousands of books across all genres and categories.',
+    title: t('home.libraryFeatures.vastCollection.title'),
+    description: t('home.libraryFeatures.vastCollection.description'),
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
   },
   {
     icon: Users,
-    title: 'Community',
-    description: 'Connect with fellow readers and share your reading experience.',
+    title: t('home.libraryFeatures.community.title'),
+    description: t('home.libraryFeatures.community.description'),
     color: 'text-green-600',
     bgColor: 'bg-green-50',
   },
   {
     icon: Clock,
-    title: 'Easy Management',
-    description: 'Track your borrowed books and manage your reading schedule.',
+    title: t('home.libraryFeatures.easyManagement.title'),
+    description: t('home.libraryFeatures.easyManagement.description'),
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
   },
   {
     icon: Heart,
-    title: 'Personalized',
-    description: 'Get recommendations based on your reading preferences.',
+    title: t('home.libraryFeatures.personalized.title'),
+    description: t('home.libraryFeatures.personalized.description'),
     color: 'text-red-600',
     bgColor: 'bg-red-50',
   },
-]
+])
 
 // Methods
 // 加载推荐图书（最新上架）
@@ -193,7 +196,7 @@ const loadHomeData = async () => {
       loadCategories(),
     ])
   } catch {
-    toast.error('Failed to load some content')
+    toast.error(t('home.loading.error'))
   } finally {
     isLoading.value = false
   }
@@ -246,11 +249,11 @@ onMounted(() => {
             <Search class="h-5 w-5 text-muted-foreground ml-2" />
             <Input
               v-model="searchKeyword"
-              placeholder="Search books, ISBN or author..."
+              :placeholder="t('home.hero.searchPlaceholder')"
               class="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               @keyup.enter="handleSearch"
             />
-            <Button @click="handleSearch"> Search </Button>
+            <Button @click="handleSearch">{{ t('home.hero.searchButton') }}</Button>
           </div>
         </div>
       </div>
@@ -269,7 +272,7 @@ onMounted(() => {
       <div
         class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-primary rounded-full"
       />
-      <p class="mt-2 text-muted-foreground">Loading library content...</p>
+      <p class="mt-2 text-muted-foreground">{{ t('home.loading.content') }}</p>
     </div>
 
     <template v-else>
@@ -293,31 +296,15 @@ onMounted(() => {
         </div>
       </section>
 
-      <!-- Category Navigation -->
-      <section v-if="categories.length" class="space-y-4">
-        <h2 class="text-xl font-semibold">Browse by Category</h2>
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          <Button
-            variant="outline"
-            class="shrink-0"
-            v-for="cat in categories"
-            :key="cat"
-            @click="goToCategory(cat)"
-          >
-            {{ cat }}
-          </Button>
-        </div>
-      </section>
-
       <!-- Featured Books Section -->
       <section v-if="recommendedBooks.length > 0">
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h2 class="text-2xl font-bold">Recommended Books</h2>
-            <p class="text-muted-foreground">Recently added to our collection</p>
+            <h2 class="text-2xl font-bold">{{ t('home.recommendedBooks.title') }}</h2>
+            <p class="text-muted-foreground">{{ t('home.recommendedBooks.subtitle') }}</p>
           </div>
           <Button variant="outline" @click="router.push('/books')">
-            View All
+            {{ t('home.recommendedBooks.viewAll') }}
             <ArrowRight class="h-4 w-4 ml-2" />
           </Button>
         </div>
@@ -338,21 +325,31 @@ onMounted(() => {
                     {{ book.title }}
                   </CardTitle>
                   <CardDescription class="mt-1">
-                    {{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}
+                    {{
+                      Array.isArray(book.authors)
+                        ? book.authors.join(', ')
+                        : t('home.status.unknownAuthor')
+                    }}
                   </CardDescription>
                 </div>
                 <Badge
                   :variant="book.availableQuantity > 0 ? 'success' : 'destructive'"
                   class="ml-2 shrink-0"
                 >
-                  {{ book.availableQuantity > 0 ? 'Available' : 'Out of Stock' }}
+                  {{
+                    book.availableQuantity > 0
+                      ? t('home.status.available')
+                      : t('home.status.outOfStock')
+                  }}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div class="flex items-center justify-between text-xs text-muted-foreground">
-                <span>General</span>
-                <span>{{ book.availableQuantity }}/{{ book.totalQuantity }} available</span>
+                <span
+                  >{{ book.availableQuantity }}/{{ book.totalQuantity }}
+                  {{ t('home.status.available_count') }}</span
+                >
               </div>
             </CardContent>
           </Card>
@@ -361,8 +358,8 @@ onMounted(() => {
 
       <!-- Popular Borrow Leaderboard -->
       <section v-if="topBorrowBooks.length" class="space-y-4">
-        <h2 class="text-2xl font-bold">Hot Borrows</h2>
-        <p class="text-muted-foreground">Most borrowed books recently</p>
+        <h2 class="text-2xl font-bold">{{ t('home.popularBooks.title') }}</h2>
+        <p class="text-muted-foreground">{{ t('home.popularBooks.subtitle') }}</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <Card
             v-for="(book, idx) in topBorrowBooks"
@@ -371,14 +368,18 @@ onMounted(() => {
             @click="goToBookDetail(book.bookId)"
           >
             <CardHeader class="flex-row items-center gap-4">
-              <div class="text-2xl font-bold w-8">{{ idx + 1 }}</div>
+              <div class="text-2xl font-bold w-8">#{{ idx + 1 }}</div>
               <div class="flex-1 min-w-0">
                 <CardTitle class="text-lg line-clamp-2">{{ book.title }}</CardTitle>
-                <CardDescription>{{ Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown author' }}</CardDescription>
+                <CardDescription>{{
+                  Array.isArray(book.authors)
+                    ? book.authors.join(', ')
+                    : t('home.status.unknownAuthor')
+                }}</CardDescription>
               </div>
             </CardHeader>
             <CardContent class="text-xs text-muted-foreground flex justify-between">
-              <span>{{ book.borrowCount }} borrows</span>
+              <span>{{ book.borrowCount }} {{ t('home.status.borrows') }}</span>
               <span>{{ book.isbn }}</span>
             </CardContent>
           </Card>
@@ -387,7 +388,7 @@ onMounted(() => {
 
       <!-- Quick Actions Grid (for authenticated users) -->
       <section v-if="authStore.isAuthenticated">
-        <h2 class="text-2xl font-bold mb-6">Quick Actions</h2>
+        <h2 class="text-2xl font-bold mb-6">{{ t('home.quickActions.title') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Button
             v-for="action in quickActions"
@@ -408,9 +409,9 @@ onMounted(() => {
       <!-- Library Features (for non-authenticated users) -->
       <section v-if="!authStore.isAuthenticated">
         <div class="text-center mb-8">
-          <h2 class="text-2xl font-bold mb-2">Why Choose Our Library?</h2>
+          <h2 class="text-2xl font-bold mb-2">{{ t('home.libraryFeatures.title') }}</h2>
           <p class="text-muted-foreground">
-            Discover the benefits of joining our digital library community
+            {{ t('home.libraryFeatures.subtitle') }}
           </p>
         </div>
 

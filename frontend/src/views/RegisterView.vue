@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +9,7 @@ import { Eye, EyeOff, Loader2, Lock, Mail, User, UserPlus } from 'lucide-vue-nex
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const username = ref('')
 const email = ref('')
@@ -27,22 +29,22 @@ const toggleConfirmPasswordVisibility = () => {
 
 const validateForm = () => {
   if (!username.value || !email.value || !password.value || !confirmPassword.value) {
-    errorMessage.value = 'Please fill in all fields'
+    errorMessage.value = t('register.form.validation.allFieldsRequired')
     return false
   }
 
   if (!email.value.includes('@')) {
-    errorMessage.value = 'Please enter a valid email address'
+    errorMessage.value = t('register.form.validation.validEmail')
     return false
   }
 
   if (password.value.length < 6) {
-    errorMessage.value = 'Password must be at least 6 characters long'
+    errorMessage.value = t('register.form.validation.passwordLength')
     return false
   }
 
   if (password.value !== confirmPassword.value) {
-    errorMessage.value = 'Passwords do not match'
+    errorMessage.value = t('register.form.validation.passwordMatch')
     return false
   }
 
@@ -63,13 +65,13 @@ const handleRegister = async () => {
       // Success - redirect to login page
       await router.push({
         path: '/login',
-        query: { message: result.message || 'Registration successful! Please log in.' },
+        query: { message: result.message || t('register.form.messages.success') },
       })
     } else {
-      errorMessage.value = result.message || 'Registration failed. Please try again.'
+      errorMessage.value = result.message || t('register.form.messages.registrationFailed')
     }
   } catch (error) {
-    errorMessage.value = 'An unexpected error occurred. Please try again.'
+    errorMessage.value = t('register.form.messages.unexpectedError')
     console.error('Registration error:', error)
   }
 }
@@ -89,14 +91,16 @@ const goToLogin = () => {
   <div class="min-h-[80vh] flex items-center justify-center bg-background">
     <div class="w-full max-w-md space-y-8">
       <div class="text-center">
-        <h1 class="text-3xl font-bold tracking-tight text-foreground">Create your account</h1>
-        <p class="mt-2 text-sm text-muted-foreground">Join the Library Management System</p>
+        <h1 class="text-3xl font-bold tracking-tight text-foreground">{{ t('register.title') }}</h1>
+        <p class="mt-2 text-sm text-muted-foreground">{{ t('register.subtitle') }}</p>
       </div>
 
       <div class="bg-card border border-border rounded-lg p-6 shadow-sm">
         <form class="space-y-6" @submit.prevent="handleRegister">
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="email">Username</label>
+            <label class="text-sm font-medium text-foreground" for="username">{{
+              t('register.form.fields.username.label')
+            }}</label>
             <div class="relative">
               <User
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -105,7 +109,7 @@ const goToLogin = () => {
                 id="username"
                 v-model="username"
                 class="w-full pl-10"
-                placeholder="Enter your username"
+                :placeholder="t('register.form.fields.username.placeholder')"
                 required
                 type="text"
                 @onKeyDown="handleKeyPress"
@@ -114,7 +118,9 @@ const goToLogin = () => {
           </div>
 
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="email">Email Address</label>
+            <label class="text-sm font-medium text-foreground" for="email">{{
+              t('register.form.fields.email.label')
+            }}</label>
             <div class="relative">
               <Mail
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -123,7 +129,7 @@ const goToLogin = () => {
                 id="email"
                 v-model="email"
                 class="w-full pl-10"
-                placeholder="Enter your email"
+                :placeholder="t('register.form.fields.email.placeholder')"
                 required
                 type="email"
                 @onKeyDown="handleKeyPress"
@@ -132,7 +138,9 @@ const goToLogin = () => {
           </div>
 
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="password">Password</label>
+            <label class="text-sm font-medium text-foreground" for="password">{{
+              t('register.form.fields.password.label')
+            }}</label>
             <div class="relative">
               <Lock
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -142,7 +150,7 @@ const goToLogin = () => {
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
                 class="w-full pl-10 pr-10"
-                placeholder="Create a password"
+                :placeholder="t('register.form.fields.password.placeholder')"
                 required
                 @onKeyDown="handleKeyPress"
               />
@@ -158,9 +166,9 @@ const goToLogin = () => {
           </div>
 
           <div class="space-y-2">
-            <label class="text-sm font-medium text-foreground" for="confirmPassword"
-              >Confirm Password</label
-            >
+            <label class="text-sm font-medium text-foreground" for="confirmPassword">{{
+              t('register.form.fields.confirmPassword.label')
+            }}</label>
             <div class="relative">
               <Lock
                 class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -170,7 +178,7 @@ const goToLogin = () => {
                 v-model="confirmPassword"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 class="w-full pl-10 pr-10"
-                placeholder="Confirm your password"
+                :placeholder="t('register.form.fields.confirmPassword.placeholder')"
                 required
                 @onKeyDown="handleKeyPress"
               />
@@ -195,20 +203,20 @@ const goToLogin = () => {
           <Button :disabled="authStore.isLoading" class="w-full" type="submit">
             <Loader2 v-if="authStore.isLoading" class="mr-2 h-4 w-4 animate-spin" />
             <UserPlus v-else class="mr-2 h-4 w-4" />
-            <span v-if="authStore.isLoading">Creating account...</span>
-            <span v-else>Create account</span>
+            <span v-if="authStore.isLoading">{{ t('register.form.buttons.creatingAccount') }}</span>
+            <span v-else>{{ t('register.form.buttons.createAccount') }}</span>
           </Button>
         </form>
 
         <div class="mt-6 text-center">
           <p class="text-sm text-muted-foreground">
-            Already have an account?
+            {{ t('register.login.text') }}
             <button
               class="font-medium text-primary hover:underline cursor-pointer"
               type="button"
               @click="goToLogin"
             >
-              Sign in here
+              {{ t('register.login.link') }}
             </button>
           </p>
         </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -46,6 +47,7 @@ import { noticesService } from '@/lib/api'
 import type { Notice, PagedResponse } from '@/lib/api/types'
 import { toast } from 'vue-sonner'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 // Data
@@ -115,7 +117,7 @@ const loadNotices = async () => {
     totalElements.value = response.totalElements
   } catch (error) {
     console.error('Error loading notices:', error)
-    toast.error('Failed to load notices')
+    toast.error(t('notices.messages.loadError'))
   } finally {
     isLoading.value = false
   }
@@ -141,10 +143,12 @@ const getTimeSince = (dateString: string) => {
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
-  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`
+  if (minutes < 1) return t('notices.time.justNow')
+  if (minutes < 60)
+    return t('notices.time.minutesAgo', { count: minutes, plural: minutes === 1 ? '' : 's' })
+  if (hours < 24)
+    return t('notices.time.hoursAgo', { count: hours, plural: hours === 1 ? '' : 's' })
+  if (days < 7) return t('notices.time.daysAgo', { count: days, plural: days === 1 ? '' : 's' })
 
   return formatDate(dateString)
 }
@@ -222,7 +226,7 @@ const handleCreateNotice = async () => {
     !noticeForm.value.content.trim() ||
     !noticeForm.value.publishTime
   ) {
-    toast.error('Please fill in all required fields')
+    toast.error(t('notices.form.validation.requiredFields'))
     return
   }
 
@@ -238,12 +242,12 @@ const handleCreateNotice = async () => {
       status: noticeForm.value.status,
     })
 
-    toast.success('Notice created successfully!')
+    toast.success(t('notices.messages.createSuccess'))
     closeDialogs()
     await loadNotices()
   } catch (error) {
     console.error('Error creating notice:', error)
-    toast.error('Failed to create notice')
+    toast.error(t('notices.messages.createError'))
   } finally {
     isSubmitting.value = false
   }
@@ -256,7 +260,7 @@ const handleUpdateNotice = async () => {
     !noticeForm.value.content.trim() ||
     !noticeForm.value.publishTime
   ) {
-    toast.error('Please fill in all required fields')
+    toast.error(t('notices.form.validation.requiredFields'))
     return
   }
 
@@ -272,12 +276,12 @@ const handleUpdateNotice = async () => {
       status: noticeForm.value.status,
     })
 
-    toast.success('Notice updated successfully!')
+    toast.success(t('notices.messages.updateSuccess'))
     closeDialogs()
     await loadNotices()
   } catch (error) {
     console.error('Error updating notice:', error)
-    toast.error('Failed to update notice')
+    toast.error(t('notices.messages.updateError'))
   } finally {
     isSubmitting.value = false
   }
@@ -293,12 +297,12 @@ const handleDeleteNotice = async () => {
 
   try {
     await noticesService.delete(deletingNoticeId.value)
-    toast.success('Notice deleted successfully!')
+    toast.success(t('notices.messages.deleteSuccess'))
     closeDialogs()
     await loadNotices()
   } catch (error) {
     console.error('Error deleting notice:', error)
-    toast.error('Failed to delete notice')
+    toast.error(t('notices.messages.deleteError'))
   }
 }
 
@@ -320,12 +324,12 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold">Library Notices</h1>
-        <p class="text-muted-foreground">Stay updated with library announcements and news</p>
+        <h1 class="text-2xl font-bold">{{ t('notices.title') }}</h1>
+        <p class="text-muted-foreground">{{ t('notices.description') }}</p>
       </div>
       <Button v-if="isAdmin" @click="openAddDialog">
         <Plus class="h-4 w-4 mr-2" />
-        Add Notice
+        {{ t('notices.addNotice') }}
       </Button>
     </div>
 
@@ -334,26 +338,30 @@ onMounted(() => {
       <div class="flex items-center gap-4">
         <div class="relative flex-1">
           <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input v-model="searchKeyword" placeholder="Search notices..." class="pl-10" />
+          <Input
+            v-model="searchKeyword"
+            :placeholder="t('notices.search.placeholder')"
+            class="pl-10"
+          />
         </div>
         <div class="text-sm text-muted-foreground">
-          {{ filteredNotices.length }} of {{ totalElements }} notices
+          {{ t('notices.search.showing', { count: filteredNotices.length, total: totalElements }) }}
         </div>
       </div>
     </Card>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">Loading notices...</div>
+    <div v-if="isLoading" class="text-center py-8">{{ t('notices.loading') }}</div>
 
     <!-- Empty State -->
     <Card v-else-if="notices.length === 0">
       <CardContent class="flex flex-col items-center justify-center py-12 text-center">
         <Bell class="h-16 w-16 text-muted-foreground mb-4" />
-        <h3 class="text-lg font-semibold mb-2">No Notices Yet</h3>
-        <p class="text-muted-foreground mb-4">There are no notices to display at the moment.</p>
+        <h3 class="text-lg font-semibold mb-2">{{ t('notices.empty.title') }}</h3>
+        <p class="text-muted-foreground mb-4">{{ t('notices.empty.description') }}</p>
         <Button v-if="isAdmin" @click="openAddDialog">
           <Plus class="h-4 w-4 mr-2" />
-          Create First Notice
+          {{ t('notices.empty.createFirst') }}
         </Button>
       </CardContent>
     </Card>
@@ -361,7 +369,7 @@ onMounted(() => {
     <!-- Notices List -->
     <template v-else>
       <div v-if="filteredNotices.length === 0" class="text-center py-8 text-muted-foreground">
-        No notices found matching your search.
+        {{ t('notices.noResults') }}
       </div>
 
       <div v-else class="space-y-4">
@@ -376,17 +384,17 @@ onMounted(() => {
                 <div class="flex items-center gap-2 mb-2">
                   <CardTitle class="text-lg">{{ notice.title }}</CardTitle>
                   <Badge v-if="isRecent(notice.publishTime)" variant="secondary" class="text-xs">
-                    New
+                    {{ t('notices.status.new') }}
                   </Badge>
                 </div>
                 <div class="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar class="h-4 w-4" />
                   <span>{{ getTimeSince(notice.publishTime) }}</span>
                   <span v-if="notice.updateTime && notice.updateTime !== notice.publishTime">
-                    • Updated {{ getTimeSince(notice.updateTime) }}
+                    • {{ t('notices.time.updated', { time: getTimeSince(notice.updateTime) }) }}
                   </span>
                   <Badge v-if="notice.status === 2" variant="outline" class="text-xs ml-2">
-                    Pinned
+                    {{ t('notices.status.pinned') }}
                   </Badge>
                 </div>
               </div>
@@ -420,11 +428,11 @@ onMounted(() => {
           @click="handlePageChange(currentPage - 1)"
         >
           <ChevronLeft class="h-4 w-4" />
-          Previous
+          {{ t('notices.pagination.previous') }}
         </Button>
 
         <span class="text-sm text-muted-foreground px-4">
-          Page {{ currentPage + 1 }} of {{ totalPages }}
+          {{ t('notices.pagination.page', { current: currentPage + 1, total: totalPages }) }}
         </span>
 
         <Button
@@ -433,7 +441,7 @@ onMounted(() => {
           :disabled="currentPage === totalPages - 1"
           @click="handlePageChange(currentPage + 1)"
         >
-          Next
+          {{ t('notices.pagination.next') }}
           <ChevronRight class="h-4 w-4" />
         </Button>
       </div>
@@ -443,27 +451,27 @@ onMounted(() => {
     <Dialog v-model:open="showAddDialog">
       <DialogContent class="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New Notice</DialogTitle>
-          <DialogDescription> Create a new announcement for library users. </DialogDescription>
+          <DialogTitle>{{ t('notices.form.create.title') }}</DialogTitle>
+          <DialogDescription>{{ t('notices.form.create.description') }}</DialogDescription>
         </DialogHeader>
 
         <form @submit.prevent="handleCreateNotice" class="space-y-4">
           <div class="space-y-2">
-            <Label for="add-title">Title</Label>
+            <Label for="add-title">{{ t('notices.form.fields.title.label') }}</Label>
             <Input
               id="add-title"
               v-model="noticeForm.title"
-              placeholder="Enter notice title..."
+              :placeholder="t('notices.form.fields.title.placeholder')"
               required
             />
           </div>
 
           <div class="space-y-2">
-            <Label for="add-content">Content</Label>
+            <Label for="add-content">{{ t('notices.form.fields.content.label') }}</Label>
             <textarea
               id="add-content"
               v-model="noticeForm.content"
-              placeholder="Enter notice content..."
+              :placeholder="t('notices.form.fields.content.placeholder')"
               class="w-full min-h-[200px] p-3 border rounded-md resize-none"
               required
             />
@@ -471,7 +479,9 @@ onMounted(() => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="add-publish-time">Publish Time *</Label>
+              <Label for="add-publish-time">{{
+                t('notices.form.fields.publishTime.required')
+              }}</Label>
               <Input
                 id="add-publish-time"
                 v-model="noticeForm.publishTime"
@@ -481,28 +491,32 @@ onMounted(() => {
             </div>
 
             <div class="space-y-2">
-              <Label for="add-expire-time">Expire Time (optional)</Label>
+              <Label for="add-expire-time">{{ t('notices.form.fields.expireTime.label') }}</Label>
               <Input id="add-expire-time" v-model="noticeForm.expireTime" type="datetime-local" />
             </div>
           </div>
 
           <div class="space-y-2">
-            <Label for="add-status">Status *</Label>
+            <Label for="add-status">{{ t('notices.form.fields.status.required') }}</Label>
             <Select v-model="noticeForm.status" required>
               <SelectTrigger class="w-full">
-                <SelectValue placeholder="Select status" />
+                <SelectValue :placeholder="t('notices.form.fields.status.placeholder')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem :value="1">Show</SelectItem>
-                <SelectItem :value="2">Pinned</SelectItem>
+                <SelectItem :value="1">{{ t('notices.status.show') }}</SelectItem>
+                <SelectItem :value="2">{{ t('notices.status.pinned') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div class="flex justify-end gap-2">
-            <Button type="button" variant="outline" @click="closeDialogs"> Cancel </Button>
+            <Button type="button" variant="outline" @click="closeDialogs">{{
+              t('notices.form.buttons.cancel')
+            }}</Button>
             <Button type="submit" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Creating...' : 'Create Notice' }}
+              {{
+                isSubmitting ? t('notices.form.buttons.creating') : t('notices.form.buttons.create')
+              }}
             </Button>
           </div>
         </form>
@@ -513,27 +527,27 @@ onMounted(() => {
     <Dialog v-model:open="showEditDialog">
       <DialogContent class="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit Notice</DialogTitle>
-          <DialogDescription> Update the notice information. </DialogDescription>
+          <DialogTitle>{{ t('notices.form.edit.title') }}</DialogTitle>
+          <DialogDescription>{{ t('notices.form.edit.description') }}</DialogDescription>
         </DialogHeader>
 
         <form @submit.prevent="handleUpdateNotice" class="space-y-4">
           <div class="space-y-2">
-            <Label for="edit-title">Title</Label>
+            <Label for="edit-title">{{ t('notices.form.fields.title.label') }}</Label>
             <Input
               id="edit-title"
               v-model="noticeForm.title"
-              placeholder="Enter notice title..."
+              :placeholder="t('notices.form.fields.title.placeholder')"
               required
             />
           </div>
 
           <div class="space-y-2">
-            <Label for="edit-content">Content</Label>
+            <Label for="edit-content">{{ t('notices.form.fields.content.label') }}</Label>
             <textarea
               id="edit-content"
               v-model="noticeForm.content"
-              placeholder="Enter notice content..."
+              :placeholder="t('notices.form.fields.content.placeholder')"
               class="w-full min-h-[200px] p-3 border rounded-md resize-none"
               required
             />
@@ -541,7 +555,9 @@ onMounted(() => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="edit-publish-time">Publish Time *</Label>
+              <Label for="edit-publish-time">{{
+                t('notices.form.fields.publishTime.required')
+              }}</Label>
               <Input
                 id="edit-publish-time"
                 v-model="noticeForm.publishTime"
@@ -551,28 +567,32 @@ onMounted(() => {
             </div>
 
             <div class="space-y-2">
-              <Label for="edit-expire-time">Expire Time (optional)</Label>
+              <Label for="edit-expire-time">{{ t('notices.form.fields.expireTime.label') }}</Label>
               <Input id="edit-expire-time" v-model="noticeForm.expireTime" type="datetime-local" />
             </div>
           </div>
 
           <div class="space-y-2">
-            <Label for="edit-status">Status *</Label>
+            <Label for="edit-status">{{ t('notices.form.fields.status.required') }}</Label>
             <Select v-model="noticeForm.status" required>
               <SelectTrigger class="w-full">
-                <SelectValue placeholder="Select status" />
+                <SelectValue :placeholder="t('notices.form.fields.status.placeholder')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem :value="1">Show</SelectItem>
-                <SelectItem :value="2">Pinned</SelectItem>
+                <SelectItem :value="1">{{ t('notices.status.show') }}</SelectItem>
+                <SelectItem :value="2">{{ t('notices.status.pinned') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div class="flex justify-end gap-2">
-            <Button type="button" variant="outline" @click="closeDialogs"> Cancel </Button>
+            <Button type="button" variant="outline" @click="closeDialogs">{{
+              t('notices.form.buttons.cancel')
+            }}</Button>
             <Button type="submit" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Updating...' : 'Update Notice' }}
+              {{
+                isSubmitting ? t('notices.form.buttons.updating') : t('notices.form.buttons.update')
+              }}
             </Button>
           </div>
         </form>
@@ -583,18 +603,20 @@ onMounted(() => {
     <AlertDialog v-model:open="showDeleteDialog">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Notice</AlertDialogTitle>
+          <AlertDialogTitle>{{ t('notices.delete.title') }}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this notice? This action cannot be undone.
+            {{ t('notices.delete.description') }}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel @click="closeDialogs">Cancel</AlertDialogCancel>
+          <AlertDialogCancel @click="closeDialogs">{{
+            t('notices.delete.cancel')
+          }}</AlertDialogCancel>
           <AlertDialogAction
             @click="handleDeleteNotice"
             class="bg-destructive text-white hover:bg-destructive/90"
           >
-            Delete
+            {{ t('notices.delete.confirm') }}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

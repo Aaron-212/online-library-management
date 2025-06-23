@@ -4,23 +4,40 @@ import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { useDarkMode } from '@/composables/useDarkMode'
-import { toTitleCase } from '@/lib/utils.ts'
 import { Toaster } from '@/components/ui/sonner'
+import { useI18n } from 'vue-i18n'
 import 'vue-sonner/style.css'
 
 // Initialize automatic dark mode detection
 useDarkMode()
 
 const route = useRoute()
+const { t } = useI18n()
 
 // Define page titles for each route
 const pageTitle = computed(() => {
-  const routeTitles: Record<string, string> = {
-    borrow: 'Borrow Books',
+  const routeName = route.name?.toString()
+
+  // Handle undefined/null route names
+  if (!routeName) {
+    return 'Unknown Page'
   }
 
-  const routeName = route.name?.toString()
-  return routeTitles[routeName || ''] || (routeName ? toTitleCase(routeName) : 'Unknown Page')
+  // Try to get the translation, with fallback logic
+  const translationKey = `routes.${routeName}`
+  const translatedTitle = t(translationKey)
+
+  // If translation key doesn't exist, vue-i18n returns the key itself
+  // So we check if the result is the same as the key to detect missing translations
+  if (translatedTitle === translationKey) {
+    // Fallback to title-cased route name
+    return routeName
+      .split(/[-_]/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
+
+  return translatedTitle
 })
 </script>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -10,6 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ArrowLeft, Save, AlertCircle, Loader2 } from 'lucide-vue-next'
 import { booksService } from '@/lib/api/services/books'
 import type { BookDto, BookCreateDto, BookUpdateDto } from '@/lib/api/types'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -45,9 +48,18 @@ const newPublisher = ref('')
 
 // Computed
 const isEditMode = computed(() => !!props.id)
-const pageTitle = computed(() => (isEditMode.value ? 'Edit Book' : 'Add New Book'))
+const pageTitle = computed(() =>
+  isEditMode.value ? t('bookForm.title.edit') : t('bookForm.title.create'),
+)
+const pageDescription = computed(() =>
+  isEditMode.value ? t('bookForm.description.edit') : t('bookForm.description.create'),
+)
 const submitButtonText = computed(() =>
-  isSaving.value ? 'Saving...' : isEditMode.value ? 'Update Book' : 'Create Book',
+  isSaving.value
+    ? t('bookForm.loading.saving')
+    : isEditMode.value
+      ? t('bookForm.buttons.update')
+      : t('bookForm.buttons.create'),
 )
 
 // Methods
@@ -73,7 +85,7 @@ const loadBook = async () => {
       totalQuantity: book.totalQuantity,
     }
   } catch (err: any) {
-    error.value = err.message || 'Failed to load book data'
+    error.value = err.message || t('bookForm.messages.loadError')
   } finally {
     isLoading.value = false
   }
@@ -106,31 +118,31 @@ const removePublisher = (index: number) => {
 
 const validateForm = () => {
   if (!formData.value.title.trim()) {
-    error.value = 'Title is required'
+    error.value = t('bookForm.validation.titleRequired')
     return false
   }
   if (!formData.value.isbn.trim()) {
-    error.value = 'ISBN is required'
+    error.value = t('bookForm.validation.isbnRequired')
     return false
   }
   if (!formData.value.language.trim()) {
-    error.value = 'Language is required'
+    error.value = t('bookForm.validation.languageRequired')
     return false
   }
   if (formData.value.authorNames.length === 0) {
-    error.value = 'At least one author is required'
+    error.value = t('bookForm.validation.authorsRequired')
     return false
   }
   if (formData.value.publisherNames.length === 0) {
-    error.value = 'At least one publisher is required'
+    error.value = t('bookForm.validation.publishersRequired')
     return false
   }
   if (!formData.value.categoryName.trim()) {
-    error.value = 'Category is required'
+    error.value = t('bookForm.validation.categoryRequired')
     return false
   }
   if (formData.value.totalQuantity < 1) {
-    error.value = 'Total quantity must be at least 1'
+    error.value = t('bookForm.validation.quantityMinimum')
     return false
   }
   return true
@@ -158,7 +170,7 @@ const handleSubmit = async () => {
       }
 
       await booksService.update(parseInt(props.id!), updateData)
-      success.value = 'Book updated successfully!'
+      success.value = t('bookForm.messages.updateSuccess')
     } else {
       // Create new book
       const createData: BookCreateDto = {
@@ -175,7 +187,7 @@ const handleSubmit = async () => {
       }
 
       await booksService.create(createData)
-      success.value = 'Book created successfully!'
+      success.value = t('bookForm.messages.createSuccess')
     }
 
     // Redirect after successful operation
@@ -183,7 +195,7 @@ const handleSubmit = async () => {
       router.push('/admin/books')
     }, 1500)
   } catch (err: any) {
-    error.value = err.message || 'Failed to save book'
+    error.value = err.message || t('bookForm.messages.saveError')
   } finally {
     isSaving.value = false
   }
@@ -207,12 +219,12 @@ onMounted(() => {
     <div class="flex items-center space-x-4">
       <Button variant="outline" size="sm" @click="goBack">
         <ArrowLeft class="h-4 w-4" />
-        Back
+        {{ t('bookForm.buttons.back') }}
       </Button>
       <div>
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
         <p class="text-muted-foreground">
-          {{ isEditMode ? 'Update book information' : 'Add a new book to the library' }}
+          {{ pageDescription }}
         </p>
       </div>
     </div>
@@ -220,7 +232,7 @@ onMounted(() => {
     <!-- Loading state -->
     <div v-if="isLoading" class="flex items-center justify-center py-12">
       <Loader2 class="h-8 w-8 animate-spin" />
-      <span class="ml-2">Loading book data...</span>
+      <span class="ml-2">{{ t('bookForm.loading.book') }}</span>
     </div>
 
     <!-- Form -->
@@ -238,21 +250,26 @@ onMounted(() => {
       <!-- Basic Information -->
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>Enter the book's basic details</CardDescription>
+          <CardTitle>{{ t('bookForm.sections.basicInfo.title') }}</CardTitle>
+          <CardDescription>{{ t('bookForm.sections.basicInfo.description') }}</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="title">Title *</Label>
-              <Input id="title" v-model="formData.title" placeholder="Enter book title" required />
+              <Label for="title">{{ t('bookForm.fields.title.required') }}</Label>
+              <Input
+                id="title"
+                v-model="formData.title"
+                :placeholder="t('bookForm.fields.title.placeholder')"
+                required
+              />
             </div>
             <div class="space-y-2">
-              <Label for="isbn">ISBN *</Label>
+              <Label for="isbn">{{ t('bookForm.fields.isbn.required') }}</Label>
               <Input
                 id="isbn"
                 v-model="formData.isbn"
-                placeholder="Enter ISBN"
+                :placeholder="t('bookForm.fields.isbn.placeholder')"
                 :disabled="isEditMode"
                 required
               />
@@ -261,27 +278,27 @@ onMounted(() => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="language">Language *</Label>
+              <Label for="language">{{ t('bookForm.fields.language.required') }}</Label>
               <Input
                 id="language"
                 v-model="formData.language"
-                placeholder="e.g., English, Spanish, etc."
+                :placeholder="t('bookForm.fields.language.placeholder')"
                 required
               />
             </div>
             <div class="space-y-2">
-              <Label for="location">Location</Label>
+              <Label for="location">{{ t('bookForm.fields.location.label') }}</Label>
               <Input
                 id="location"
                 v-model="formData.location"
-                placeholder="e.g., LIBRARY, STORAGE, etc."
+                :placeholder="t('bookForm.fields.location.placeholder')"
               />
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" v-if="!isEditMode">
             <div class="space-y-2">
-              <Label for="totalQuantity">Total Quantity *</Label>
+              <Label for="totalQuantity">{{ t('bookForm.fields.totalQuantity.required') }}</Label>
               <Input
                 id="totalQuantity"
                 v-model.number="formData.totalQuantity"
@@ -293,22 +310,22 @@ onMounted(() => {
           </div>
 
           <div class="space-y-2">
-            <Label for="description">Description</Label>
+            <Label for="description">{{ t('bookForm.fields.description.label') }}</Label>
             <textarea
               id="description"
               v-model="formData.description"
               class="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              placeholder="Enter book description (optional)"
+              :placeholder="t('bookForm.fields.description.placeholder')"
             />
           </div>
 
           <div class="space-y-2">
-            <Label for="coverURL">Cover Image URL</Label>
+            <Label for="coverURL">{{ t('bookForm.fields.coverURL.label') }}</Label>
             <Input
               id="coverURL"
               v-model="formData.coverURL"
               type="url"
-              placeholder="https://example.com/book-cover.jpg (optional)"
+              :placeholder="t('bookForm.fields.coverURL.placeholder')"
             />
           </div>
         </CardContent>
@@ -317,13 +334,19 @@ onMounted(() => {
       <!-- Authors -->
       <Card>
         <CardHeader>
-          <CardTitle>Authors</CardTitle>
-          <CardDescription>Add the book's authors</CardDescription>
+          <CardTitle>{{ t('bookForm.sections.authors.title') }}</CardTitle>
+          <CardDescription>{{ t('bookForm.sections.authors.description') }}</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="flex space-x-2">
-            <Input v-model="newAuthor" placeholder="Enter author name" @keyup.enter="addAuthor" />
-            <Button type="button" @click="addAuthor" variant="outline"> Add </Button>
+            <Input
+              v-model="newAuthor"
+              :placeholder="t('bookForm.fields.newAuthor.placeholder')"
+              @keyup.enter="addAuthor"
+            />
+            <Button type="button" @click="addAuthor" variant="outline">
+              {{ t('bookForm.buttons.add') }}
+            </Button>
           </div>
 
           <div v-if="formData.authorNames.length > 0" class="space-y-2">
@@ -334,7 +357,7 @@ onMounted(() => {
             >
               <span>{{ author }}</span>
               <Button type="button" variant="ghost" size="sm" @click="removeAuthor(index)">
-                Remove
+                {{ t('bookForm.buttons.remove') }}
               </Button>
             </div>
           </div>
@@ -344,17 +367,19 @@ onMounted(() => {
       <!-- Publishers -->
       <Card>
         <CardHeader>
-          <CardTitle>Publishers</CardTitle>
-          <CardDescription>Add the book's publishers</CardDescription>
+          <CardTitle>{{ t('bookForm.sections.publishers.title') }}</CardTitle>
+          <CardDescription>{{ t('bookForm.sections.publishers.description') }}</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="flex space-x-2">
             <Input
               v-model="newPublisher"
-              placeholder="Enter publisher name"
+              :placeholder="t('bookForm.fields.newPublisher.placeholder')"
               @keyup.enter="addPublisher"
             />
-            <Button type="button" @click="addPublisher" variant="outline"> Add </Button>
+            <Button type="button" @click="addPublisher" variant="outline">
+              {{ t('bookForm.buttons.add') }}
+            </Button>
           </div>
 
           <div v-if="formData.publisherNames.length > 0" class="space-y-2">
@@ -365,7 +390,7 @@ onMounted(() => {
             >
               <span>{{ publisher }}</span>
               <Button type="button" variant="ghost" size="sm" @click="removePublisher(index)">
-                Remove
+                {{ t('bookForm.buttons.remove') }}
               </Button>
             </div>
           </div>
@@ -375,16 +400,16 @@ onMounted(() => {
       <!-- Category -->
       <Card>
         <CardHeader>
-          <CardTitle>Category</CardTitle>
-          <CardDescription>Specify the book's category</CardDescription>
+          <CardTitle>{{ t('bookForm.sections.category.title') }}</CardTitle>
+          <CardDescription>{{ t('bookForm.sections.category.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
           <div class="space-y-2">
-            <Label for="category">Category *</Label>
+            <Label for="category">{{ t('bookForm.fields.category.required') }}</Label>
             <Input
               id="category"
               v-model="formData.categoryName"
-              placeholder="Enter category name"
+              :placeholder="t('bookForm.fields.category.placeholder')"
               required
             />
           </div>
@@ -395,7 +420,9 @@ onMounted(() => {
 
       <!-- Form Actions -->
       <div class="flex justify-end space-x-4">
-        <Button type="button" variant="outline" @click="goBack"> Cancel </Button>
+        <Button type="button" variant="outline" @click="goBack">
+          {{ t('bookForm.buttons.cancel') }}
+        </Button>
         <Button type="submit" :disabled="isSaving">
           <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin mr-2" />
           <Save v-else class="h-4 w-4 mr-2" />
