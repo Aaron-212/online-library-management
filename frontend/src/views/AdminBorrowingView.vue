@@ -139,6 +139,22 @@ const filteredBorrows = computed(() => {
   return filtered
 })
 
+// Map ISBN to cover URL for displaying book covers
+const bookCoverMap = computed(() => {
+  const map = new Map<string, string>()
+  books.value.forEach(book => {
+    if (book.coverURL) {
+      map.set(book.isbn, book.coverURL)
+    }
+  })
+  return map
+})
+
+// Get book cover URL by ISBN
+const getBookCoverUrl = (isbn: string): string | null => {
+  return bookCoverMap.value.get(isbn) || null
+}
+
 const activeBorrows = computed(() => borrows.value.filter((borrow) => borrow.status === 'BORROWED'))
 
 const overdueBorrows = computed(() =>
@@ -419,16 +435,30 @@ onMounted(() => {
                     class="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
                     @click="selectBook(book)"
                   >
-                    <div class="space-y-1">
-                      <div class="flex items-center gap-2">
-                        <Book class="h-4 w-4" />
-                        <span class="font-medium">{{ book.title }}</span>
+                    <div class="flex items-start gap-3">
+                      <div class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <img
+                          v-if="book.coverURL"
+                          :src="book.coverURL"
+                          :alt="book.title"
+                          class="w-full h-full object-cover"
+                          @error="($event.target as HTMLImageElement).style.display = 'none'"
+                        />
+                        <Book 
+                          v-else
+                          class="h-4 w-4 text-muted-foreground" 
+                        />
                       </div>
-                      <div class="text-sm text-muted-foreground">
-                        {{ book.authors.map((a) => a.name).join(', ') }} | ISBN: {{ book.isbn }}
-                      </div>
-                      <div class="text-xs text-muted-foreground">
-                        Available: {{ book.availableQuantity }} / {{ book.totalQuantity }}
+                      <div class="flex-1 space-y-1">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium">{{ book.title }}</span>
+                        </div>
+                        <div class="text-sm text-muted-foreground">
+                          {{ book.authors.map((a) => a.name).join(', ') }} | ISBN: {{ book.isbn }}
+                        </div>
+                        <div class="text-xs text-muted-foreground">
+                          Available: {{ book.availableQuantity }} / {{ book.totalQuantity }}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -436,13 +466,27 @@ onMounted(() => {
 
                 <div v-if="selectedBook" class="p-3 border rounded-lg bg-muted/50">
                   <div class="flex items-center justify-between">
-                    <div class="space-y-1">
-                      <div class="flex items-center gap-2">
-                        <Book class="h-4 w-4" />
-                        <span class="font-medium">{{ selectedBook.title }}</span>
+                    <div class="flex items-center gap-3 flex-1">
+                      <div class="w-10 h-12 bg-muted rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <img
+                          v-if="selectedBook.coverURL"
+                          :src="selectedBook.coverURL"
+                          :alt="selectedBook.title"
+                          class="w-full h-full object-cover"
+                          @error="($event.target as HTMLImageElement).style.display = 'none'"
+                        />
+                        <Book 
+                          v-else
+                          class="h-4 w-4 text-muted-foreground" 
+                        />
                       </div>
-                      <div class="text-sm text-muted-foreground">
-                        {{ selectedBook.authors.map((a) => a.name).join(', ') }}
+                      <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium">{{ selectedBook.title }}</span>
+                        </div>
+                        <div class="text-sm text-muted-foreground">
+                          {{ selectedBook.authors.map((a) => a.name).join(', ') }}
+                        </div>
                       </div>
                     </div>
                     <Button size="sm" variant="ghost" @click="clearSelectedBook"> × </Button>
@@ -601,8 +645,18 @@ onMounted(() => {
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <!-- User and Book Info -->
               <div class="flex items-start gap-4 flex-1">
-                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center">
-                  <BookOpen class="h-6 w-6 text-muted-foreground" />
+                <div class="w-16 h-20 bg-muted rounded flex items-center justify-center overflow-hidden">
+                  <img
+                    v-if="getBookCoverUrl(borrow.isbn)"
+                    :src="getBookCoverUrl(borrow.isbn)"
+                    :alt="borrow.bookTitle"
+                    class="w-full h-full object-cover"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'"
+                  />
+                  <BookOpen 
+                    v-else
+                    class="h-6 w-6 text-muted-foreground" 
+                  />
                 </div>
 
                 <div class="flex-1 min-w-0 space-y-2">
