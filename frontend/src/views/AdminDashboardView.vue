@@ -194,7 +194,7 @@ const loadRecentBorrows = async () => {
 
 const loadRecentNotices = async () => {
   try {
-    const response = await noticesService.getAll({ page: 0, size: 3 })
+    const response = await noticesService.getAllForAdmin({ page: 0, size: 3 })
     recentNotices.value = response.content || []
   } catch (error) {
     console.error('Error loading recent notices:', error)
