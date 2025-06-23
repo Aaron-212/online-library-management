@@ -730,5 +730,111 @@ export default {
       borrowNotAvailable: '此图书暂不可借阅',
       shareSuccess: '链接已复制到剪贴板！'
     }
+  },
+  adminDashboard: {
+    title: '管理员面板',
+    subtitle: '系统概览和管理控制',
+    administrator: '管理员',
+    loading: '正在加载管理员面板...',
+    stats: {
+      totalUsers: {
+        title: '总用户数',
+        description: '已注册用户'
+      },
+      activeLoans: {
+        title: '活跃借阅',
+        description: '当前借阅中'
+      },
+      overdueBooks: {
+        title: '逾期图书',
+        description: '需要注意'
+      },
+      totalBooks: {
+        title: '图书总数',
+        description: '图书馆中'
+      }
+    },
+    actions: {
+      title: '管理员操作',
+      description: '常用管理任务和系统管理',
+      addNewBook: {
+        title: '添加新图书',
+        description: '向图书馆添加图书'
+      },
+      manageUsers: {
+        title: '用户管理',
+        description: '用户管理'
+      },
+      borrowingRules: {
+        title: '借阅规则',
+        description: '配置借阅规则'
+      },
+      feeManagement: {
+        title: '费用管理',
+        description: '管理费用和罚款'
+      },
+      systemReports: {
+        title: '系统报表',
+        description: '生成报表'
+      },
+      manageNotices: {
+        title: '公告管理',
+        description: '系统公告'
+      }
+    },
+    sections: {
+      recentBooks: {
+        title: '最近添加的图书',
+        description: '图书馆的最新添加',
+        manageAll: '管理全部',
+        noBooks: '未找到最近的图书',
+        unknownAuthor: '未知作者'
+      },
+      overdueBorrows: {
+        title: '逾期借阅',
+        description: '需要管理员注意的图书',
+        manageAll: '管理全部',
+        noOverdue: '无逾期借阅',
+        userPrefix: '用户：',
+        duePrefix: '到期：',
+        unknownUser: '未知用户',
+        unknownBook: '未知图书'
+      },
+      systemNotices: {
+        title: '系统公告',
+        description: '管理公告和系统消息',
+        createNotice: '创建公告',
+        manageAll: '管理全部',
+        noNotices: '无最近公告',
+        untitled: '无标题',
+        noContent: '无内容',
+        publishedPrefix: '发布时间：',
+        edit: '编辑'
+      },
+      bookInventory: {
+        title: '图书库存分类统计',
+        description: '各分类图书可用性统计',
+        manageInventory: '管理库存',
+        noData: '无库存数据可用',
+        totalPrefix: '总计：',
+        availablePrefix: '可借：',
+        borrowedPrefix: '已借：',
+        availableSuffix: '% 可借'
+      }
+    },
+    status: {
+      returned: '已归还',
+      overdue: '逾期',
+      dueSoon: '即将到期',
+      active: '借阅中'
+    },
+    messages: {
+      loadStatisticsError: '加载统计数据失败',
+      loadSystemStatsError: '加载部分系统统计数据失败',
+      loadRecentBooksError: '加载最近图书失败',
+      loadOverdueBorrowsError: '加载逾期借阅失败',
+      loadRecentNoticesError: '加载最近公告失败',
+      loadInventoryStatsError: '加载库存统计数据失败'
+    }
   }
 }

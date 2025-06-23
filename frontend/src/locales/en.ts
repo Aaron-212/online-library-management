@@ -918,5 +918,111 @@ export default {
       borrowNotAvailable: 'This book is not available for borrowing',
       shareSuccess: 'Link copied to clipboard!'
     }
+  },
+  adminDashboard: {
+    title: 'Admin Dashboard',
+    subtitle: 'System overview and administrative controls',
+    administrator: 'Administrator',
+    loading: 'Loading admin dashboard...',
+    stats: {
+      totalUsers: {
+        title: 'Total Users',
+        description: 'Registered users'
+      },
+      activeLoans: {
+        title: 'Active Loans',
+        description: 'Currently borrowed'
+      },
+      overdueBooks: {
+        title: 'Overdue Books',
+        description: 'Need attention'
+      },
+      totalBooks: {
+        title: 'Total Books',
+        description: 'In library'
+      }
+    },
+    actions: {
+      title: 'Administrative Actions',
+      description: 'Common administrative tasks and system management',
+      addNewBook: {
+        title: 'Add New Book',
+        description: 'Add books to library'
+      },
+      manageUsers: {
+        title: 'Manage Users',
+        description: 'User administration'
+      },
+      borrowingRules: {
+        title: 'Borrowing Rules',
+        description: 'Configure borrowing'
+      },
+      feeManagement: {
+        title: 'Fee Management',
+        description: 'Manage fees & fines'
+      },
+      systemReports: {
+        title: 'System Reports',
+        description: 'Generate reports'
+      },
+      manageNotices: {
+        title: 'Manage Notices',
+        description: 'System announcements'
+      }
+    },
+    sections: {
+      recentBooks: {
+        title: 'Recently Added Books',
+        description: 'Latest additions to the library',
+        manageAll: 'Manage All',
+        noBooks: 'No recent books found',
+        unknownAuthor: 'Unknown author'
+      },
+      overdueBorrows: {
+        title: 'Overdue Borrowings',
+        description: 'Books that need admin attention',
+        manageAll: 'Manage All',
+        noOverdue: 'No overdue borrowings',
+        userPrefix: 'User: ',
+        duePrefix: 'Due: ',
+        unknownUser: 'Unknown user',
+        unknownBook: 'Unknown book'
+      },
+      systemNotices: {
+        title: 'System Notices',
+        description: 'Manage announcements and system messages',
+        createNotice: 'Create Notice',
+        manageAll: 'Manage All',
+        noNotices: 'No recent notices',
+        untitled: 'Untitled',
+        noContent: 'No content',
+        publishedPrefix: 'Published: ',
+        edit: 'Edit'
+      },
+      bookInventory: {
+        title: 'Book Inventory by Category',
+        description: 'Book availability across different categories',
+        manageInventory: 'Manage Inventory',
+        noData: 'No inventory data available',
+        totalPrefix: 'Total: ',
+        availablePrefix: 'Available: ',
+        borrowedPrefix: 'Borrowed: ',
+        availableSuffix: '% Available'
+      }
+    },
+    status: {
+      returned: 'Returned',
+      overdue: 'Overdue',
+      dueSoon: 'Due Soon',
+      active: 'Active'
+    },
+    messages: {
+      loadStatisticsError: 'Failed to load statistics',
+      loadSystemStatsError: 'Failed to load some system statistics',
+      loadRecentBooksError: 'Failed to load recent books',
+      loadOverdueBorrowsError: 'Failed to load overdue borrows',
+      loadRecentNoticesError: 'Failed to load recent notices',
+      loadInventoryStatsError: 'Failed to load inventory statistics'
+    }
   }
 }

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Data
 const isLoading = ref(false)
@@ -45,33 +47,33 @@ const systemStats = ref({
 // Computed
 const adminStats = computed(() => [
   {
-    title: 'Total Users',
+    title: t('adminDashboard.stats.totalUsers.title'),
     value: systemStats.value.totalUsers,
-    description: 'Registered users',
+    description: t('adminDashboard.stats.totalUsers.description'),
     icon: Users,
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
   },
   {
-    title: 'Active Loans',
+    title: t('adminDashboard.stats.activeLoans.title'),
     value: systemStats.value.activeLoans,
-    description: 'Currently borrowed',
+    description: t('adminDashboard.stats.activeLoans.description'),
     icon: BookOpen,
     color: 'text-green-600',
     bgColor: 'bg-green-50',
   },
   {
-    title: 'Overdue Books',
+    title: t('adminDashboard.stats.overdueBooks.title'),
     value: systemStats.value.overdueBooks,
-    description: 'Need attention',
+    description: t('adminDashboard.stats.overdueBooks.description'),
     icon: AlertTriangle,
     color: 'text-red-600',
     bgColor: 'bg-red-50',
   },
   {
-    title: 'Total Books',
+    title: t('adminDashboard.stats.totalBooks.title'),
     value: statistics.value?.totalBooks || 0,
-    description: 'In library',
+    description: t('adminDashboard.stats.totalBooks.description'),
     icon: BookOpen,
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
@@ -89,50 +91,50 @@ const formattedInventoryStats = computed(() => {
   }))
 })
 
-const adminActions = [
+const adminActions = computed(() => [
   {
-    title: 'Add New Book',
-    description: 'Add books to library',
+    title: t('adminDashboard.actions.addNewBook.title'),
+    description: t('adminDashboard.actions.addNewBook.description'),
     icon: Plus,
     action: () => router.push('/books/create'),
     variant: 'default' as const,
   },
   {
-    title: 'Manage Users',
-    description: 'User administration',
+    title: t('adminDashboard.actions.manageUsers.title'),
+    description: t('adminDashboard.actions.manageUsers.description'),
     icon: UserCheck,
     action: () => router.push('/admin/users'),
     variant: 'default' as const,
   },
   {
-    title: 'Borrowing Rules',
-    description: 'Configure borrowing',
+    title: t('adminDashboard.actions.borrowingRules.title'),
+    description: t('adminDashboard.actions.borrowingRules.description'),
     icon: Settings,
     action: () => router.push('/admin/borrowing-rules'),
     variant: 'outline' as const,
   },
   {
-    title: 'Fee Management',
-    description: 'Manage fees & fines',
+    title: t('adminDashboard.actions.feeManagement.title'),
+    description: t('adminDashboard.actions.feeManagement.description'),
     icon: DollarSign,
     action: () => router.push('/admin/fees'),
     variant: 'outline' as const,
   },
   {
-    title: 'System Reports',
-    description: 'Generate reports',
+    title: t('adminDashboard.actions.systemReports.title'),
+    description: t('adminDashboard.actions.systemReports.description'),
     icon: BarChart3,
     action: () => router.push('/admin/reports'),
     variant: 'outline' as const,
   },
   {
-    title: 'Manage Notices',
-    description: 'System announcements',
+    title: t('adminDashboard.actions.manageNotices.title'),
+    description: t('adminDashboard.actions.manageNotices.description'),
     icon: Bell,
     action: () => router.push('/notices'),
     variant: 'outline' as const,
   },
-]
+])
 
 // Methods
 const loadStatistics = async () => {
@@ -140,7 +142,7 @@ const loadStatistics = async () => {
     statistics.value = await statisticsService.getBookStatistics()
   } catch (error) {
     console.error('Error loading statistics:', error)
-    toast.error('Failed to load statistics')
+    toast.error(t('adminDashboard.messages.loadStatisticsError'))
   }
 }
 
@@ -162,7 +164,7 @@ const loadSystemStats = async () => {
     }
   } catch (error) {
     console.error('Error loading system stats:', error)
-    toast.error('Failed to load some system statistics')
+    toast.error(t('adminDashboard.messages.loadSystemStatsError'))
     // Fallback to minimal stats using already loaded statistics
     systemStats.value = {
       totalUsers: 0,
@@ -233,7 +235,7 @@ const loadDashboardData = async () => {
 
 const getBorrowStatusBadge = (borrow: Borrow) => {
   if (borrow.status === 'RETURNED') {
-    return { variant: 'success' as const, text: 'Returned' }
+    return { variant: 'success' as const, text: t('adminDashboard.status.returned') }
   }
 
   if (borrow.status === 'BORROWED') {
@@ -241,15 +243,15 @@ const getBorrowStatusBadge = (borrow: Borrow) => {
     const now = new Date()
 
     if (dueDate < now) {
-      return { variant: 'destructive' as const, text: 'Overdue' }
+      return { variant: 'destructive' as const, text: t('adminDashboard.status.overdue') }
     }
 
     const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     if (daysUntilDue <= 3) {
-      return { variant: 'secondary' as const, text: 'Due Soon' }
+      return { variant: 'secondary' as const, text: t('adminDashboard.status.dueSoon') }
     }
 
-    return { variant: 'default' as const, text: 'Active' }
+    return { variant: 'default' as const, text: t('adminDashboard.status.active') }
   }
 
   return { variant: 'default' as const, text: borrow.status }
@@ -275,23 +277,19 @@ onMounted(() => {
     <!-- Welcome Section -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-3xl font-bold">Admin Dashboard</h1>
-        <p class="text-muted-foreground">System overview and administrative controls</p>
+        <h1 class="text-3xl font-bold">{{ t('adminDashboard.title') }}</h1>
+        <p class="text-muted-foreground">{{ t('adminDashboard.subtitle') }}</p>
       </div>
-      <Badge variant="secondary" class="text-sm px-3 py-1"> Administrator </Badge>
+      <Badge variant="secondary" class="text-sm px-3 py-1">{{ t('adminDashboard.administrator') }}</Badge>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-8">Loading admin dashboard...</div>
+    <div v-if="isLoading" class="text-center py-8">{{ t('adminDashboard.loading') }}</div>
 
     <template v-else>
       <!-- Admin Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card
-          v-for="card in adminStats"
-          :key="card.title"
-          class="hover:shadow-lg transition-shadow"
-        >
+        <Card v-for="card in adminStats" :key="card.title" class="hover:shadow-lg transition-shadow">
           <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle class="text-sm font-medium">{{ card.title }}</CardTitle>
             <div :class="[card.bgColor, 'p-2 rounded-md']">
@@ -312,18 +310,13 @@ onMounted(() => {
       <!-- Admin Quick Actions -->
       <Card>
         <CardHeader>
-          <CardTitle>Administrative Actions</CardTitle>
-          <CardDescription>Common administrative tasks and system management</CardDescription>
+          <CardTitle>{{ t('adminDashboard.actions.title') }}</CardTitle>
+          <CardDescription>{{ t('adminDashboard.actions.description') }}</CardDescription>
         </CardHeader>
         <CardContent>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button
-              v-for="action in adminActions"
-              :key="action.title"
-              :variant="action.variant"
-              class="h-auto p-4 flex flex-col items-center gap-2"
-              @click="action.action"
-            >
+            <Button v-for="action in adminActions" :key="action.title" :variant="action.variant"
+              class="h-auto p-4 flex flex-col items-center gap-2" @click="action.action">
               <component :is="action.icon" class="h-6 w-6" />
               <div class="text-center">
                 <div class="font-medium">{{ action.title }}</div>
@@ -340,43 +333,30 @@ onMounted(() => {
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recently Added Books</CardTitle>
-              <CardDescription>Latest additions to the library</CardDescription>
+              <CardTitle>{{ t('adminDashboard.sections.recentBooks.title') }}</CardTitle>
+              <CardDescription>{{ t('adminDashboard.sections.recentBooks.description') }}</CardDescription>
             </div>
             <Button variant="outline" size="sm" @click="router.push('/admin/books')">
               <Eye class="h-4 w-4 mr-2" />
-              Manage All
+              {{ t('adminDashboard.sections.recentBooks.manageAll') }}
             </Button>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!recentBooks || recentBooks.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
-              No recent books found
+            <div v-if="!recentBooks || recentBooks.length === 0" class="text-center py-4 text-muted-foreground">
+              {{ t('adminDashboard.sections.recentBooks.noBooks') }}
             </div>
             <div v-else class="space-y-3">
-              <div
-                v-for="book in recentBooks"
-                :key="book.id"
+              <div v-for="book in recentBooks" :key="book.id"
                 class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 cursor-pointer"
-                @click="router.push(`/books/${book.id}`)"
-              >
+                @click="router.push(`/books/${book.id}`)">
                 <!-- Book Cover -->
-                <div
-                  class="flex-shrink-0 w-12 h-16 bg-muted rounded overflow-hidden flex items-center justify-center"
-                >
-                  <img
-                    v-if="book.coverURL"
-                    :src="book.coverURL"
-                    :alt="`Cover for ${book.title || 'Unknown book'}`"
-                    class="w-full h-full object-cover"
-                    @error="
+                <div class="flex-shrink-0 w-12 h-16 bg-muted rounded overflow-hidden flex items-center justify-center">
+                  <img v-if="book.coverURL" :src="book.coverURL" :alt="`Cover for ${book.title || 'Unknown book'}`"
+                    class="w-full h-full object-cover" @error="
                       (event) => {
                         if (event.target) (event.target as HTMLImageElement).style.display = 'none'
                       }
-                    "
-                  />
+                    " />
                   <BookOpen v-else class="h-6 w-6 text-muted-foreground" />
                 </div>
 
@@ -387,17 +367,14 @@ onMounted(() => {
                     {{
                       Array.isArray(book.authors) && book.authors.length > 0
                         ? book.authors.join(', ')
-                        : 'Unknown author'
+                        : t('adminDashboard.sections.recentBooks.unknownAuthor')
                     }}
                   </p>
                 </div>
 
                 <!-- Availability Badge -->
                 <div class="flex flex-col items-end gap-1">
-                  <Badge
-                    :variant="(book.availableQuantity || 0) > 0 ? 'success' : 'destructive'"
-                    size="sm"
-                  >
+                  <Badge :variant="(book.availableQuantity || 0) > 0 ? 'success' : 'destructive'" size="sm">
                     {{ book.availableQuantity || 0 }} / {{ book.totalQuantity || 0 }}
                   </Badge>
                 </div>
@@ -410,34 +387,30 @@ onMounted(() => {
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Overdue Borrowings</CardTitle>
-              <CardDescription>Books that need admin attention</CardDescription>
+              <CardTitle>{{ t('adminDashboard.sections.overdueBorrows.title') }}</CardTitle>
+              <CardDescription>{{ t('adminDashboard.sections.overdueBorrows.description') }}</CardDescription>
             </div>
             <Button variant="outline" size="sm" @click="router.push('/admin/borrowing')">
               <Eye class="h-4 w-4 mr-2" />
-              Manage All
+              {{ t('adminDashboard.sections.overdueBorrows.manageAll') }}
             </Button>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!recentBorrows || recentBorrows.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
-              No overdue borrowings
+            <div v-if="!recentBorrows || recentBorrows.length === 0" class="text-center py-4 text-muted-foreground">
+              {{ t('adminDashboard.sections.overdueBorrows.noOverdue') }}
             </div>
             <div v-else class="space-y-3">
-              <div
-                v-for="borrow in recentBorrows"
-                :key="borrow.borrowId"
-                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50"
-              >
+              <div v-for="borrow in recentBorrows" :key="borrow.borrowId"
+                class="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50">
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">
-                    {{ borrow.bookTitle || 'Unknown book' }}
+                    {{ borrow.bookTitle || t('adminDashboard.sections.overdueBorrows.unknownBook') }}
                   </p>
                   <p class="text-xs text-muted-foreground">
-                    User: {{ borrow.username || 'Unknown user' }} • Due:
-                    {{ borrow.returnTime ? formatDate(borrow.returnTime) : 'N/A' }}
+                    {{ t('adminDashboard.sections.overdueBorrows.userPrefix') }}{{ borrow.username ||
+                      t('adminDashboard.sections.overdueBorrows.unknownUser') }} • {{
+                      t('adminDashboard.sections.overdueBorrows.duePrefix') }}{{ borrow.returnTime ?
+                      formatDate(borrow.returnTime) : 'N/A' }}
                   </p>
                 </div>
                 <Badge :variant="getBorrowStatusBadge(borrow).variant" size="sm">
@@ -452,49 +425,40 @@ onMounted(() => {
         <Card class="lg:col-span-2">
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>System Notices</CardTitle>
-              <CardDescription>Manage announcements and system messages</CardDescription>
+              <CardTitle>{{ t('adminDashboard.sections.systemNotices.title') }}</CardTitle>
+              <CardDescription>{{ t('adminDashboard.sections.systemNotices.description') }}</CardDescription>
             </div>
             <div class="flex gap-2">
               <Button variant="outline" size="sm" @click="router.push('/notices')">
                 <Plus class="h-4 w-4 mr-2" />
-                Create Notice
+                {{ t('adminDashboard.sections.systemNotices.createNotice') }}
               </Button>
               <Button variant="outline" size="sm" @click="router.push('/notices')">
                 <Eye class="h-4 w-4 mr-2" />
-                Manage All
+                {{ t('adminDashboard.sections.systemNotices.manageAll') }}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!recentNotices || recentNotices.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
-              No recent notices
+            <div v-if="!recentNotices || recentNotices.length === 0" class="text-center py-4 text-muted-foreground">
+              {{ t('adminDashboard.sections.systemNotices.noNotices') }}
             </div>
             <div v-else class="space-y-4">
-              <div
-                v-for="notice in recentNotices"
-                :key="notice.id"
-                class="border-l-4 border-primary pl-4 py-2"
-              >
+              <div v-for="notice in recentNotices" :key="notice.id" class="border-l-4 border-primary pl-4 py-2">
                 <div class="flex justify-between items-start">
                   <div class="flex-1">
-                    <h4 class="font-medium">{{ notice.title || 'Untitled' }}</h4>
+                    <h4 class="font-medium">{{ notice.title || t('adminDashboard.sections.systemNotices.untitled') }}
+                    </h4>
                     <p class="text-sm text-muted-foreground mt-1 line-clamp-2">
-                      {{ notice.content || 'No content' }}
+                      {{ notice.content || t('adminDashboard.sections.systemNotices.noContent') }}
                     </p>
                     <p class="text-xs text-muted-foreground mt-2">
-                      Published: {{ notice.publishTime ? formatDate(notice.publishTime) : 'N/A' }}
+                      {{ t('adminDashboard.sections.systemNotices.publishedPrefix') }}{{ notice.publishTime ?
+                        formatDate(notice.publishTime) : 'N/A' }}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    @click="router.push(`/notices/${notice.id}/edit`)"
-                  >
-                    Edit
+                  <Button variant="ghost" size="sm" @click="router.push(`/notices/${notice.id}/edit`)">
+                    {{ t('adminDashboard.sections.systemNotices.edit') }}
                   </Button>
                 </div>
               </div>
@@ -506,47 +470,38 @@ onMounted(() => {
         <Card v-if="false" class="lg:col-span-2">
           <CardHeader class="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Book Inventory by Category</CardTitle>
-              <CardDescription>Book availability across different categories</CardDescription>
+              <CardTitle>{{ t('adminDashboard.sections.bookInventory.title') }}</CardTitle>
+              <CardDescription>{{ t('adminDashboard.sections.bookInventory.description') }}</CardDescription>
             </div>
             <Button variant="outline" size="sm" @click="router.push('/admin/books')">
               <Eye class="h-4 w-4 mr-2" />
-              Manage Inventory
+              {{ t('adminDashboard.sections.bookInventory.manageInventory') }}
             </Button>
           </CardHeader>
           <CardContent>
-            <div
-              v-if="!formattedInventoryStats || formattedInventoryStats.length === 0"
-              class="text-center py-4 text-muted-foreground"
-            >
-              No inventory data available
+            <div v-if="!formattedInventoryStats || formattedInventoryStats.length === 0"
+              class="text-center py-4 text-muted-foreground">
+              {{ t('adminDashboard.sections.bookInventory.noData') }}
             </div>
             <div v-else class="space-y-3">
-              <div
-                v-for="item in formattedInventoryStats"
-                :key="item.category"
-                class="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
+              <div v-for="item in formattedInventoryStats" :key="item.category"
+                class="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                 <div class="flex-1">
                   <h4 class="font-medium">{{ item.category }}</h4>
                   <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                    <span>Total: {{ item.total }}</span>
-                    <span>Available: {{ item.available }}</span>
-                    <span>Borrowed: {{ item.borrowed }}</span>
+                    <span>{{ t('adminDashboard.sections.bookInventory.totalPrefix') }}{{ item.total }}</span>
+                    <span>{{ t('adminDashboard.sections.bookInventory.availablePrefix') }}{{ item.available }}</span>
+                    <span>{{ t('adminDashboard.sections.bookInventory.borrowedPrefix') }}{{ item.borrowed }}</span>
                   </div>
                 </div>
                 <div class="text-right">
-                  <Badge
-                    :variant="
-                      item.availabilityRate >= 50
-                        ? 'success'
-                        : item.availabilityRate >= 25
-                          ? 'secondary'
-                          : 'destructive'
-                    "
-                    size="sm"
-                  >
-                    {{ item.availabilityRate }}% Available
+                  <Badge :variant="item.availabilityRate >= 50
+                    ? 'success'
+                    : item.availabilityRate >= 25
+                      ? 'secondary'
+                      : 'destructive'
+                    " size="sm">
+                    {{ item.availabilityRate }}{{ t('adminDashboard.sections.bookInventory.availableSuffix') }}
                   </Badge>
                 </div>
               </div>
