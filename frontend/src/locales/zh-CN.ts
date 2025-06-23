@@ -921,5 +921,126 @@ export default {
       loadRecentNoticesError: '加载最近公告失败',
       loadInventoryStatsError: '加载库存统计数据失败'
     }
+  },
+  userManagement: {
+    title: '用户管理',
+    description: '管理图书馆用户及其权限',
+    addUser: '添加用户',
+    search: {
+      placeholder: '按用户名或邮箱搜索用户...',
+      showing: '共 {count} 位用户'
+    },
+    table: {
+      headers: {
+        user: '用户',
+        email: '邮箱',
+        role: '角色',
+        created: '创建时间',
+        lastUpdated: '最后更新',
+        actions: '操作'
+      },
+      noEmail: '未提供'
+    },
+    roles: {
+      admin: '管理员',
+      user: '用户'
+    },
+    pagination: {
+      showing: '显示第 {start} 到 {end} 项，共 {total} 位用户',
+      page: '第 {current} 页，共 {total} 页',
+      previous: '上一页',
+      next: '下一页'
+    },
+    empty: {
+      title: '未找到用户',
+      searchDescription: '请尝试调整搜索条件',
+      defaultDescription: '开始创建您的第一个用户'
+    },
+    dialogs: {
+      create: {
+        title: '创建新用户',
+        description: '向图书管理系统添加新用户。',
+        fields: {
+          username: {
+            label: '用户名',
+            placeholder: '请输入用户名'
+          },
+          email: {
+            label: '邮箱',
+            placeholder: '请输入邮箱地址'
+          },
+          password: {
+            label: '密码',
+            placeholder: '请输入密码'
+          },
+          role: {
+            label: '角色',
+            placeholder: '选择角色'
+          }
+        },
+        buttons: {
+          cancel: '取消',
+          create: '创建用户'
+        }
+      },
+      edit: {
+        title: '编辑用户',
+        description: '更新 {username} 的用户信息。',
+        fields: {
+          username: {
+            label: '用户名',
+            placeholder: '请输入用户名'
+          },
+          email: {
+            label: '邮箱',
+            placeholder: '请输入邮箱地址'
+          }
+        },
+        buttons: {
+          cancel: '取消',
+          update: '更新用户'
+        }
+      },
+      role: {
+        title: '更新用户角色',
+        description: '更改 {username} 的角色。',
+        fields: {
+          newRole: {
+            label: '新角色',
+            placeholder: '选择新角色'
+          }
+        },
+        buttons: {
+          cancel: '取消',
+          update: '更新角色'
+        }
+      },
+      delete: {
+        title: '删除用户',
+        description: '您确定要删除 {username} 吗？此操作无法撤销，将删除所有用户数据。',
+        buttons: {
+          cancel: '取消',
+          delete: '删除用户'
+        }
+      }
+    },
+    messages: {
+      validation: {
+        requiredFields: '请填写所有必填字段'
+      },
+      success: {
+        userCreated: '用户创建成功',
+        userUpdated: '用户更新成功',
+        roleUpdated: '用户角色更新成功',
+        userDeleted: '用户删除成功'
+      },
+      error: {
+        createFailed: '创建用户失败',
+        updateFailed: '更新用户失败',
+        roleUpdateFailed: '更新用户角色失败',
+        deleteFailed: '删除用户失败',
+        loadFailed: '加载用户失败'
+      }
+    }
   }
 }

@@ -1109,5 +1109,126 @@ export default {
       text: 'Already have an account?',
       link: 'Sign in here'
     }
+  },
+  userManagement: {
+    title: 'User Management',
+    description: 'Manage library users and their permissions',
+    addUser: 'Add User',
+    search: {
+      placeholder: 'Search users by username or email...',
+      showing: '{count} total users'
+    },
+    table: {
+      headers: {
+        user: 'User',
+        email: 'Email',
+        role: 'Role',
+        created: 'Created',
+        lastUpdated: 'Last Updated',
+        actions: 'Actions'
+      },
+      noEmail: 'Not provided'
+    },
+    roles: {
+      admin: 'Admin',
+      user: 'User'
+    },
+    pagination: {
+      showing: 'Showing {start} to {end} of {total} users',
+      page: 'Page {current} of {total}',
+      previous: 'Previous',
+      next: 'Next'
+    },
+    empty: {
+      title: 'No users found',
+      searchDescription: 'Try adjusting your search terms',
+      defaultDescription: 'Get started by creating your first user'
+    },
+    dialogs: {
+      create: {
+        title: 'Create New User',
+        description: 'Add a new user to the library management system.',
+        fields: {
+          username: {
+            label: 'Username',
+            placeholder: 'Enter username'
+          },
+          email: {
+            label: 'Email',
+            placeholder: 'Enter email address'
+          },
+          password: {
+            label: 'Password',
+            placeholder: 'Enter password'
+          },
+          role: {
+            label: 'Role',
+            placeholder: 'Select role'
+          }
+        },
+        buttons: {
+          cancel: 'Cancel',
+          create: 'Create User'
+        }
+      },
+      edit: {
+        title: 'Edit User',
+        description: 'Update user information for {username}.',
+        fields: {
+          username: {
+            label: 'Username',
+            placeholder: 'Enter username'
+          },
+          email: {
+            label: 'Email',
+            placeholder: 'Enter email address'
+          }
+        },
+        buttons: {
+          cancel: 'Cancel',
+          update: 'Update User'
+        }
+      },
+      role: {
+        title: 'Update User Role',
+        description: 'Change the role for {username}.',
+        fields: {
+          newRole: {
+            label: 'New Role',
+            placeholder: 'Select new role'
+          }
+        },
+        buttons: {
+          cancel: 'Cancel',
+          update: 'Update Role'
+        }
+      },
+      delete: {
+        title: 'Delete User',
+        description: 'Are you sure you want to delete {username}? This action cannot be undone and will remove all user data.',
+        buttons: {
+          cancel: 'Cancel',
+          delete: 'Delete User'
+        }
+      }
+    },
+    messages: {
+      validation: {
+        requiredFields: 'Please fill in all required fields'
+      },
+      success: {
+        userCreated: 'User created successfully',
+        userUpdated: 'User updated successfully',
+        roleUpdated: 'User role updated successfully',
+        userDeleted: 'User deleted successfully'
+      },
+      error: {
+        createFailed: 'Failed to create user',
+        updateFailed: 'Failed to update user',
+        roleUpdateFailed: 'Failed to update user role',
+        deleteFailed: 'Failed to delete user',
+        loadFailed: 'Failed to load users'
+      }
+    }
   }
 }

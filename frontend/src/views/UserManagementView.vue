@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -52,6 +53,7 @@ import { usersService } from '@/lib/api'
 import type { UserPublic, UserAdmin, UserCreateDto, UserUpdateDto } from '@/lib/api/types'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -122,7 +124,7 @@ const loadUsers = async () => {
     totalElements.value = response.totalElements
   } catch (error) {
     console.error('Error loading users:', error)
-    toast.error('Failed to load users')
+    toast.error(t('userManagement.messages.error.loadFailed'))
   } finally {
     isLoading.value = false
   }
@@ -179,19 +181,19 @@ const openDeleteDialog = (user: UserAdmin) => {
 
 const handleCreateUser = async () => {
   if (!isFormValid.value) {
-    toast.error('Please fill in all required fields')
+    toast.error(t('userManagement.messages.validation.requiredFields'))
     return
   }
 
   try {
     isSubmitting.value = true
     await usersService.createUser(createForm.value)
-    toast.success('User created successfully')
+    toast.success(t('userManagement.messages.success.userCreated'))
     isCreateDialogOpen.value = false
     await loadUsers()
   } catch (error: any) {
     console.error('Error creating user:', error)
-    toast.error(error.error || 'Failed to create user')
+    toast.error(error.error || t('userManagement.messages.error.createFailed'))
   } finally {
     isSubmitting.value = false
   }
@@ -199,19 +201,19 @@ const handleCreateUser = async () => {
 
 const handleEditUser = async () => {
   if (!isEditFormValid.value || !selectedUser.value) {
-    toast.error('Please fill in all required fields')
+    toast.error(t('userManagement.messages.validation.requiredFields'))
     return
   }
 
   try {
     isSubmitting.value = true
     await usersService.updateUser(selectedUser.value.id, editForm.value)
-    toast.success('User updated successfully')
+    toast.success(t('userManagement.messages.success.userUpdated'))
     isEditDialogOpen.value = false
     await loadUsers()
   } catch (error: any) {
     console.error('Error updating user:', error)
-    toast.error(error.error || 'Failed to update user')
+    toast.error(error.error || t('userManagement.messages.error.updateFailed'))
   } finally {
     isSubmitting.value = false
   }
@@ -223,12 +225,12 @@ const handleUpdateRole = async () => {
   try {
     isSubmitting.value = true
     await usersService.updateUserRole(selectedUser.value.id, newRole.value)
-    toast.success('User role updated successfully')
+    toast.success(t('userManagement.messages.success.roleUpdated'))
     isRoleDialogOpen.value = false
     await loadUsers()
   } catch (error: any) {
     console.error('Error updating user role:', error)
-    toast.error(error.error || 'Failed to update user role')
+    toast.error(error.error || t('userManagement.messages.error.roleUpdateFailed'))
   } finally {
     isSubmitting.value = false
   }
@@ -240,12 +242,12 @@ const handleDeleteUser = async () => {
   try {
     isSubmitting.value = true
     await usersService.deleteUser(selectedUser.value.id)
-    toast.success('User deleted successfully')
+    toast.success(t('userManagement.messages.success.userDeleted'))
     isDeleteDialogOpen.value = false
     await loadUsers()
   } catch (error: any) {
     console.error('Error deleting user:', error)
-    toast.error(error.error || 'Failed to delete user')
+    toast.error(error.error || t('userManagement.messages.error.deleteFailed'))
   } finally {
     isSubmitting.value = false
   }
@@ -285,12 +287,12 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold">User Management</h1>
-        <p class="text-muted-foreground">Manage library users and their permissions</p>
+        <h1 class="text-2xl font-bold">{{ t('userManagement.title') }}</h1>
+        <p class="text-muted-foreground">{{ t('userManagement.description') }}</p>
       </div>
       <Button @click="openCreateDialog" class="gap-2">
         <Plus class="h-4 w-4" />
-        Add User
+        {{ t('userManagement.addUser') }}
       </Button>
     </div>
 
@@ -300,19 +302,13 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="relative">
-              <Search
-                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              />
-              <Input
-                v-model="searchQuery"
-                placeholder="Search users by username or email..."
-                class="pl-10 w-64"
-              />
+              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input v-model="searchQuery" placeholder="Search users by username or email..." class="pl-10 w-64" />
             </div>
           </div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <Users class="h-4 w-4" />
-            {{ totalElements }} total users
+            {{ totalElements }} {{ t('userManagement.totalUsers') }}
           </div>
         </div>
       </CardHeader>
@@ -324,12 +320,12 @@ onMounted(() => {
         <div class="border rounded-lg">
           <!-- Table Header -->
           <div class="grid grid-cols-6 gap-4 p-4 border-b bg-muted/50 font-medium">
-            <div>User</div>
-            <div>Email</div>
-            <div>Role</div>
-            <div>Created</div>
-            <div>Last Updated</div>
-            <div class="text-right">Actions</div>
+            <div>{{ t('userManagement.user') }}</div>
+            <div>{{ t('userManagement.email') }}</div>
+            <div>{{ t('userManagement.role') }}</div>
+            <div>{{ t('userManagement.created') }}</div>
+            <div>{{ t('userManagement.lastUpdated') }}</div>
+            <div class="text-right">{{ t('userManagement.actions') }}</div>
           </div>
 
           <!-- Table Body -->
@@ -346,7 +342,7 @@ onMounted(() => {
 
           <div v-else-if="users.length === 0" class="p-8 text-center text-muted-foreground">
             <Users class="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p class="text-lg font-medium mb-2">No users found</p>
+            <p class="text-lg font-medium mb-2">{{ t('userManagement.noUsersFound') }}</p>
             <p>
               {{
                 searchQuery
@@ -357,11 +353,8 @@ onMounted(() => {
           </div>
 
           <div v-else>
-            <div
-              v-for="user in users"
-              :key="user.id"
-              class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center"
-            >
+            <div v-for="user in users" :key="user.id"
+              class="grid grid-cols-6 gap-4 p-4 border-b last:border-b-0 hover:bg-muted/50 items-center">
               <!-- User Info -->
               <div class="flex items-center gap-3">
                 <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -415,19 +408,21 @@ onMounted(() => {
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex items-center justify-between p-4 border-t">
           <div class="text-sm text-muted-foreground">
-            Showing {{ currentPage * pageSize + 1 }} to
-            {{ Math.min((currentPage + 1) * pageSize, totalElements) }} of {{ totalElements }} users
+            {{ t('userManagement.showing') }} {{ currentPage * pageSize + 1 }} {{ t('userManagement.to') }}
+            {{ Math.min((currentPage + 1) * pageSize, totalElements) }} {{ t('userManagement.of') }} {{ totalElements }}
+            {{ t('userManagement.users') }}
           </div>
           <div class="flex items-center gap-2">
             <Button variant="outline" size="sm" @click="prevPage" :disabled="!hasPrevPage">
               <ChevronLeft class="h-4 w-4" />
-              Previous
+              {{ t('userManagement.previous') }}
             </Button>
             <div class="flex items-center gap-1">
-              <span class="text-sm">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+              <span class="text-sm">{{ t('userManagement.page') }} {{ currentPage + 1 }} {{ t('userManagement.of') }} {{
+                totalPages }}</span>
             </div>
             <Button variant="outline" size="sm" @click="nextPage" :disabled="!hasNextPage">
-              Next
+              {{ t('userManagement.next') }}
               <ChevronRight class="h-4 w-4" />
             </Button>
           </div>
@@ -439,38 +434,24 @@ onMounted(() => {
     <Dialog v-model:open="isCreateDialogOpen">
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription> Add a new user to the library management system. </DialogDescription>
+          <DialogTitle>{{ t('userManagement.createNewUser') }}</DialogTitle>
+          <DialogDescription> {{ t('userManagement.addNewUser') }} </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
-            <Label for="create-username">Username</Label>
-            <Input
-              id="create-username"
-              v-model="createForm.username"
-              placeholder="Enter username"
-            />
+            <Label for="create-username">{{ t('userManagement.username') }}</Label>
+            <Input id="create-username" v-model="createForm.username" placeholder="Enter username" />
           </div>
           <div class="grid gap-2">
-            <Label for="create-email">Email</Label>
-            <Input
-              id="create-email"
-              v-model="createForm.email"
-              type="email"
-              placeholder="Enter email address"
-            />
+            <Label for="create-email">{{ t('userManagement.email') }}</Label>
+            <Input id="create-email" v-model="createForm.email" type="email" placeholder="Enter email address" />
           </div>
           <div class="grid gap-2">
-            <Label for="create-password">Password</Label>
-            <Input
-              id="create-password"
-              v-model="createForm.password"
-              type="password"
-              placeholder="Enter password"
-            />
+            <Label for="create-password">{{ t('userManagement.password') }}</Label>
+            <Input id="create-password" v-model="createForm.password" type="password" placeholder="Enter password" />
           </div>
           <div class="grid gap-2">
-            <Label for="create-role">Role</Label>
+            <Label for="create-role">{{ t('userManagement.role') }}</Label>
             <Select v-model="createForm.role">
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
@@ -483,10 +464,11 @@ onMounted(() => {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="isCreateDialogOpen = false">Cancel</Button>
+          <Button variant="outline" @click="isCreateDialogOpen = false">{{
+            t('userManagement.dialogs.create.buttons.cancel') }}</Button>
           <Button @click="handleCreateUser" :disabled="!isFormValid || isSubmitting">
             <Loader2 v-if="isSubmitting" class="h-4 w-4 mr-2 animate-spin" />
-            Create User
+            {{ t('userManagement.createUser') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -496,31 +478,27 @@ onMounted(() => {
     <Dialog v-model:open="isEditDialogOpen">
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{{ t('userManagement.editUser') }}</DialogTitle>
           <DialogDescription>
-            Update user information for {{ selectedUser?.username }}.
+            {{ t('userManagement.updateUserInfo') }} {{ selectedUser?.username }}.
           </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
-            <Label for="edit-username">Username</Label>
+            <Label for="edit-username">{{ t('userManagement.username') }}</Label>
             <Input id="edit-username" v-model="editForm.username" placeholder="Enter username" />
           </div>
           <div class="grid gap-2">
-            <Label for="edit-email">Email</Label>
-            <Input
-              id="edit-email"
-              v-model="editForm.email"
-              type="email"
-              placeholder="Enter email address"
-            />
+            <Label for="edit-email">{{ t('userManagement.email') }}</Label>
+            <Input id="edit-email" v-model="editForm.email" type="email" placeholder="Enter email address" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="isEditDialogOpen = false">Cancel</Button>
+          <Button variant="outline" @click="isEditDialogOpen = false">{{ t('userManagement.dialogs.edit.buttons.cancel')
+            }}</Button>
           <Button @click="handleEditUser" :disabled="!isEditFormValid || isSubmitting">
             <Loader2 v-if="isSubmitting" class="h-4 w-4 mr-2 animate-spin" />
-            Update User
+            {{ t('userManagement.updateUser') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -530,12 +508,12 @@ onMounted(() => {
     <Dialog v-model:open="isRoleDialogOpen">
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update User Role</DialogTitle>
-          <DialogDescription> Change the role for {{ selectedUser?.username }}. </DialogDescription>
+          <DialogTitle>{{ t('userManagement.updateUserRole') }}</DialogTitle>
+          <DialogDescription> {{ t('userManagement.changeRole') }} {{ selectedUser?.username }}. </DialogDescription>
         </DialogHeader>
         <div class="grid gap-4 py-4">
           <div class="grid gap-2">
-            <Label for="new-role">New Role</Label>
+            <Label for="new-role">{{ t('userManagement.newRole') }}</Label>
             <Select v-model="newRole">
               <SelectTrigger>
                 <SelectValue placeholder="Select new role" />
@@ -548,10 +526,11 @@ onMounted(() => {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" @click="isRoleDialogOpen = false">Cancel</Button>
+          <Button variant="outline" @click="isRoleDialogOpen = false">{{ t('userManagement.dialogs.role.buttons.cancel')
+            }}</Button>
           <Button @click="handleUpdateRole" :disabled="isSubmitting">
             <Loader2 v-if="isSubmitting" class="h-4 w-4 mr-2 animate-spin" />
-            Update Role
+            {{ t('userManagement.updateRole') }}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -561,17 +540,17 @@ onMounted(() => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete User</AlertDialogTitle>
+          <AlertDialogTitle>{{ t('userManagement.deleteUser') }}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete {{ selectedUser?.username }}? This action cannot be
-            undone and will remove all user data.
+            {{ t('userManagement.sureDelete') }} {{ selectedUser?.username }}? {{
+              t('userManagement.actionCannotBeUndone') }} {{ t('userManagement.willRemoveAllUserData') }}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{{ t('userManagement.cancel') }}</AlertDialogCancel>
           <AlertDialogAction @click="handleDeleteUser" :disabled="isSubmitting">
             <Loader2 v-if="isSubmitting" class="h-4 w-4 mr-2 animate-spin" />
-            Delete User
+            {{ t('userManagement.deleteUser') }}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
