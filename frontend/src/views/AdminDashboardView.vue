@@ -144,20 +144,14 @@ const loadStatistics = async () => {
 const loadSystemStats = async () => {
   try {
     // Fetch real system statistics from backend
-    const [userBehaviorStats, totalUsersCount] = await Promise.all([
-      statisticsService.getUserBehaviorAnalysis().catch(error => {
-        console.error('Error loading user behavior stats:', error)
-        return { registrationCount: 0, activeUserCount: 0 }
-      }),
-      statisticsService.getTotalUsers().catch(error => {
-        console.error('Error loading total users:', error)
-        return 0
-      }),
-    ])
+    const userBehaviorStats = await statisticsService.getUserBehaviorAnalysis().catch(error => {
+      console.error('Error loading user behavior stats:', error)
+      return { totalUserCount: 0, registrationCount: 0, activeUserCount: 0 }
+    })
 
     systemStats.value = {
-      totalUsers: typeof totalUsersCount === 'number' ? totalUsersCount : 0,
-      newUsersThisMonth: typeof userBehaviorStats.registrationCount === 'number' ? userBehaviorStats.registrationCount : 0,
+      totalUsers: userBehaviorStats.totalUserCount || 0,
+      newUsersThisMonth: userBehaviorStats.registrationCount || 0,
       activeLoans: statistics.value?.activeBorrows || 0,
       overdueBooks: statistics.value?.overdueBorrows || 0,
       totalRevenue: 0, // TODO: Calculate from fees when fee statistics endpoint is available

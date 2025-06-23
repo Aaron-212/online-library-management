@@ -1,6 +1,5 @@
 import { apiClient } from '../client'
-import type { BookStatisticsDto, LibraryStatisticsDto, TopBooksRequestDto, PagedResponse, UserAdmin } from '../types'
-import { usersService } from './users'
+import type { BookStatisticsDto, LibraryStatisticsDto, TopBooksRequestDto } from '../types'
 
 export class StatisticsService {
   private basePath = '/statistics'
@@ -25,10 +24,19 @@ export class StatisticsService {
 
   // Admin-only statistics endpoints
   async getUserBehaviorAnalysis(): Promise<{
+    totalUserCount: number
     registrationCount: number
     activeUserCount: number
   }> {
-    return apiClient.get(`${this.basePath}/user-behavior`)
+    const response = await apiClient.get<{
+      analysis: {
+        totalUserCount: number
+        registrationCount: number
+        activeUserCount: number
+      }
+      timestamp: number
+    }>(`${this.basePath}/user-behavior`)
+    return response.analysis
   }
 
   async getBookInventoryStatistics(): Promise<{
@@ -42,6 +50,7 @@ export class StatisticsService {
 
   async getDashboardSummary(): Promise<{
     userBehavior: {
+      totalUserCount: number
       registrationCount: number
       activeUserCount: number
     }
@@ -53,19 +62,24 @@ export class StatisticsService {
     }
     timestamp: number
   }> {
-    return apiClient.get(`${this.basePath}/dashboard`)
+    const response = await apiClient.get<{
+      userBehavior: {
+        totalUserCount: number
+        registrationCount: number
+        activeUserCount: number
+      }
+      inventory: {
+        [categoryName: string]: {
+          totalCount: number
+          availableCount: number
+        }
+      }
+      timestamp: number
+    }>(`${this.basePath}/dashboard`)
+    return response
   }
 
-  // Helper method to get total user count (for admin dashboard)
-  async getTotalUsers(): Promise<number> {
-    try {
-      const response = await usersService.getAllUsers({ page: 0, size: 1 })
-      return response.totalElements || 0
-    } catch (error) {
-      console.error('Error fetching total users:', error)
-      return 0
-    }
-  }
+
 }
 
 export const statisticsService = new StatisticsService()
