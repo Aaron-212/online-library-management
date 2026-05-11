@@ -43,9 +43,9 @@ public class User implements UserDetails {
     private String email;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false, columnDefinition = "TINYINT")
+    @Column(nullable = false, columnDefinition = "SMALLINT")
     @NotNull(message = "Role is required")
-    @ColumnDefault("1")
+    @ColumnDefault("0")
     private Role role;
 
     @CreationTimestamp
@@ -79,8 +79,8 @@ public class User implements UserDetails {
 
     @Getter
     public enum Role {
-        USER(1),
-        ADMIN(2);
+        USER(0),
+        ADMIN(1);
 
         private final int value;
 

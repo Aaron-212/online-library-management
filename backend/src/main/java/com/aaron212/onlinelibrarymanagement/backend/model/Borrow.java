@@ -41,7 +41,7 @@ public class Borrow {
     private LocalDateTime actualReturnTime;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false, columnDefinition = "TINYINT")
+    @Column(nullable = false, columnDefinition = "SMALLINT")
     @NotNull(message = "Status is required")
     private Status status;
 

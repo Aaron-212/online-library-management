@@ -45,7 +45,7 @@ public class Comment {
     private LocalDateTime createTime;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false, columnDefinition = "TINYINT")
+    @Column(nullable = false, columnDefinition = "SMALLINT")
     @NotNull(message = "Status is required")
     private Status status;
 
