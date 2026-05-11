@@ -1,0 +1,15 @@
+[project]
+name = "olm_test"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+  "pytest>=9.0.3",
+  "selenium>=4.43.0",
+  "webdriver-manager>=4.0.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["TC*.py", "test_*.py"]
+python_functions = ["test_*"]
+addopts = "-ra"
